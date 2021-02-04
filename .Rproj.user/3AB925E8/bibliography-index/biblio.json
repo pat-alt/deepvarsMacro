@@ -1,0 +1,925 @@
+{
+    "sources": [
+        {
+            "author": [
+                {
+                    "family": "Bussmann",
+                    "given": "Bart"
+                },
+                {
+                    "family": "Nys",
+                    "given": "Jannes"
+                },
+                {
+                    "family": "Latré",
+                    "given": "Steven"
+                }
+            ],
+            "container-title": "arXiv preprint arXiv:2010.09429",
+            "id": "bussmann2020neural",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "title": "Neural additive vector autoregression models for causal discovery in time series data",
+            "type": "article-journal"
+        },
+        {
+            "author": [
+                {
+                    "family": "Morgan",
+                    "given": "Stephen L"
+                },
+                {
+                    "family": "Winship",
+                    "given": "Christopher"
+                }
+            ],
+            "id": "morgan2015counterfactuals",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "publisher": "Cambridge University Press",
+            "title": "Counterfactuals and causal inference",
+            "type": "book"
+        },
+        {
+            "author": [
+                {
+                    "family": "Crawford",
+                    "given": "Lorin"
+                },
+                {
+                    "family": "Flaxman",
+                    "given": "Seth R"
+                },
+                {
+                    "family": "Runcie",
+                    "given": "Daniel E"
+                },
+                {
+                    "family": "West",
+                    "given": "Mike"
+                }
+            ],
+            "container-title": "The annals of applied statistics",
+            "id": "crawford2019variable",
+            "issue": "2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2019
+                    ]
+                ]
+            },
+            "page": "958",
+            "publisher": "NIH Public Access",
+            "title": "Variable prioritization in nonlinear black box methods: A genetic association case study",
+            "title-short": "Variable prioritization in nonlinear black box methods",
+            "type": "article-journal",
+            "volume": "13"
+        },
+        {
+            "author": [
+                {
+                    "family": "Parr",
+                    "given": "Terence"
+                },
+                {
+                    "family": "Howard",
+                    "given": "Jeremy"
+                }
+            ],
+            "container-title": "arXiv preprint arXiv:1802.01528",
+            "id": "parr2018matrix",
+            "issued": {
+                "date-parts": [
+                    [
+                        2018
+                    ]
+                ]
+            },
+            "title": "The matrix calculus you need for deep learning",
+            "type": "article-journal"
+        },
+        {
+            "author": [
+                {
+                    "family": "Goan",
+                    "given": "Ethan"
+                },
+                {
+                    "family": "Fookes",
+                    "given": "Clinton"
+                }
+            ],
+            "container-title": "Case studies in applied bayesian data science",
+            "id": "goan2020bayesian",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "page": "45-87",
+            "publisher": "Springer",
+            "title": "Bayesian neural networks: An introduction and survey",
+            "title-short": "Bayesian neural networks",
+            "type": "chapter"
+        },
+        {
+            "author": [
+                {
+                    "family": "Goodfellow",
+                    "given": "Ian"
+                },
+                {
+                    "family": "Bengio",
+                    "given": "Yoshua"
+                },
+                {
+                    "family": "Courville",
+                    "given": "Aaron"
+                }
+            ],
+            "id": "goodfellow2016deep",
+            "issued": {
+                "date-parts": [
+                    [
+                        2016
+                    ]
+                ]
+            },
+            "note": "http://www.deeplearningbook.org",
+            "publisher": "MIT Press",
+            "title": "Deep learning",
+            "type": "book"
+        },
+        {
+            "author": [
+                {
+                    "family": "Arrieta",
+                    "given": "Alejandro Barredo"
+                },
+                {
+                    "family": "Diaz-Rodriguez",
+                    "given": "Natalia"
+                },
+                {
+                    "family": "Del Ser",
+                    "given": "Javier"
+                },
+                {
+                    "family": "Bennetot",
+                    "given": "Adrien"
+                },
+                {
+                    "family": "Tabik",
+                    "given": "Siham"
+                },
+                {
+                    "family": "Barbado",
+                    "given": "Alberto"
+                },
+                {
+                    "family": "Garcia",
+                    "given": "Salvador"
+                },
+                {
+                    "family": "Gil-Lopez",
+                    "given": "Sergio"
+                },
+                {
+                    "family": "Molina",
+                    "given": "Daniel"
+                },
+                {
+                    "family": "Benjamins",
+                    "given": "Richard"
+                },
+                {
+                    "literal": "others"
+                }
+            ],
+            "container-title": "Information Fusion",
+            "id": "arrieta2020explainable",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "page": "82-115",
+            "publisher": "Elsevier",
+            "title": "Explainable artificial intelligence (XAI): Concepts, taxonomies, opportunities and challenges toward responsible AI",
+            "title-short": "Explainable artificial intelligence (XAI)",
+            "type": "article-journal",
+            "volume": "58"
+        },
+        {
+            "author": [
+                {
+                    "family": "Ish-Horowicz",
+                    "given": "Jonathan"
+                },
+                {
+                    "family": "Udwin",
+                    "given": "Dana"
+                },
+                {
+                    "family": "Flaxman",
+                    "given": "Seth"
+                },
+                {
+                    "family": "Filippi",
+                    "given": "Sarah"
+                },
+                {
+                    "family": "Crawford",
+                    "given": "Lorin"
+                }
+            ],
+            "container-title": "arXiv preprint arXiv:1901.09839",
+            "id": "ish2019interpreting",
+            "issued": {
+                "date-parts": [
+                    [
+                        2019
+                    ]
+                ]
+            },
+            "title": "Interpreting deep neural networks through variable importance",
+            "type": "article-journal"
+        },
+        {
+            "author": [
+                {
+                    "family": "Fan",
+                    "given": "Fenglei"
+                },
+                {
+                    "family": "Xiong",
+                    "given": "Jinjun"
+                },
+                {
+                    "family": "Wang",
+                    "given": "Ge"
+                }
+            ],
+            "container-title": "Preprint at https://arxiv. org/abs/2001.02522",
+            "id": "fan2020interpretability",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "title": "On interpretability of artificial neural networks",
+            "type": "article-journal"
+        },
+        {
+            "author": [
+                {
+                    "family": "Abadie",
+                    "given": "Alberto"
+                },
+                {
+                    "family": "Angrist",
+                    "given": "Joshua"
+                },
+                {
+                    "family": "Imbens",
+                    "given": "Guido"
+                }
+            ],
+            "container-title": "Econometrica",
+            "id": "abadie2002instrumental",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2002
+                    ]
+                ]
+            },
+            "page": "91-117",
+            "publisher": "Wiley Online Library",
+            "title": "Instrumental variables estimates of the effect of subsidized training on the quantiles of trainee earnings",
+            "type": "article-journal",
+            "volume": "70"
+        },
+        {
+            "author": [
+                {
+                    "family": "Angrist",
+                    "given": "Joshua D"
+                }
+            ],
+            "container-title": "The American Economic Review",
+            "id": "angrist1990lifetime",
+            "issued": {
+                "date-parts": [
+                    [
+                        1990
+                    ]
+                ]
+            },
+            "page": "313-336",
+            "publisher": "JSTOR",
+            "title": "Lifetime earnings and the vietnam era draft lottery: Evidence from social security administrative records",
+            "title-short": "Lifetime earnings and the vietnam era draft lottery",
+            "type": "article-journal"
+        },
+        {
+            "author": [
+                {
+                    "family": "Abadie",
+                    "given": "Alberto"
+                },
+                {
+                    "family": "Gardeazabal",
+                    "given": "Javier"
+                }
+            ],
+            "container-title": "American economic review",
+            "id": "abadie2003economic",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2003
+                    ]
+                ]
+            },
+            "page": "113-132",
+            "title": "The economic costs of conflict: A case study of the basque country",
+            "title-short": "The economic costs of conflict",
+            "type": "article-journal",
+            "volume": "93"
+        },
+        {
+            "author": [
+                {
+                    "family": "Angelucci",
+                    "given": "Manuela"
+                },
+                {
+                    "family": "De Giorgi",
+                    "given": "Giacomo"
+                }
+            ],
+            "container-title": "American economic review",
+            "id": "angelucci2009indirect",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2009
+                    ]
+                ]
+            },
+            "page": "486-508",
+            "title": "Indirect effects of an aid program: How do cash transfers affect ineligibles’ consumption?",
+            "title-short": "Indirect effects of an aid program",
+            "type": "article-journal",
+            "volume": "99"
+        },
+        {
+            "author": [
+                {
+                    "family": "Card",
+                    "given": "David"
+                },
+                {
+                    "family": "Krueger",
+                    "given": "Alan B"
+                }
+            ],
+            "id": "card1993minimum",
+            "issued": {
+                "date-parts": [
+                    [
+                        1993
+                    ]
+                ]
+            },
+            "publisher": "National Bureau of Economic Research",
+            "title": "Minimum wages and employment: A case study of the fast food industry in new jersey and pennsylvania",
+            "title-short": "Minimum wages and employment",
+            "type": "report"
+        },
+        {
+            "author": [
+                {
+                    "family": "Fang",
+                    "given": "Hanming"
+                },
+                {
+                    "family": "Gavazza",
+                    "given": "Alessandro"
+                }
+            ],
+            "container-title": "American Economic Review",
+            "id": "fang2011dynamic",
+            "issue": "7",
+            "issued": {
+                "date-parts": [
+                    [
+                        2011
+                    ]
+                ]
+            },
+            "page": "3047-77",
+            "title": "Dynamic inefficiencies in an employment-based health insurance system: Theory and evidence",
+            "title-short": "Dynamic inefficiencies in an employment-based health insurance system",
+            "type": "article-journal",
+            "volume": "101"
+        },
+        {
+            "author": [
+                {
+                    "family": "Dehejia",
+                    "given": "Rajeev H"
+                },
+                {
+                    "family": "Wahba",
+                    "given": "Sadek"
+                }
+            ],
+            "container-title": "Journal of the American statistical Association",
+            "id": "dehejia1999causal",
+            "issue": "448",
+            "issued": {
+                "date-parts": [
+                    [
+                        1999
+                    ]
+                ]
+            },
+            "page": "1053-1062",
+            "publisher": "Taylor & Francis Group",
+            "title": "Causal effects in nonexperimental studies: Reevaluating the evaluation of training programs",
+            "title-short": "Causal effects in nonexperimental studies",
+            "type": "article-journal",
+            "volume": "94"
+        },
+        {
+            "author": [
+                {
+                    "family": "Dell",
+                    "given": "Melissa"
+                }
+            ],
+            "container-title": "Econometrica",
+            "id": "dell2010persistent",
+            "issue": "6",
+            "issued": {
+                "date-parts": [
+                    [
+                        2010
+                    ]
+                ]
+            },
+            "page": "1863-1903",
+            "publisher": "Wiley Online Library",
+            "title": "The persistent effects of peru’s mining mita",
+            "type": "article-journal",
+            "volume": "78"
+        },
+        {
+            "author": [
+                {
+                    "family": "Jolliffe",
+                    "given": "Ian T"
+                },
+                {
+                    "family": "Trendafilov",
+                    "given": "Nickolay T"
+                },
+                {
+                    "family": "Uddin",
+                    "given": "Mudassir"
+                }
+            ],
+            "container-title": "Journal of computational and Graphical Statistics",
+            "id": "jolliffe2003modified",
+            "issue": "3",
+            "issued": {
+                "date-parts": [
+                    [
+                        2003
+                    ]
+                ]
+            },
+            "page": "531-547",
+            "publisher": "Taylor & Francis",
+            "title": "A modified principal component technique based on the LASSO",
+            "type": "article-journal",
+            "volume": "12"
+        },
+        {
+            "author": [
+                {
+                    "family": "Witten",
+                    "given": "Daniela M"
+                },
+                {
+                    "family": "Tibshirani",
+                    "given": "Robert"
+                },
+                {
+                    "family": "Hastie",
+                    "given": "Trevor"
+                }
+            ],
+            "container-title": "Biostatistics",
+            "id": "witten2009penalized",
+            "issue": "3",
+            "issued": {
+                "date-parts": [
+                    [
+                        2009
+                    ]
+                ]
+            },
+            "page": "515-534",
+            "publisher": "Oxford University Press",
+            "title": "A penalized matrix decomposition, with applications to sparse principal components and canonical correlation analysis",
+            "type": "article-journal",
+            "volume": "10"
+        },
+        {
+            "author": [
+                {
+                    "family": "Wang",
+                    "given": "HaiYing"
+                },
+                {
+                    "family": "Zhu",
+                    "given": "Rong"
+                },
+                {
+                    "family": "Ma",
+                    "given": "Ping"
+                }
+            ],
+            "container-title": "Journal of the American Statistical Association",
+            "id": "wang2018optimal",
+            "issue": "522",
+            "issued": {
+                "date-parts": [
+                    [
+                        2018
+                    ]
+                ]
+            },
+            "page": "829-844",
+            "publisher": "Taylor & Francis",
+            "title": "Optimal subsampling for large sample logistic regression",
+            "type": "article-journal",
+            "volume": "113"
+        },
+        {
+            "DOI": "doi.org/10.1038/s41597-020-0448-0",
+            "author": [
+                {
+                    "family": "Xu",
+                    "given": "Bo"
+                },
+                {
+                    "family": "Gutierrez",
+                    "given": "Bernardo"
+                },
+                {
+                    "family": "Mekaru",
+                    "given": "Sumiko"
+                },
+                {
+                    "family": "Sewalk",
+                    "given": "Kara"
+                },
+                {
+                    "family": "Goodwin",
+                    "given": "Lauren"
+                },
+                {
+                    "family": "Loskill",
+                    "given": "Alyssa"
+                },
+                {
+                    "family": "Cohn",
+                    "given": "Emily"
+                },
+                {
+                    "family": "Hswen",
+                    "given": "Yulin"
+                },
+                {
+                    "family": "Hill",
+                    "given": "Sarah C."
+                },
+                {
+                    "family": "Cobo",
+                    "given": "Maria M"
+                },
+                {
+                    "family": "Zarebski",
+                    "given": "Alexander"
+                },
+                {
+                    "family": "Li",
+                    "given": "Sabrina"
+                },
+                {
+                    "family": "Wu",
+                    "given": "Chieh-Hsi"
+                },
+                {
+                    "family": "Hulland",
+                    "given": "Erin"
+                },
+                {
+                    "family": "Morgan",
+                    "given": "Julia"
+                },
+                {
+                    "family": "Wang",
+                    "given": "Lin"
+                },
+                {
+                    "family": "O’Brien",
+                    "given": "Katelynn"
+                },
+                {
+                    "family": "Scarpino",
+                    "given": "Samuel V."
+                },
+                {
+                    "family": "Brownstein",
+                    "given": "John S."
+                },
+                {
+                    "family": "Pybus",
+                    "given": "Oliver G."
+                },
+                {
+                    "family": "Pigott",
+                    "given": "David M."
+                },
+                {
+                    "family": "Kraemer",
+                    "given": "Moritz U. G."
+                }
+            ],
+            "container-title": "Scientific Data",
+            "id": "xu2020Epidemiological",
+            "issue": "106",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "title": "Epidemiological data from the COVID-19 outbreak, real-time case information",
+            "type": "article-journal",
+            "volume": "7"
+        },
+        {
+            "author": [
+                {
+                    "family": "Group",
+                    "given": "Open COVID-19 Data Working"
+                }
+            ],
+            "id": "kraemer2020epidemiological",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "publisher": "Accessed on yyyy-mm-dd from http://virological.org/t/epidemiological-data-from-the-ncov-2019-outbreak-early-descriptions-from-publicly-available-data/337",
+            "title": "Detailed Epidemiological Data from the COVID-19 Outbreak",
+            "type": ""
+        },
+        {
+            "author": [
+                {
+                    "family": "Manning",
+                    "given": "Christopher D"
+                },
+                {
+                    "family": "Schütze",
+                    "given": "Hinrich"
+                },
+                {
+                    "family": "Raghavan",
+                    "given": "Prabhakar"
+                }
+            ],
+            "id": "manning2008introduction",
+            "issued": {
+                "date-parts": [
+                    [
+                        2008
+                    ]
+                ]
+            },
+            "publisher": "Cambridge university press",
+            "title": "Introduction to information retrieval",
+            "type": "book"
+        },
+        {
+            "author": [
+                {
+                    "family": "Branco",
+                    "given": "Paula"
+                },
+                {
+                    "family": "Torgo",
+                    "given": "Luis"
+                },
+                {
+                    "family": "Ribeiro",
+                    "given": "Rita"
+                }
+            ],
+            "container-title": "arXiv preprint arXiv:1505.01658",
+            "id": "branco2015survey",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "title": "A survey of predictive modelling under imbalanced distributions",
+            "type": "article-journal"
+        },
+        {
+            "author": [
+                {
+                    "family": "Gelman",
+                    "given": "Andrew"
+                },
+                {
+                    "family": "Carlin",
+                    "given": "John B"
+                },
+                {
+                    "family": "Stern",
+                    "given": "Hal S"
+                },
+                {
+                    "family": "Dunson",
+                    "given": "David B"
+                },
+                {
+                    "family": "Vehtari",
+                    "given": "Aki"
+                },
+                {
+                    "family": "Rubin",
+                    "given": "Donald B"
+                }
+            ],
+            "id": "gelman2013bayesian",
+            "issued": {
+                "date-parts": [
+                    [
+                        2013
+                    ]
+                ]
+            },
+            "publisher": "CRC press",
+            "title": "Bayesian data analysis",
+            "type": "book"
+        },
+        {
+            "author": [
+                {
+                    "family": "Zhu",
+                    "given": "Rong"
+                },
+                {
+                    "family": "Ma",
+                    "given": "Ping"
+                },
+                {
+                    "family": "Mahoney",
+                    "given": "Michael W"
+                },
+                {
+                    "family": "Yu",
+                    "given": "Bin"
+                }
+            ],
+            "container-title": "arXiv",
+            "id": "zhu2015optimal",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "page": "arXiv-1509",
+            "title": "Optimal subsampling approaches for large sample linear regression",
+            "type": "article-journal"
+        },
+        {
+            "author": [
+                {
+                    "family": "Bishop",
+                    "given": "Christopher M"
+                }
+            ],
+            "id": "bishop2006pattern",
+            "issued": {
+                "date-parts": [
+                    [
+                        2006
+                    ]
+                ]
+            },
+            "publisher": "springer",
+            "title": "Pattern recognition and machine learning",
+            "type": "book"
+        },
+        {
+            "author": [
+                {
+                    "family": "Wasserman",
+                    "given": "Larry"
+                }
+            ],
+            "id": "wasserman2006all",
+            "issued": {
+                "date-parts": [
+                    [
+                        2006
+                    ]
+                ]
+            },
+            "publisher": "Springer Science & Business Media",
+            "title": "All of nonparametric statistics",
+            "type": "book"
+        },
+        {
+            "author": [
+                {
+                    "family": "Wasserman",
+                    "given": "Larry"
+                }
+            ],
+            "id": "wasserman2013all",
+            "issued": {
+                "date-parts": [
+                    [
+                        2013
+                    ]
+                ]
+            },
+            "publisher": "Springer Science & Business Media",
+            "title": "All of statistics: A concise course in statistical inference",
+            "title-short": "All of statistics",
+            "type": "book"
+        },
+        {
+            "author": [
+                {
+                    "family": "Nocedal",
+                    "given": "Jorge"
+                },
+                {
+                    "family": "Wright",
+                    "given": "Stephen"
+                }
+            ],
+            "id": "nw2006numerical",
+            "issued": {
+                "date-parts": [
+                    [
+                        2006
+                    ]
+                ]
+            },
+            "publisher": "Springer Science & Business Media",
+            "title": "Numerical optimization",
+            "type": "book"
+        }
+    ],
+    "project_biblios": []
+}
