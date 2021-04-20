@@ -60,3 +60,16 @@ Variable $X^{(i)}$ is said to Granger cause another variable $X^{(j)}$ if the pa
 
 ![Graphical illustration of NAVAR model with MLPs. Source: @bussmann2020neural](www/navar_cartoon.png){width="500"}
 
+- In order to make the contributions comparable, every individual time series is normalized such that it has mean zero and standard deviation one before training.
+
+### Experiments
+
+#### Toy data set
+
+#### CauseMe data sets
+
+- where the performance of most methods declines as the number of variables N increases, the performance of NAVAR does not decrease.
+
+
+
+

@@ -1,0 +1,21 @@
+---
+title: "README"
+output: github_document
+bibliography: bib.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# navar
+
+## To-do
+
+- Go through NAVAR code and reproduce experiments: https://github.com/bartbussmann/NAVAR
+- Literature review:
+    - BoE paper(s); ECB?
+    - Check "Related work" section in @bussmann2020neural
+- ...
+    
+# References 
