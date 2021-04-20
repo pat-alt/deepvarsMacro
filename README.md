@@ -3,14 +3,37 @@ README
 
 # navar
 
-## To-do
+## Structure/To-do
 
+1.  
+
+-   Bibtex bibliography (Macos, use for example Bibdesk)
 -   Go through NAVAR code and reproduce experiments:
     <https://github.com/bartbussmann/NAVAR>
--   Literature review:
-    -   BoE paper(s); ECB?
+
+1.  Literature review:
+    -   Literature on forecasting time series
+    -   Literature on high-dimensinoal data: BoE paper(s); ECB?
+    -   Monetary transmission mechanism: VAR, BVAR, SVAR
     -   Check “Related work” section in Bussmann, Nys, and Latré (2020)
--   …
+    -   Neural networks for time series forecasting
+2.  Introduction:
+    -   What?
+    -   Theoretical framework: VAR vs. NAVAR?
+    -   Empirical approach
+3.  Methodology
+    -   VAR
+    -   NAVAR
+4.  Data
+5.  Benchmark exercises
+    -   Point, interval and density forecasts
+    -   Granger causality
+    -   IRFs
+    -   Forecasting evaluation: DM, forecasting combination
+6.  Extensions
+    -   Forward guidance?
+    -   QE?
+7.  Conclusions
 
 # References
 
