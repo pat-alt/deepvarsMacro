@@ -1,15 +1,16 @@
 ---
-title: "A peek inside the 'Black Box' - interpreting neural networks"
+title: "Neural additive VAR"
+subtitle: "Proposal"
 author:
 - "Marc Agustí (marc.agusti@barcelonagse.eu)"
 - "Patrick Altmeyer (patrick.altmeyer@barcelonagse.eu)"
-- "Ignacio Vidal (ignacio.vidalquadrascosta@barcelonagse.eu)"
+- "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
 date: "`r format(Sys.Date(), '%B, %Y')`"
 output: 
   bookdown::pdf_document2: 
     toc: false
   bookdown::html_document2: default
-bibliography: bib.bib
+bibliography: "bib.bib"
 link-citations: true
 ---
 
@@ -45,7 +46,7 @@ instead allows for non-linear interactions between covariates where $f_{ij}$ is 
 
 ![Graphical illustration of NAVAR model with MLPs. Source: @bussmann2020neural](www/navar_cartoon.png){width="500"}
 
-In our paper we aim to compare outputs from a standard VAR model for the monetary transmission mechanism, to outputs from a NAVAR model. In light of the discussion above, our focus would primarily be on model interpretability, with forecasting performance taking only a secondary role (we keenly want to avoid a "horse race" type of analysis).
+In our paper we aim to compare outputs from a standard VAR model for the monetary transmission mechanism, to outputs from a NAVAR model. In light of the discussion above, our focus would primarily be on model interpretability, with forecasting performance taking only a secondary role (we keenly want to avoid a "horse race" type of analysis). In terms of data, we can rely on publicly available time series data on macroeconomic indicators at quarterly or monthly frequency, for example, using the FRED-QD or [FRED-MD](https://www.stlouisfed.org/on-the-economy/2016/december/big-data-fred-md) database.
 
 Notice that the neural networks run for each variable at each step $t$ still suffer from the inherent Black Box problem. Should we find that an understanding of the step-wise interactions between all covariates also need to be well understood, we may try to use either Shapley values or the novel measure mentioned above.
 
