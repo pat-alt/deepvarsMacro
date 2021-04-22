@@ -10,6 +10,7 @@ README
 -   Bibtex bibliography (Macos, use for example Bibdesk)
 -   Go through NAVAR code and reproduce experiments:
     <https://github.com/bartbussmann/NAVAR>
+        - I have added that code as a folder to this repo. Code looks straight-forward, but should all spend some time going through it to really understand what is going on.
 
 1.  Literature review:
     -   Literature on forecasting time series
