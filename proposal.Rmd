@@ -1,5 +1,5 @@
 ---
-title: "Neural additive VAR"
+title: "Neural additive Vector Autoregression for Macroeconomic Data"
 subtitle: "Proposal"
 author:
 - "Marc Agustí (marc.agusti@barcelonagse.eu)"
@@ -7,9 +7,10 @@ author:
 - "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
 date: "`r format(Sys.Date(), '%B, %Y')`"
 output: 
+  github_document: default
+  bookdown::html_document2: default
   bookdown::pdf_document2: 
     toc: false
-  bookdown::html_document2: default
 bibliography: "bib.bib"
 link-citations: true
 ---
@@ -22,7 +23,7 @@ Economists and policy makers recognise the undeniable potential of emerging AI t
 
 Some advancements have emerged from that literature, among those post-hoc methods which aim to extract feature importance. Shapley values which come from cooperative game theory are often used, but come with a prohibitive computational burden. A more novel approach recently proposed by @ish2019interpreting provides an intuitive entropy measure for variable importance, but is only applicable in the Bayesian setting (see here for a summary).
 
-Another recent paper take more of an ad-hoc approach to interpretability, that is it aims at keeping the model perse interpretable: @bussmann2020neural propose a Neural Additive Vector Autoregression (NAVAR) model for causal discovery in time series data. Let the equation below denote the standard linear VAR
+Another recent paper take more of an ad-hoc approach to interpretability, that is it aims at retaining some of the simplicity and structure of a traditional vector autoregressive model (VAR): @bussmann2020neural propose a Neural Additive Vector Autoregression (NAVAR) model for causal discovery in time series data. Let the equation below denote the standard linear VAR
 
 ```{=tex}
 \begin{equation}
@@ -46,7 +47,7 @@ instead allows for non-linear interactions between covariates where $f_{ij}$ is 
 
 ![Graphical illustration of NAVAR model with MLPs. Source: @bussmann2020neural](www/navar_cartoon.png){width="500"}
 
-In our paper we aim to compare outputs from a standard VAR model for the monetary transmission mechanism, to outputs from a NAVAR model. In light of the discussion above, our focus would primarily be on model interpretability, with forecasting performance taking only a secondary role (we keenly want to avoid a "horse race" type of analysis). In terms of data, we can rely on publicly available time series data on macroeconomic indicators at quarterly or monthly frequency, for example, using the FRED-QD or [FRED-MD](https://www.stlouisfed.org/on-the-economy/2016/december/big-data-fred-md) database.
+The model is applied in a time series setting where the time dimensionality $T$ is much larger than the cross-section $D$. This is typically the case in many macroeconomic time series applications. In our paper we aim to compare outputs from a standard VAR model for the monetary transmission mechanism, to outputs from a NAVAR model. In light of the discussion above, our focus would primarily be on model interpretability, with forecasting performance taking only a secondary role (we keenly want to avoid a "horse race" type of analysis). In terms of data, we can rely on publicly available time series data on macroeconomic indicators at quarterly or monthly frequency, for example, using the FRED-QD or [FRED-MD](https://www.stlouisfed.org/on-the-economy/2016/december/big-data-fred-md) database.
 
 Notice that the neural networks run for each variable at each step $t$ still suffer from the inherent Black Box problem. Should we find that an understanding of the step-wise interactions between all covariates also need to be well understood, we may try to use either Shapley values or the novel measure mentioned above.
 
