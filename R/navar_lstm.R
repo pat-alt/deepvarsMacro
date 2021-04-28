@@ -53,7 +53,7 @@ navar_lstm_forward <- function(x) {
     lstm <- self$lstm_list[[node]]
     fc <- self$fc_list[[node]]
     list_output <- lstm(model_input)
-    contributions[,(node*self$num_nodes):((node+1)*self$num_nodes),]
+    contributions[,(node*self$num_nodes):((node+1)*self$num_nodes),] <- torch_transpose(fc(lstm_output))
   }
   
   contributions <- torch_reshape(contributions, list(batch_size, self$num_nodes, self$num_nodes, time_series_length))
