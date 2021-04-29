@@ -1,0 +1,88 @@
+---
+title:"Understanding `torch` in R"
+subtitle: "NAVAR"
+author:
+- "Marc Agustí (marc.agusti@barcelonagse.eu)"
+- "Patrick Altmeyer (patrick.altmeyer@barcelonagse.eu)"
+- "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
+date: "`r format(Sys.Date(), '%B, %Y')`"
+output: 
+  github_document: default
+  bookdown::html_document2: default
+  bookdown::pdf_document2: 
+    toc: false
+bibliography: "bib.bib"
+link-citations: true
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+> "Unfortunately installing `torch` on AWS has so far not been successful."
+
+---
+
+# Setup
+
+Install the stable version of `torch` as follows:
+
+```{r, eval=FALSE}
+install.packages("torch")
+```
+
+Then import the package as follows:
+
+```{r}
+library(torch)
+```
+
+We can check for GPU access, but even if GPU is not available we should be able to run `torch`.
+
+```{r}
+torch_tensor(1, device = "cuda")
+```
+
+# A simple example
+
+To run a simple example we will get some sample data from the `torchvision` package.
+
+```{r, eval=FALSE}
+install.packages('torchvision')
+```
+
+Below we load training and test data:
+
+```{r}
+library(torchvision)
+train_ds <- kmnist_dataset(
+  ".",
+  download = TRUE,
+  train = TRUE,
+  transform = transform_to_tensor
+)
+
+test_ds <- kmnist_dataset(
+  ".",
+  download = TRUE,
+  train = FALSE,
+  transform = transform_to_tensor
+)
+```
+
+> Note the transform argument. transform_to_tensor takes an image and applies two transformations: First, it normalizes the pixels to the range between 0 and 1. Then, it adds another dimension in front. Why? Contrary to what you might expect – if until now, you’ve been using keras – the additional dimension is not the batch dimension. Batching will be taken care of by the dataloader, to be introduced next. Instead, this is the channels dimension that in torch, is found before the width and height dimensions by default.
+
+Next, let us inspect the shape of the tensor:
+
+```{r}
+train_ds[1][[1]]$size()
+```
+
+
+
+
+
+
+
+
