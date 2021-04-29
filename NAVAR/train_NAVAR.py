@@ -70,8 +70,8 @@ def train_NAVAR(data, maxlags=5, hidden_nodes=256, dropout=0, epochs=200, learni
 
     # obtain the training and validation data
     dataset = DataLoader(data, maxlags, normalize=normalize, val_proportion=val_proportion, split_timeseries=split_timeseries, lstm=lstm)
-    X_train, Y_train = dataset.train_Xs, dataset.train_Ys
-    X_val, Y_val = dataset.val_Xs, dataset.val_Ys
+    X_train, Y_train = dataset.train_Xs, dataset.train_Ys # training set
+    X_val, Y_val = dataset.val_Xs, dataset.val_Ys # validation set
     # push model and data to GPU if available
     if torch.cuda.is_available():
         model = model.cuda()
