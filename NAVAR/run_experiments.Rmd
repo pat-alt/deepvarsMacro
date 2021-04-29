@@ -1,0 +1,126 @@
+---
+title: "Run `NAVAR` experiments"
+subtitle: "NAVAR"
+author:
+- "Marc Agustí (marc.agusti@barcelonagse.eu)"
+- "Patrick Altmeyer (patrick.altmeyer@barcelonagse.eu)"
+- "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
+date: "`r format(Sys.Date(), '%B, %Y')`"
+output: 
+  bookdown::html_document2: default
+  github_document: default
+  bookdown::pdf_document2: 
+    toc: false
+bibliography: "bib.bib"
+link-citations: true
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE, message=FALSE)
+library(reticulate)
+```
+
+# Setup
+
+In this file we just explore the NAVAR code in some more detail by first just running the experiments step-by-step to get a better idea of how the code works. The code chunk below just install requirements.
+
+```{bash, eval=FALSE}
+python3 -m pip install -r requirements.txt
+```
+
+# DREAM3 experiments
+
+We start by importing the relevant modules for these experiments as in `run_dream_experiments.py`.
+
+```{python}
+from train_NAVAR import train_NAVAR
+from evaluate import calculate_AUROC, dream_file_to_causal_matrix
+import pandas as pd
+import argparse
+```
+
+To understand the code better, we will just run a single experiment, in particular the one called `ecoli1`.
+
+```{python}
+experiment = 'ecoli1' # experiment name
+# should accuracy be evaluated?
+evaluate = True
+# should we use LSTM?
+lstm = True 
+lambda1 = 0.26025947107502856
+batch_size = 46 # batch size for training
+wd = 1.4961159190152877e-05
+hidden_nodes = 10
+learning_rate = 0.002 
+hl = 1 # number of hidden layers
+```
+
+Given the provided parameters we will import the data. Instead of the 5000 (!) epochs that @bussmann2020neural use, we will just use 5.
+
+```{python}
+# load the data
+file = f'experiments/{experiment}.tsv'
+ground_truth_file = f'experiments/{experiment}_gt.txt'
+data = pd.read_csv(file, sep='\t')
+data = data.values[:, 1:]
+epochs = 1
+maxlags = 21 if lstm else 2
+```
+
+Let's explore that data for a moment. The `ecoli1` data is made up by 966 rows and 100 columns.
+
+```{r}
+library(data.table)
+dt <- data.table(py$data)
+dim(dt)
+```
+
+## Running the experiment
+
+Next we will turn to actually running the experiment as in `run_dream_experiments.py`. 
+
+```{python}
+import torch
+import numpy as np
+from dataloader import DataLoader
+from NAVAR import NAVAR, NAVARLSTM
+```
+
+
+```{python}
+# Other parameters
+dropout=0
+hidden_layers=hl
+
+# T is the number of time steps, N the number of variables
+T, N = data.shape
+
+# initialize the NAVAR model
+if lstm:
+    model = NAVARLSTM(N, hidden_nodes, maxlags, dropout=dropout, hidden_layers=hidden_layers)
+else:
+    model = NAVAR(N, hidden_nodes, maxlags, dropout=dropout, hidden_layers=hidden_layers)
+```
+
+
+
+
+```{python}
+# start training
+print(f"Starting training on the data from experiment {experiment}, training for {epochs} iterations.")
+score_matrix, _, _ = train_NAVAR(data, maxlags=maxlags, hidden_nodes=hidden_nodes, dropout=0, epochs=epochs,
+                                 learning_rate=learning_rate, batch_size=batch_size, lambda1=lambda1,
+                                 val_proportion=0.0, weight_decay=wd, check_every=1, hidden_layers=hl, normalize=True,
+                                 split_timeseries=21, lstm=lstm)
+# evaluate
+print('Done training!')
+if evaluate:
+    ground_truth_matrix = dream_file_to_causal_matrix(ground_truth_file)
+    AUROC = calculate_AUROC(score_matrix, ground_truth_matrix, ignore_self_links=True)
+    print(f"The AUROC of this model on experiment {experiment} is: {AUROC}")
+```
+
+
+
+
