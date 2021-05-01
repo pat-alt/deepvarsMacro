@@ -7,15 +7,16 @@ author:
 - "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
 date: "`r format(Sys.Date(), '%B, %Y')`"
 output: 
+  bookdown::html_document2: default
   bookdown::pdf_document2: 
     toc: false
-  bookdown::html_document2: default
 bibliography: "bib.bib"
 link-citations: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
 ```
 
 # Literature review
@@ -70,6 +71,144 @@ Variable $X^{(i)}$ is said to Granger cause another variable $X^{(j)}$ if the pa
 
 - where the performance of most methods declines as the number of variables N increases, the performance of NAVAR does not decrease.
 
+## Reduced form VAR analysis
+
+```{r}
+library(data.table)
+dt <- fread("data_VAR/preprocessed.csv")
+```
+
+Here I will use my `SVAA` package to run a couple of standard analyses in the VAR context.
+
+### Sanity checks
+
+```{r}
+p <- 12
+```
+
+First, let us check if the VAR is stable. For this, I first run the reduced-form VAR with a conventional (?) choice of $p=12$ lags (reflecting `r p/12` year given the monthly frequency).
+
+```{r, echo=TRUE}
+library(SVAA)
+countries <- dt[,unique(country)] # run analysis by country
+var_conventional <- lapply(
+  countries,
+  function(country) {
+    dt_mod <- copy(dt)
+    dt_mod <- dt_mod[country==country][,country:=NULL][,date:=NULL] # retain only VAR variables
+    var <- VAR(dt_mod, lag=p)
+    return(var)
+  }
+)
+names(var_conventional) <- countries
+```
+
+Running the test I find that with the conventional choice, the VAR is not stable for the US.
+
+```{r}
+sapply(var_conventional, VAR_stable)
+```
+
+Let's instead try lag-length selection first. Here, for the US, the more conservative measures suggest using just 5 lags while the less conservative AIC suggest using 10. A reasonable choice seems to be $p=6$ reflecting half a year.
+
+```{r, warning=FALSE}
+lag_selection <- lapply(
+  countries,
+  function(country) {
+    dt_mod <- copy(dt)
+    dt_mod <- dt_mod[country==country][,country:=NULL][,date:=NULL] # retain only VAR variables
+    lag_selection <- VAR_lag_select(dt_mod)
+    return(lag_selection)
+  }
+)
+names(lag_selection) <- countries
+lag_selection[["US"]]$proposed_lag_lengths
+```
+
+So, let's rerun the reduced-form VAR for the new choice of $p$.
+
+```{r}
+p <- 6
+vars <- lapply(
+  countries,
+  function(country) {
+    dt_mod <- copy(dt)
+    dt_mod <- dt_mod[country==country][,country:=NULL][,date:=NULL] # retain only VAR variables
+    var <- VAR(dt_mod, lag=p)
+    return(var)
+  }
+)
+names(vars) <- countries
+```
+
+For the US, the VAR is now stable.
+
+```{r}
+sapply(vars, VAR_stable)
+```
 
 
+
+### Reduced-form IRFs
+
+Below I produce reduced-form IRFs with respect to the interest rate. Confidence bands are computed using bootstrapped standard errors. The results are not intuitive: the CPI increases in response to a shock to the interest rate, output falls but not significantly while unemployment seems completely unaffected.
+
+```{r}
+n_ahead <- 36
+country <- "US"
+irf_IR <- irf(
+  vars[[country]], 
+  imp = "IR",
+  structural = F, 
+  n_ahead = 36,
+  n_bootstrap = 100
+)
+```
+
+
+### Granger causality
+
+> We should also check for Granger causality as in Bussmann. The latter needs to be added to the package functioanlity.
+--- Pat
+
+### Forecasts 
+
+Now let's look at forecasts for the economic indicators. I'm running an example for the US below, forecasting out to the conventional policy horizon of three years.
+
+> Here we probably want to do some performance comparison with respect to in-sample and pseudo-out-of-sample forecasts of VAR vs. NAVAR using D Miliano (DM) - or whatever this test is called.
+--- Pat
+
+```{r}
+my_pred = VAR_predict(vars[[country]], n.ahead=n_ahead, plot = T, theme = theme_bw())
+```
+
+### Structural IRFs
+
+> Running simple Cholesky-decomposed GIRF. Haven't taken ordering of variables into account though.
+--- Pat
+
+```{r}
+irf_IR <- irf(
+  vars[[country]], 
+  imp = "IR",
+  structural = TRUE, 
+  n_ahead = 36,
+  n_bootstrap = 100
+)
+```
+
+### FEVD
+
+```{r, fig.dim=c(7,4)}
+fevd_output = fevd(vars[[country]])
+fevd_output$plot
+```
+
+### Historical decomposition
+
+```{r, fig.dim=c(7,4), eval=FALSE}
+hd(varresult = vars[[country]])
+```
+
+# References {-}
 
