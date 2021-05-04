@@ -24,7 +24,7 @@ def train_NAVAR(data, maxlags=5, hidden_nodes=256, dropout=0, epochs=200, learni
         learning_rate: float
             Learning rate for Adam optimizer
         batch_size: int
-            The size of the training batches
+            The number of the training batches
         lambda1: float
             Parameter for penalty to the contributions
         val_proportion: float
