@@ -71,6 +71,60 @@ Variable $X^{(i)}$ is said to Granger cause another variable $X^{(j)}$ if the pa
 
 - where the performance of most methods declines as the number of variables N increases, the performance of NAVAR does not decrease.
 
+# @verstyuk2020modeling
+
+## Intro
+
+- As in @bussmann2020neural, @verstyuk2020modeling introduce deep learning in the context of modelling multiple time series, since it allows for accounting for non-linear relationships. In addition to that @verstyuk2020modeling points out that the deep learning can be used to detect state-dependent dynamics in an unsupervised manner. 
+- The empirical framework used here is a Multivariate Recurrent Neural Network (MRNN). While it is slightly different to the NAVAR model, it shares certain familiarities. For example, as with NAVAR, the simple linear VAR can once again be viewed as a specific case of the MRNN.
+
+> "More recently, ANNs have been used for estimation of causal relationships (Hartford et al., 2016; Farrell et al., 2019)"
+---@verstyuk2020modeling
+
+## Contributions
+
+- MRNN outperforms VAR by about 8% in terms of prediction accuracy.
+- Impulse response analysis using the MRNN yields more intuitive qualitative results than the VAR. For example, monetary policy tightening unambiguously leads to a decrease in output, while for the VAR output initially accelerates. 
+    - VAR usually requires careful introductions of identification restrictions beyond the recursive ordering and Cholesky decomposition, while the MRNN appears to learn those restrictions on its own.
+
+
+## Data
+
+- Much like in our paper here @verstyuk2020modeling looks at US macroeconomic indicators at monthly frequency. 
+- Real GDP, seasonally adjusted annual rate, and GDP Price Deflator, seasonally adjusted (both at quarterly frequency)10; Equal Weight Continuous Commodity Index (at daily frequency); Effective Fed Funds Rate and Non-borrowed Reserves (at monthly frequency)
+- Data are transformed as follows: Real GDP, GDP Deflator and Commodity Price Index into month-over-month growth rates; Non-borrowed Reserves into monthly differences.
+- Covid is excluded and data is split into three subsamples: training sample (1959-2011), validation sample (2011-2015) and testing sample (2015-).
+
+## Methodology
+
+- Preferred MRNN architecture involves just 2 hidden layers with 820 units upstream and 660 units downstream. The preferred VAR model has $k=3$ lags. 
+- As for the choice of $M$ and $H$, the number of hidden layers and units, respectively, there are no strict rules. In general though, as both $M$ and $H$ increase, the complexity (or capacity) of the neural network grows. A guiding principle with respect to overfitting risk is to choose parameter values that yield good out-of-sample forecasting performance.
+- Regularization methods employed include dropout and data augmentation. In the former, noise is introduced by dropping observations while in the latter synthetic observations are added.
+
+> Data standardization is useful in many statistical learning problems, but in the context of NNs it is even more critical. One development of the general standardization idea that is tailored for NNs is separately standardizing the inputs to intermediate hidden layers (“batch normalization”, see Ioffe and Szegedy, 2015).
+---@verstyuk2020modeling
+
+> Here we have sequential data, i.e. each observation is dependent on other observations
+immediately prior to it. Hence, one training example includes several (specifically, 24)
+consecutive observations: $\{y_{t-i}\}_{i=0}^{23}$.
+Predictions over the validation and testing sub-samples are made multiple steps ahead. Non-linearity of NNs warrants direct—as opposed to iterated—forecasts for each point in the prediction horizon.12 Each sub-sample is split in half and predictions are 24-steps- ahead, thus reserving 2 × 24 months for validation and 2 × 24 months for testing.
+We use the “golden-standard” mini-batch gradient descent, with 4 training examples
+per batch. Then, 1 training epoch is composed of a full run through the training data
+set, thus feeding the training examples for all possible $t$: $\{\{y_{t-i}\}_{i=0}^{23}\}_{t=24}^629$.
+---@verstyuk2020modeling
+
+![](www/mrnn_sketch.png)
+
+> The minimization algorithm used is “adaptive moment estimation”, or Adam (Kingma and Ba, 2014). Each architecture is trained for 10 epochs, with a decaying learning rate. Lastly, the dropout probability is set at 0.2.
+---@verstyuk2020modeling
+
+- For lag-length selection for the VAR they use the guiding principle with respect to out-of-sample forecasting performance instead of traditional methods based on information criteria.
+
+
+# Our data
+
+# Empirical work
+
 ## Reduced form VAR analysis
 
 ```{r}
