@@ -1,0 +1,20 @@
+---
+title: "Neural additive VAR"
+subtitle: "Proposal"
+author:
+- "Marc Agustí (marc.agusti@barcelonagse.eu)"
+- "Patrick Altmeyer (patrick.altmeyer@barcelonagse.eu)"
+- "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
+date: "`r format(Sys.Date(), '%B, %Y')`"
+output: 
+  bookdown::html_document2: default
+  bookdown::pdf_document2: 
+    toc: false
+bibliography: "bib.bib"
+link-citations: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
