@@ -136,4 +136,4 @@ def train_NAVAR(data, maxlags=5, hidden_nodes=256, dropout=0, epochs=200, learni
     y_pred, contributions = model(X_train)
     causal_matrix = torch.std(contributions, dim=0).view(N, N).detach().cpu().numpy()
 
-    return causal_matrix, contributions, loss_val
+    return causal_matrix, contributions, loss_val, y_pred
