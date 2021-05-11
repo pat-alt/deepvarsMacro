@@ -1,0 +1,93 @@
+---
+title: "Deep learning for multi-variate time series"
+subtitle: "Proposal"
+author:
+- "Marc Agustí (marc.agusti@barcelonagse.eu)"
+- "Patrick Altmeyer (patrick.altmeyer@barcelonagse.eu)"
+- "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
+date: "`r format(Sys.Date(), '%B, %Y')`"
+output: 
+  bookdown::html_document2: default
+  bookdown::pdf_document2: 
+    toc: false
+bibliography: "bib.bib"
+link-citations: true
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+library(keras)
+library(data.table)
+library(ggplot2)
+lapply(
+  list.files("../R", pattern = "\\.R"),
+  function(file) {
+    source(file = file.path("../R",file))
+  }
+)
+```
+
+# Data
+
+```{r}
+dt <- fread("../data/pollution.csv", drop=1)
+dt[,date:=as.POSIXct(sprintf("%i-%i-%i %i:00:00", year, month, day, hour))]
+dt <- dt[,.(date, pm2.5, DEWP, TEMP, PRES, cbwd, Iws, Is, Ir)]
+setnames(
+  dt, 
+  colnames(dt)[-1], 
+  c('pollution', 'dew', 'temp', 'press', 'wnd_dir', 'wnd_spd', 'snow', 'rain')
+)
+for (i in names(dt))
+    dt[is.na(get(i)), (i):=0]
+dt <- dt[25:.N,]
+dt[,wnd_dir:=NULL]
+model_vars = colnames(dt)[-1]
+dt[,(model_vars):=lapply(.SD, as.numeric), .SDcols=model_vars]
+dt_l <- melt(dt, id.vars = "date")
+```
+
+```{r, fig.height=5, fig.width=5}
+ggplot(dt_l, aes(x=date, y=value)) +
+  geom_line() +
+  facet_wrap(
+    .~variable, 
+    scales = "free_y", 
+    nrow = dt_l[,length(unique(variable))]
+  )
+```
+
+# LSTM
+
+```{r}
+n_train_hours <- 365 * 24
+lags <- 5
+# Prepare X and y:
+var_data <- prepare_data(dt[,.SD,.SDcols=model_vars], lags = lags)
+var_data_lstm <- prepare_lstm(var_data)
+# Train-test split:
+list2env(train_test_split(var_data_lstm, n_train = n_train_hours), envir = environment())
+print(dim(X_train))
+print(dim(y_train))
+print(dim(X_test))
+print(dim(y_test))
+```
+
+```{r}
+n_units <- 50
+K <- length(model_vars)
+dim_input <- dim(X_train)[2:3]
+```
+
+```{r}
+model <- keras_model_sequential() %>% 
+  layer_lstm(units = n_units, input_shape = dim_input) %>% 
+  layer_dense(units = K, activation = "softmax")
+summary(model)
+```
+
+
+
+
+
