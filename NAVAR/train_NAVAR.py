@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from dataloader import DataLoader
-from NAVAR import NAVAR, NAVARLSTM
+from NAVAR import NAVARLSTM
 
 def train_NAVAR(data, maxlags=5, hidden_nodes=256, dropout=0, epochs=200, learning_rate=1e-4,
                           batch_size=300, lambda1=0, val_proportion=0.0,  weight_decay=0,
@@ -136,4 +136,4 @@ def train_NAVAR(data, maxlags=5, hidden_nodes=256, dropout=0, epochs=200, learni
     y_pred, contributions = model(X_train)
     causal_matrix = torch.std(contributions, dim=0).view(N, N).detach().cpu().numpy()
 
-    return causal_matrix, contributions, loss_val, y_pred
+    return causal_matrix, contributions, model
