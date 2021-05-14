@@ -6,7 +6,6 @@ train_test_split.var_data_lstm <- function(
 ) {
   # Unpack:
   list2env(var_data_lstm, envir = environment())
-  list2env(var_data, envir = environment())
   # Splitting:
   if (is.null(n_train)) {
     n_train <- floor(ratio_train * nrow(X))

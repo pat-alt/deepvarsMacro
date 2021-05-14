@@ -62,9 +62,9 @@ ggplot(dt_l, aes(x=date, y=value)) +
 
 ```{r}
 n_train_hours <- 365 * 24
-lags <- 5
+lags <- 1
 # Prepare X and y:
-var_data <- prepare_data(dt[,.SD,.SDcols=model_vars], lags = lags)
+var_data <- prepare_data(dt[,.SD,.SDcols=model_vars], lags = lags, standardize = TRUE)
 var_data_lstm <- prepare_lstm(var_data)
 # Train-test split:
 list2env(train_test_split(var_data_lstm, n_train = n_train_hours), envir = environment())
@@ -88,6 +88,31 @@ summary(model)
 ```
 
 
+```{r}
+model %>% 
+  compile(
+    loss = "mae",
+    optimizer = "adam"
+  )
+```
+
+```{r}
+epochs <- 10
+batch_size <- 72
+model %>% 
+  fit(
+    x = X_train, y = y_train,
+    epochs = epochs,
+    batch_size = batch_size,
+    validation_data = list(X_test, y_test),
+    verbose = 2
+  )
+```
+
+```{r}
+y_hat <- model %>%
+  predict(X_test)
+```
 
 
 

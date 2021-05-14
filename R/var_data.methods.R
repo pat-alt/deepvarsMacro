@@ -24,6 +24,30 @@ train_test_split <- function(var_data,ratio_train=0.8,n_train=NULL) {
   UseMethod("train_test_split", var_data)
 }
 
+# Invert scaling
+invert_scaling.var_data <- function(y, var_data) {
+  if (!is.null(var_data$scaler)) {
+    y <- data.table(y)
+    colnames(y) <- var_data$var_names
+    y[
+      ,
+      (var_data$var_names):=lapply(
+        var_data$var_names, 
+        function(var) {
+          (get(var)+var_data$scaler$means[1,get(var)]) * var_data$scaler$sd[1,get(var)]
+        }
+      )
+    ]
+  } else {
+    message("Data was never scaled.")
+  }
+  return(y)
+}
+
+invert_scaling <- function(y, var_data) {
+  UseMethod("invert_scaling", var_data)
+}
+
 # Prepare for LSTM model
 prepare_lstm.var_data <- function(var_data) {
   # Unpack:
