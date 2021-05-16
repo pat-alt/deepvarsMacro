@@ -10,7 +10,7 @@ output:
   bookdown::html_document2: default
   bookdown::pdf_document2: 
     toc: false
-bibliography: "bib.bib"
+bibliography: "../bib.bib"
 link-citations: true
 ---
 
@@ -27,6 +27,8 @@ lapply(
   }
 )
 ```
+
+This notebook simply replicates this [blog post](https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/) on multivariate time series forecasting. 
 
 # Data
 
@@ -60,6 +62,8 @@ ggplot(dt_l, aes(x=date, y=value)) +
 
 # LSTM
 
+Instead of using only one of the time series as output variable, we simply use all of them at the same time.
+
 ```{r}
 n_train_hours <- 365 * 24
 lags <- 1
@@ -74,16 +78,18 @@ print(dim(X_test))
 print(dim(y_test))
 ```
 
+### Building and fitting the model
+
 ```{r}
 n_units <- 50
-K <- length(model_vars)
+K <- 1
 dim_input <- dim(X_train)[2:3]
 ```
 
 ```{r}
 model <- keras_model_sequential() %>% 
   layer_lstm(units = n_units, input_shape = dim_input) %>% 
-  layer_dense(units = K, activation = "softmax")
+  layer_dense(units = K)
 summary(model)
 ```
 
@@ -99,20 +105,74 @@ model %>%
 ```{r}
 epochs <- 10
 batch_size <- 72
-model %>% 
+history <- model %>% 
   fit(
-    x = X_train, y = y_train,
+    x = X_train, y = y_train[,,K],
     epochs = epochs,
     batch_size = batch_size,
-    validation_data = list(X_test, y_test),
+    validation_data = list(X_test, y_test[,,K]),
     verbose = 2
   )
 ```
 
+### Predictions
+
+Looking at the in-sample predictions for the first variable they generally look quite good.
+
+```{r}
+y_hat <- model %>%
+  predict(X_train)
+y_train_r <- array_reshape(y_train, dim=c(dim(y_train)[1],dim(y_train)[3]))
+inv_y_hat <- invert_scaling(y_hat, var_data, k=K)
+inv_y_hat[,type:="Prediction"]
+inv_y_train <- invert_scaling(y_train_r, var_data, k=K)
+inv_y_train[,type:="Actual"]
+dt_train <- rbind(inv_y_hat, inv_y_train, fill=TRUE)
+dt_train <- melt(dt_train, id.vars = "type")
+dt_train[,date:=dt$date[1:(.N)+lags],by=.(type,variable)]
+ggplot(data=dt_train, aes(x=date, y=value, colour=type)) +
+  geom_line() +
+  scale_color_discrete(name="Type:") +
+  facet_wrap(
+    ~variable, 
+    scales="free_y", 
+    nrow = dt_l[,length(unique(variable))]
+  )
+```
+
+And similarly also for the test sample:
+
 ```{r}
 y_hat <- model %>%
   predict(X_test)
+y_test_r <- array_reshape(y_test, dim=c(dim(y_test)[1],dim(y_test)[3]))
+inv_y_hat <- invert_scaling(y_hat, var_data, k=K)
+inv_y_hat[,type:="Prediction"]
+inv_y_test <- invert_scaling(y_test_r, var_data, k=K)
+inv_y_test[,type:="Actual"]
+dt_test <- rbind(inv_y_hat, inv_y_test, fill=TRUE)
+dt_test <- melt(dt_test, id.vars = "type")
+dt_test[,date:=dt$date[1:(.N)+lags],by=.(type,variable)]
+ggplot(data=dt_test, aes(x=date, y=value, colour=type)) +
+  geom_line() +
+  scale_color_discrete(name="Type:") +
+  facet_wrap(
+    ~variable, 
+    scales="free_y", 
+    nrow = dt_l[,length(unique(variable))]
+  )
 ```
 
+
+### Mean squared error
+
+```{r}
+dt_train[,sample:="train"]
+dt_test[,sample:="test"]
+dt_mse <- rbind(dt_train, dt_test)
+dt_mse <- dcast(dt_mse, date + variable + sample ~ type, value.var = "value")
+rmse <- dt_mse[,.(rmse=sqrt(mean((Prediction-Actual)^2))), by=.(variable,sample)]
+rmse
+```
 
 
