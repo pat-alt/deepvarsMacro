@@ -31,7 +31,13 @@ lapply(
 # Data
 
 ```{r}
-dt <- fread("../data/pollution.csv", drop=1)
+setwd('/Users/mark1019/Desktop/Dropbox/GSE/Data-Science/Master Thesis/navar/data_VAR')
+```
+
+```{r}
+setwd('/Users/mark1019/Desktop/Dropbox/GSE/Data-Science/Master Thesis/navar/data_VAR')
+
+dt <- fread("preprocessed.csv", drop=1)
 dt[,date:=as.POSIXct(sprintf("%i-%i-%i %i:00:00", year, month, day, hour))]
 dt <- dt[,.(date, pm2.5, DEWP, TEMP, PRES, cbwd, Iws, Is, Ir)]
 setnames(

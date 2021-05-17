@@ -57,8 +57,8 @@ prepare_lstm.var_data <- function(var_data) {
     X <- X[,-1]
   }
   # Reshape:
-  X <- array_reshape(X, c(nrow(X),lags,ncol(X)))
-  y <- array_reshape(y, c(nrow(y),lags,ncol(y)))
+  X <- array_reshape(X, c(nrow(X),1,ncol(X)))
+  y <- array_reshape(y, c(nrow(y),1,ncol(y)))
   # Output:
   var_data_lstm <- list(
     X = X,
