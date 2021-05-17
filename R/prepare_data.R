@@ -8,8 +8,8 @@ prepare_data <- function(data, lags=1, constant=TRUE, standardize=FALSE) {
   # Standardize:
   if (standardize) {
     scaler <- list(
-      means = data[,lapply(.SD, mean)],
-      sd = data[,lapply(.SD, sd)]
+      means = data[,lapply(.SD, mean),.SDcols=var_names],
+      sd = data[,lapply(.SD, sd),.SDcols=var_names]
     )
     data[,(var_names):=lapply(.SD, function(i) {(i-mean(i))/sd(i)}),.SDcols=var_names]
   } else {

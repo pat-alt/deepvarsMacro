@@ -14,10 +14,10 @@ train_test_split.var_data_lstm <- function(
   K_X <- dim(X)[3]
   N_y <- dim(y)[1]
   K_y <- dim(y)[3]
-  X_train <- array_reshape(X[1:n_train,,], dim=c(n_train,lags,K_X))
-  y_train <- array_reshape(y[1:n_train,,], dim=c(n_train,lags,K_y))
-  X_test <- array_reshape(X[(n_train+1):nrow(X),,], dim=c(N_X-n_train,lags,K_X))
-  y_test <- array_reshape(y[(n_train+1):nrow(X),,], dim=c(N_y-n_train,lags,K_y))
+  X_train <- array_reshape(X[1:n_train,,], dim=c(n_train,1,K_X))
+  y_train <- array_reshape(y[1:n_train,,], dim=c(n_train,1,K_y))
+  X_test <- array_reshape(X[(n_train+1):nrow(X),,], dim=c(N_X-n_train,1,K_X))
+  y_test <- array_reshape(y[(n_train+1):nrow(X),,], dim=c(N_y-n_train,1,K_y))
   return(
     list(
       X_train=X_train,

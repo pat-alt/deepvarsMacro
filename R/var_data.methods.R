@@ -25,16 +25,22 @@ train_test_split <- function(var_data,ratio_train=0.8,n_train=NULL) {
 }
 
 # Invert scaling
-invert_scaling.var_data <- function(y, var_data) {
+invert_scaling.var_data <- function(y, var_data, k=NULL) {
   if (!is.null(var_data$scaler)) {
-    y <- data.table(y)
-    colnames(y) <- var_data$var_names
+    if (!is.null(k)) {
+      y <- data.table(y[,k])
+      var_names <- var_data$var_names[k]
+    } else {
+      y <- data.table(y)
+      var_names <- var_data$var_names
+    }
+    colnames(y) <- var_names
     y[
       ,
-      (var_data$var_names):=lapply(
-        var_data$var_names, 
+      (var_names):=lapply(
+        var_names, 
         function(var) {
-          (get(var)+var_data$scaler$means[1,get(var)]) * var_data$scaler$sd[1,get(var)]
+          get(var) * var_data$scaler$sd[1,get(var)] + var_data$scaler$means[1,get(var)]
         }
       )
     ]
@@ -44,7 +50,7 @@ invert_scaling.var_data <- function(y, var_data) {
   return(y)
 }
 
-invert_scaling <- function(y, var_data) {
+invert_scaling <- function(y, var_data, k=NULL) {
   UseMethod("invert_scaling", var_data)
 }
 
