@@ -1,6 +1,20 @@
-mlstm <- function(model, var_data_lstm) {
+mlstm <- function(var_data_lstm) {
   K <- dim(var_data_lstm$y)[3]
-  model_list <- lapply(1:K, function(k) model)
+  model_list <- lapply(
+    1:K, 
+    function(k) {
+      model <- keras_model_sequential() %>% 
+        layer_lstm(units = n_units, input_shape = dim_input) %>% 
+        layer_dense(units = 1)
+      model %>% 
+        compile(
+          loss = "mae",
+          optimizer = "adam"
+        )
+      return(model)
+    }
+  )
+  
   mlstm <- list(
     model_list = model_list,
     var_data_lstm = var_data_lstm
@@ -47,9 +61,41 @@ predict.mlstm <- function(X, mlstm) {
       }
     )
   )
-  return(predictions)
+  mlstm_predictions <- list(
+    predictions = predictions,
+    X = X,
+    mlstm = mlstm
+  ) 
+  class(mlstm_predictions) <- "mlstm_predictions"
+  return(mlstm_predictions)
 }
 
 predict <- function(X, mlstm) {
   UseMethod("predict", mlstm)
+}
+
+plot.mlstm_predictions <- function(mlstm_predictions, y_true=NULL) {
+  pred <- mlstm_predictions$predictions
+  pred[,type:="Prediction"]
+  var_data <- mlstm_predictions$mlstm$var_data_lstm$var_data
+  if (!is.null(y_true)) {
+    if (length(dim(y_true))==3) {
+      y_true <- array_reshape(y_true, dim=c(dim(y_true)[1],dim(y_true)[3]))
+    }
+    y_true <- invert_scaling(y_true, var_data)
+    y_true[,type:="Actual"]
+    y_true <- melt(y_true, id.vars = "type")
+  }
+  dt_plot <- rbind(pred,y_true)
+  dt_plot[,date:=1:(.N),by=.(variable, type)]
+  p <- ggplot(data=dt_plot, aes(x=date, y=value, colour=type)) +
+    geom_line() +
+    scale_color_discrete(name="Type:") +
+    facet_wrap(
+      ~variable, 
+      scales="free_y", 
+      nrow = dt_l[,length(unique(variable))]
+    )
+  print(p)
+  return(p)
 }
