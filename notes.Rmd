@@ -15,8 +15,19 @@ link-citations: true
 ---
 
 ```{r setup, include=FALSE}
+rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
+library(keras)
+library(data.table)
 library(ggplot2)
+invisible(
+  lapply(
+    list.files("R", pattern = "\\.R"),
+    function(file) {
+      source(file = file.path("R",file))
+    }
+  )
+)
 ```
 
 # Literature review
@@ -263,6 +274,45 @@ fevd_output$plot
 ```{r, fig.dim=c(7,4), eval=FALSE}
 hd(varresult = vars[[country]])
 ```
+
+## MLSTM
+
+```{r}
+dt[,country:=NULL]
+model_vars = colnames(dt)[-1]
+dt_l <- melt(dt, id.vars = "date")
+```
+
+
+```{r}
+lags <- 3
+# Prepare X and y:
+var_data <- prepare_data(dt[year(date)<2020,.SD,.SDcols=model_vars], lags = lags, standardize = TRUE)
+var_data_lstm <- prepare_lstm(var_data)
+# Train-test split:
+list2env(train_test_split(var_data_lstm), envir = environment())
+print(dim(X_train))
+print(dim(y_train))
+print(dim(X_test))
+print(dim(y_test))
+```
+
+```{r}
+mlstm_ <- mlstm(var_data_lstm) # prepare MLSTM
+epochs <- 10
+mlstm_ <- fit(X_train, y_train, X_test, y_test, mlstm_, epochs = epochs) # fit models
+```
+
+```{r}
+pred <- predict(X_train, mlstm_)
+p <- plot(pred, y_true = y_train)
+```
+
+```{r}
+pred <- predict(X_test, mlstm_)
+p <- plot(pred, y_true = y_test)
+```
+
 
 # References {-}
 

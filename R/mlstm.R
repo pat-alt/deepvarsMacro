@@ -1,5 +1,6 @@
-mlstm <- function(var_data_lstm) {
+mlstm <- function(var_data_lstm, n_units=50) {
   K <- dim(var_data_lstm$y)[3]
+  dim_input <- dim(X_train)[2:3]
   model_list <- lapply(
     1:K, 
     function(k) {
@@ -96,6 +97,6 @@ plot.mlstm_predictions <- function(mlstm_predictions, y_true=NULL) {
       scales="free_y", 
       nrow = dt_l[,length(unique(variable))]
     )
-  print(p)
+  p
   return(p)
 }
