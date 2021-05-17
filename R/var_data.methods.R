@@ -27,11 +27,10 @@ train_test_split <- function(var_data,ratio_train=0.8,n_train=NULL) {
 # Invert scaling
 invert_scaling.var_data <- function(y, var_data, k=NULL) {
   if (!is.null(var_data$scaler)) {
+    y <- data.table(y)
     if (!is.null(k)) {
-      y <- data.table(y[,k])
       var_names <- var_data$var_names[k]
     } else {
-      y <- data.table(y)
       var_names <- var_data$var_names
     }
     colnames(y) <- var_names

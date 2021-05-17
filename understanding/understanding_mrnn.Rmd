@@ -60,7 +60,7 @@ ggplot(dt_l, aes(x=date, y=value)) +
   )
 ```
 
-# LSTM
+# LSTM (univariate output)
 
 Instead of using only one of the time series as output variable, we simply use all of them at the same time.
 
@@ -82,14 +82,15 @@ print(dim(y_test))
 
 ```{r}
 n_units <- 50
-K <- 1
+#K <- 1
+K <- length(model_vars)
 dim_input <- dim(X_train)[2:3]
 ```
 
 ```{r}
 model <- keras_model_sequential() %>% 
   layer_lstm(units = n_units, input_shape = dim_input) %>% 
-  layer_dense(units = K)
+  layer_dense(units = 1)
 summary(model)
 ```
 
@@ -107,10 +108,10 @@ epochs <- 10
 batch_size <- 72
 history <- model %>% 
   fit(
-    x = X_train, y = y_train[,,K],
+    x = X_train, y = y_train,
     epochs = epochs,
     batch_size = batch_size,
-    validation_data = list(X_test, y_test[,,K]),
+    validation_data = list(X_test, y_test),
     verbose = 2
   )
 ```
@@ -123,9 +124,9 @@ Looking at the in-sample predictions for the first variable they generally look 
 y_hat <- model %>%
   predict(X_train)
 y_train_r <- array_reshape(y_train, dim=c(dim(y_train)[1],dim(y_train)[3]))
-inv_y_hat <- invert_scaling(y_hat, var_data, k=K)
+inv_y_hat <- invert_scaling(y_hat, var_data)
 inv_y_hat[,type:="Prediction"]
-inv_y_train <- invert_scaling(y_train_r, var_data, k=K)
+inv_y_train <- invert_scaling(y_train_r, var_data)
 inv_y_train[,type:="Actual"]
 dt_train <- rbind(inv_y_hat, inv_y_train, fill=TRUE)
 dt_train <- melt(dt_train, id.vars = "type")
@@ -175,4 +176,10 @@ rmse <- dt_mse[,.(rmse=sqrt(mean((Prediction-Actual)^2))), by=.(variable,sample)
 rmse
 ```
 
+# MLSTM (multivariate)
+
+```{r}
+y_hat <- mlstm_$model_list[[1]] %>%
+  predict(X_train)
+```
 
