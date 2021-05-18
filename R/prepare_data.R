@@ -5,6 +5,7 @@ prepare_data <- function(data, lags=1, constant=TRUE, standardize=FALSE) {
   K <- ncol(data)
   var_names <- colnames(data)
   data <- data.table::as.data.table(data)
+  
   # Standardize:
   if (standardize) {
     scaler <- list(
@@ -15,7 +16,8 @@ prepare_data <- function(data, lags=1, constant=TRUE, standardize=FALSE) {
   } else {
     scale <- NULL
   }
-  # Data and lags:
+  
+  # Reshape:
   new_names <- c(sapply(1:lags, function(p) sprintf("%s_l%i", var_names, p)))
   data[
     ,

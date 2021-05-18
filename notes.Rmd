@@ -277,10 +277,11 @@ hd(varresult = vars[[country]])
 
 ## MLSTM
 
+### Whole sample
+
 ```{r}
 dt[,country:=NULL]
 model_vars = colnames(dt)[-1]
-dt_l <- melt(dt, id.vars = "date")
 ```
 
 
@@ -289,6 +290,33 @@ lags <- 3
 # Prepare X and y:
 var_data <- prepare_data(dt[year(date)<2020,.SD,.SDcols=model_vars], lags = lags, standardize = TRUE)
 var_data_lstm <- prepare_lstm(var_data)
+```
+
+Prepare the model ...
+
+```{r}
+mlstm_ <- mlstm(var_data_lstm) # prepare MLSTM
+```
+
+Fit the model ...
+
+```{r}
+epochs <- 10
+mlstm_ <- fit(mlstm_, epochs=epochs, verbose=0)
+```
+
+```{r}
+pred <- predict(mlstm_)
+plot(pred, y_true = mlstm_$y_train)
+```
+
+#### Forecasts
+
+
+
+### Train-test split
+
+```{r}
 # Train-test split:
 list2env(train_test_split(var_data_lstm), envir = environment())
 print(dim(X_train))
@@ -297,19 +325,21 @@ print(dim(X_test))
 print(dim(y_test))
 ```
 
+
 ```{r}
-mlstm_ <- mlstm(var_data_lstm) # prepare MLSTM
-epochs <- 10
-mlstm_ <- fit(X_train, y_train, X_test, y_test, mlstm_, epochs = epochs) # fit models
+# Fit models
+mlstm_ <- fit(
+  mlstm_, X_train, y_train, X_test, y_test,  epochs = epochs, verbose=0
+) 
 ```
 
 ```{r}
-pred <- predict(X_train, mlstm_)
+pred <- predict(mlstm_, X_train)
 p <- plot(pred, y_true = y_train)
 ```
 
 ```{r}
-pred <- predict(X_test, mlstm_)
+pred <- predict(mlstm_, X_test)
 p <- plot(pred, y_true = y_test)
 ```
 
