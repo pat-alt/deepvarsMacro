@@ -181,6 +181,7 @@ forecast.mlstm <- function(mlstm, n.ahead=1) {
   fcst <- data.table()
   data <- rbind(sample, fcst)
   counter <- 1
+  increment_date <- ifelse(sample[,class(date)=="Date"], round(sample[,mean(diff(date))]), 1)
   
   # Forecast recursively:
   while(counter <= n.ahead) {
@@ -190,9 +191,9 @@ forecast.mlstm <- function(mlstm, n.ahead=1) {
     
     # Update
     fcst_t <- dcast(y_hat$predictions, .~variable)[,-1]
-    fcst_t[,date:=data[.N,date+1]]
+    fcst_t[,date:=data[.N,date+increment_date]]
     fcst <- rbind(fcst, fcst_t)
-    data <- rbind(sample, fcst)
+    data <- rbind(data, fcst_t)
     counter <- counter + 1
   }
   setcolorder(fcst, "date")

@@ -7,6 +7,7 @@ mlstm <- function(mlstm_data, n_units=50) {
     function(k) {
       model <- keras_model_sequential() %>% 
         layer_lstm(units = n_units, input_shape = dim_input) %>% 
+        layer_dropout(0.5) %>%
         layer_dense(units = 1)
       model %>% 
         compile(

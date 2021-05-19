@@ -1,7 +1,8 @@
 plot.forecast <- function(forecast, history=NULL) {
   
   K <- forecast$model_data$K
-  sample <- forecast$model_data$data[,type:="Actual"]
+  sample <- copy(forecast$model_data$data)
+  sample[,type:="Actual"]
   if (!"date" %in% names(sample)) {
     sample[,date:=1:.N]
   }
@@ -9,7 +10,8 @@ plot.forecast <- function(forecast, history=NULL) {
   dt_plot <- rbind(sample,fcst)
   dt_plot <- melt(dt_plot, id.vars = c("date","type"))
   if (!is.null(history)) {
-    dt_plot <- dt_plot[date >= sample[,max(date)]-history]
+    increment_date <- ifelse(sample[,class(date)=="Date"], round(sample[,mean(diff(date))]), 1)
+    dt_plot <- dt_plot[date >= sample[,max(date)]-history*increment_date]
   }
   
   

@@ -285,15 +285,16 @@ dt[,country:=NULL]
 
 
 ```{r}
-lags <- 3
+lags <- 6
 # Prepare X and y:
-mlstm_data <- prepare_mlstm_data(dt[year(date)<2020], type="standard")
+mlstm_data <- prepare_mlstm_data(dt[year(date)<2020], lags = lags, type="var")
 ```
 
 Prepare the model ...
 
 ```{r}
-mlstm_ <- mlstm(mlstm_data) # prepare MLSTM
+hidden_units <- 100
+mlstm_ <- mlstm(mlstm_data, n_units = hidden_units) # prepare MLSTM
 ```
 
 Fit the model ...
@@ -318,7 +319,7 @@ mse(mlstm_)
 
 ```{r}
 fcst <- forecast(mlstm_, n.ahead = 10)
-plot(fcst, history = 50)
+plot(fcst, history = 24)
 ```
 
 
@@ -326,7 +327,7 @@ plot(fcst, history = 50)
 
 ```{r}
 # Train-test split:
-list2env(train_test_split(var_data_lstm), envir = environment())
+list2env(train_test_split(mlstm_data), envir = environment())
 print(dim(X_train))
 print(dim(y_train))
 print(dim(X_test))
@@ -348,7 +349,7 @@ plot(pred, y_true = y_train)
 
 ```{r}
 pred <- predict(mlstm_, X_test)
-p <- plot(pred, y_true = y_test)
+plot(pred, y_true = y_test)
 ```
 
 
