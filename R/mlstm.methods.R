@@ -150,12 +150,18 @@ mse <- function(mlstm,X=NULL,y=NULL) {
 }
 
 ## Root mean squared error (RMSE): ----
-rmse.mlstm <- function(X,y,mlstm) {
+rmse.mlstm <- function(mlstm,X=NULL,y=NULL) {
   
   # Check if model has been fitted:
   if (is.null(mlstm$model_histories)) {
     stop("Model has not been fitted yet.")
   }
+  
+  # Has X, y been supplied?
+  if (is.null(X) & is.null(y)) {
+    X <- mlstm$X_train
+    y <- mlstm$y_train
+  } 
   
   # RMSE:
   mse <- mse(X, y, mlstm)
@@ -164,7 +170,7 @@ rmse.mlstm <- function(X,y,mlstm) {
   return(rmse)
 }
 
-rmse <- function(X,y, mlstm) {
+rmse <- function(mlstm,X=NULL,y=NULL) {
   UseMethod("rmse", mlstm)
 }
 

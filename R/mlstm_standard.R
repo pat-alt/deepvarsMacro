@@ -2,7 +2,7 @@ mlstm_standard <- function(data, lags=1, horizon=1) {
   # Set up: ----
   var_names <- colnames(data)[colnames(data)!="date"] # variable names excluding date
   if ("date" %in% names(data)) {
-    if (data[,class(date)]!="Date") {
+    if (data[,class(date)[1]]!="Date") {
       warning("Date indexing is only implemented for date of class Date. Using simple integer index instead.")
       data[,date:=1:.N]
     }

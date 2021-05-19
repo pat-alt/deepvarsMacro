@@ -68,10 +68,9 @@ Instead of using only one of the time series as output variable, we simply use a
 n_train_hours <- 365 * 24
 lags <- 3
 # Prepare X and y:
-var_data <- prepare_data(dt[,.SD,.SDcols=model_vars], lags = lags, standardize = TRUE)
-var_data_lstm <- prepare_lstm(var_data)
+mlstm_data <- prepare_mlstm_data(dt[year(date)<2020], lags = lags, type="var")
 # Train-test split:
-list2env(train_test_split(var_data_lstm, n_train = n_train_hours), envir = environment())
+list2env(train_test_split(mlstm_data, n_train = n_train_hours), envir = environment())
 print(dim(X_train))
 print(dim(y_train))
 print(dim(X_test))
