@@ -286,7 +286,7 @@ model_vars = colnames(dt)[-1]
 
 
 ```{r}
-lags <- 3
+lags <- 10
 # Prepare X and y:
 var_data <- prepare_data(dt[year(date)<2020,.SD,.SDcols=model_vars], lags = lags, standardize = TRUE)
 var_data_lstm <- prepare_lstm(var_data)
@@ -335,7 +335,7 @@ mlstm_ <- fit(
 
 ```{r}
 pred <- predict(mlstm_, X_train)
-p <- plot(pred, y_true = y_train)
+plot(pred, y_true = y_train)
 ```
 
 ```{r}

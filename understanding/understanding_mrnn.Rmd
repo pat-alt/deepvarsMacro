@@ -66,7 +66,7 @@ Instead of using only one of the time series as output variable, we simply use a
 
 ```{r}
 n_train_hours <- 365 * 24
-lags <- 1
+lags <- 3
 # Prepare X and y:
 var_data <- prepare_data(dt[,.SD,.SDcols=model_vars], lags = lags, standardize = TRUE)
 var_data_lstm <- prepare_lstm(var_data)
@@ -82,14 +82,14 @@ print(dim(y_test))
 
 ```{r}
 n_units <- 50
-#K <- 1
-K <- length(model_vars)
+k <- 2
 dim_input <- dim(X_train)[2:3]
 ```
 
 ```{r}
 model <- keras_model_sequential() %>% 
   layer_lstm(units = n_units, input_shape = dim_input) %>% 
+  layer_dropout(0.5) %>%
   layer_dense(units = 1)
 summary(model)
 ```
@@ -107,12 +107,12 @@ model %>%
 epochs <- 10
 batch_size <- 72
 history <- model %>% 
-  fit(
-    x = X_train, y = y_train,
+  keras::fit(
+    x = X_train, y = y_train[,,k],
     epochs = epochs,
     batch_size = batch_size,
-    validation_data = list(X_test, y_test),
-    verbose = 2
+    validation_data = list(X_test, y_test[,,k]),
+    verbose = 0
   )
 ```
 
@@ -122,46 +122,36 @@ Looking at the in-sample predictions for the first variable they generally look 
 
 ```{r}
 y_hat <- model %>%
-  predict(X_train)
-y_train_r <- array_reshape(y_train, dim=c(dim(y_train)[1],dim(y_train)[3]))
-inv_y_hat <- invert_scaling(y_hat, var_data)
+  stats::predict(X_train)
+y_train_r <- array_reshape(y_train, dim=c(dim(y_train)[1],dim(y_train)[3]))[,k]
+inv_y_hat <- invert_scaling(y_hat, var_data, k=k)
 inv_y_hat[,type:="Prediction"]
-inv_y_train <- invert_scaling(y_train_r, var_data)
+inv_y_train <- invert_scaling(y_train_r, var_data, k=k)
 inv_y_train[,type:="Actual"]
 dt_train <- rbind(inv_y_hat, inv_y_train, fill=TRUE)
-dt_train <- melt(dt_train, id.vars = "type")
-dt_train[,date:=dt$date[1:(.N)+lags],by=.(type,variable)]
+dt_train[,date:=dt$date[1:(.N)+lags],by=.(type)]
+setnames(dt_train, names(dt_train)[1], "value")
 ggplot(data=dt_train, aes(x=date, y=value, colour=type)) +
   geom_line() +
-  scale_color_discrete(name="Type:") +
-  facet_wrap(
-    ~variable, 
-    scales="free_y", 
-    nrow = dt_l[,length(unique(variable))]
-  )
+  scale_color_discrete(name="Type:") 
 ```
 
 And similarly also for the test sample:
 
 ```{r}
 y_hat <- model %>%
-  predict(X_test)
-y_test_r <- array_reshape(y_test, dim=c(dim(y_test)[1],dim(y_test)[3]))
-inv_y_hat <- invert_scaling(y_hat, var_data, k=K)
+  stats::predict(X_test)
+y_test_r <- array_reshape(y_test, dim=c(dim(y_test)[1],dim(y_test)[3]))[,k]
+inv_y_hat <- invert_scaling(y_hat, var_data, k=k)
 inv_y_hat[,type:="Prediction"]
-inv_y_test <- invert_scaling(y_test_r, var_data, k=K)
+inv_y_test <- invert_scaling(y_test_r, var_data, k=k)
 inv_y_test[,type:="Actual"]
 dt_test <- rbind(inv_y_hat, inv_y_test, fill=TRUE)
-dt_test <- melt(dt_test, id.vars = "type")
-dt_test[,date:=dt$date[1:(.N)+lags],by=.(type,variable)]
+dt_test[,date:=dt$date[1:(.N)+lags],by=.(type)]
+setnames(dt_test, names(dt_test)[1], "value")
 ggplot(data=dt_test, aes(x=date, y=value, colour=type)) +
   geom_line() +
-  scale_color_discrete(name="Type:") +
-  facet_wrap(
-    ~variable, 
-    scales="free_y", 
-    nrow = dt_l[,length(unique(variable))]
-  )
+  scale_color_discrete(name="Type:") 
 ```
 
 
@@ -171,15 +161,27 @@ ggplot(data=dt_test, aes(x=date, y=value, colour=type)) +
 dt_train[,sample:="train"]
 dt_test[,sample:="test"]
 dt_mse <- rbind(dt_train, dt_test)
-dt_mse <- dcast(dt_mse, date + variable + sample ~ type, value.var = "value")
-rmse <- dt_mse[,.(rmse=sqrt(mean((Prediction-Actual)^2))), by=.(variable,sample)]
+dt_mse <- dcast(dt_mse, date + sample ~ type, value.var = "value")
+rmse <- dt_mse[,.(rmse=sqrt(mean((Prediction-Actual)^2))), by=.(sample)]
 rmse
 ```
 
 # MLSTM (multivariate)
 
 ```{r}
-y_hat <- mlstm_$model_list[[1]] %>%
-  predict(X_train)
+mlstm_ <- mlstm(var_data_lstm) # prepare MLSTM
+```
+
+Fitting the model may take a few minutes with this data set.
+
+```{r}
+epochs <- 10
+mlstm_ <- fit(mlstm_, epochs=epochs, verbose=0)
+```
+
+
+```{r, fig.height=5, fig.width=5}
+pred <- predict(mlstm_)
+plot(pred, y_true = mlstm_$y_train)
 ```
 

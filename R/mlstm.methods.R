@@ -1,50 +1,22 @@
-# Main class: ----
-
-mlstm <- function(var_data_lstm, n_units=50) {
-  K <- dim(var_data_lstm$y)[3]
-  dim_input <- dim(var_data_lstm$X)[2:3]
-  model_list <- lapply(
-    1:K, 
-    function(k) {
-      model <- keras_model_sequential() %>% 
-        layer_lstm(units = n_units, input_shape = dim_input) %>% 
-        layer_dense(units = 1)
-      model %>% 
-        compile(
-          loss = "mae",
-          optimizer = "adam"
-        )
-      return(model)
-    }
-  )
-  
-  mlstm <- list(
-    model_list = model_list,
-    var_data_lstm = var_data_lstm
-  )
-  class(mlstm) <- "mlstm"
-  return(mlstm)
-}
-
 # Methods: ----
 
 ## Fit the model: ----
 fit.mlstm <- function(mlstm,X_train=NULL,y_train=NULL,X_test=NULL,y_test=NULL,...) {
   
-  K <- dim(mlstm$var_data_lstm$y)[3]
+  K <- mlstm$model_data$K
   train_test_data_supplied <- !is.null(X_train) & !is.null(y_train) & !is.null(X_test) & !is.null(y_test)
   
   # Fit:
   if (!train_test_data_supplied) {
     # If no training and test data supplied, run on whole data set:
-    X_train <- mlstm$var_data_lstm$X
-    y_train <- mlstm$var_data_lstm$y
+    X_train <- mlstm$model_data$X
+    y_train <- mlstm$model_data$y
     fitted_models <- lapply(
       1:K,
       function(k) {
         history <- mlstm$model_list[[k]] %>% 
           keras::fit(
-            x = X_train, y = y_train[,,k],
+            x = X_train, y = y_train[,k],
             ...
           )
         list(
@@ -60,8 +32,8 @@ fit.mlstm <- function(mlstm,X_train=NULL,y_train=NULL,X_test=NULL,y_test=NULL,..
       function(k) {
         history <- mlstm$model_list[[k]] %>% 
           keras::fit(
-            x = X_train, y = y_train[,,k],
-            validation_data = list(X_test, y_test[,,k]),
+            x = X_train, y = y_train[,k],
+            validation_data = list(X_test, y_test[,k]),
             ...
           )
         list(
@@ -100,6 +72,9 @@ predict.mlstm <- function(mlstm, X=NULL) {
     X <- mlstm$X_train
   }
   
+  # Set up:
+  model_data <- mlstm$model_data
+  
   # Compute predictions:
   predictions <- rbindlist(
     lapply(
@@ -108,7 +83,7 @@ predict.mlstm <- function(mlstm, X=NULL) {
         mod <- mlstm$model_list[[k]]
         y_hat <- mod %>%
           stats::predict(X)
-        y_hat <- invert_scaling(y_hat, var_data, k=k)
+        y_hat <- invert_scaling(y_hat, model_data, k=k)
         var <- names(y_hat)
         y_hat[,variable:=var]
         setnames(y_hat, var, "value")
@@ -118,47 +93,17 @@ predict.mlstm <- function(mlstm, X=NULL) {
   )
   
   # Return predictions:
-  mlstm_predictions <- list(
+  predictions <- list(
     predictions = predictions,
     X = X,
-    mlstm = mlstm
+    model = mlstm
   ) 
-  class(mlstm_predictions) <- "mlstm_predictions"
-  return(mlstm_predictions)
+  class(predictions) <- "predictions"
+  return(predictions)
 }
 
 predict <- function(mlstm, X=NULL) {
   UseMethod("predict", mlstm)
-}
-
-plot.mlstm_predictions <- function(mlstm_predictions, y_true=NULL) {
-  pred <- mlstm_predictions$predictions
-  pred[,type:="Prediction"]
-  var_data <- mlstm_predictions$mlstm$var_data_lstm$var_data
-  if (!is.null(y_true)) {
-    if (length(dim(y_true))==3) {
-      y_true <- array_reshape(y_true, dim=c(dim(y_true)[1],dim(y_true)[3]))
-    }
-    y_true <- invert_scaling(y_true, var_data)
-    y_true[,type:="Actual"]
-    y_true <- melt(y_true, id.vars = "type")
-  }
-  dt_plot <- rbind(pred,y_true)
-  dt_plot[,date:=1:(.N),by=.(variable, type)]
-  p <- ggplot(data=dt_plot, aes(x=date, y=value, colour=type)) +
-    geom_line() +
-    scale_color_discrete(name="Type:") +
-    facet_wrap(
-      ~variable, 
-      scales="free_y", 
-      nrow = dt_plot[,length(unique(variable))]
-    ) +
-    labs(
-      x="T",
-      y="Value"
-    )
-  p
-  return(p)
 }
 
 ## Mean squared error (MSE): ----
@@ -217,16 +162,18 @@ rmse <- function(X,y, mlstm) {
 ## Forecasting: ----
 forecast.mlstm <- function(mlstm, n.ahead=1) {
   
-  var_names <- mlstm$var_data_lstm$var_data$var_names
-  lags <- mlstm$var_data_lstm$var_data$lags
-  sample <- copy(mlstm$var_data_lstm$var_data$data)
+  # Set up:
+  var_names <- mlstm$model_data$var_names
+  lags <- mlstm$model_data$lags
+  sample <- copy(mlstm$model_data$data)
   if (!"date" %in% names(sample)) {
     sample[,date:=1:.N]
   }
   fcst <- data.table()
   data <- rbind(sample, fcst)
   counter <- 1
-
+  
+  # Forecast recursively:
   while(counter <= n.ahead) {
     X <- prepare_predictors(data[,.SD,.SDcols=var_names],lags)
     X <- array_reshape(X, dim = c(1,1,ncol(X)))
@@ -241,9 +188,10 @@ forecast.mlstm <- function(mlstm, n.ahead=1) {
   }
   setcolorder(fcst, "date")
   
+  # Return:
   fcst <- list(
     fcst = fcst,
-    var_data = mlstm$var_data_lstm$var_data
+    model_data = mlstm$model_data
   )
   class(fcst) <- "forecast"
   

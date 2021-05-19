@@ -1,10 +1,12 @@
 prepare_data <- function(data, lags=1, constant=TRUE, standardize=FALSE) {
+  
   # Preprocessing ----
   var_names <- colnames(data)
   N <- nrow(data)-lags
   K <- ncol(data)
   var_names <- colnames(data)
   data <- data.table::as.data.table(data)
+  data_out <- copy(data)
   
   # Standardize:
   if (standardize) {
@@ -46,7 +48,8 @@ prepare_data <- function(data, lags=1, constant=TRUE, standardize=FALSE) {
     lags=lags,
     K=K,
     var_names=var_names,
-    scaler=scaler
+    scaler=scaler,
+    data=data_out
   )
   class(var_data) <- "var_data"
   
