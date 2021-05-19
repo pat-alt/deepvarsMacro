@@ -1,12 +1,18 @@
 prepare_data <- function(data, lags=1, constant=TRUE, standardize=FALSE) {
   
-  # Preprocessing ----
-  var_names <- colnames(data)
+  # Set up: ----
+  var_names <- colnames(data)[colnames(data)!="date"] # variable names excluding date
+  if ("date" %in% names(data)) {
+    if (data[,class(date)]!="Date") {
+      warning("Date indexing is only implemented for date of class Date. Using simple integer index instead.")
+      data[,date:=1:.N]
+    }
+  }
+  data <- data.table::as.data.table(data) # turn into data.table
+  data_out <- copy(data) # save a copy of all data
+  data <- data[,.SD,.SDcols=var_names] # keep only model variables
   N <- nrow(data)-lags
   K <- ncol(data)
-  var_names <- colnames(data)
-  data <- data.table::as.data.table(data)
-  data_out <- copy(data)
   
   # Standardize:
   if (standardize) {
@@ -16,7 +22,7 @@ prepare_data <- function(data, lags=1, constant=TRUE, standardize=FALSE) {
     )
     data[,(var_names):=lapply(.SD, function(i) {(i-mean(i))/sd(i)}),.SDcols=var_names]
   } else {
-    scale <- NULL
+    scaler <- NULL
   }
   
   # Reshape:

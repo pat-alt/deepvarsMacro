@@ -1,36 +1,12 @@
 library(keras)
-prepare_mlstm_data <- function(data, lags=1) {
+prepare_mlstm_data <- function(data, lags=1, horizon=1, type="standard") {
   
-  # Set up: ----
-  var_names <- colnames(data)[colnames(data)!="date"] # variable names excluding date
-  data <- data.table::as.data.table(data) # turn into data.table
-  data_out <- copy(data) # save a copy of all data
-  data <- data[,.SD,.SDcols=var_names] # keep only model variables
-  N <- nrow(data)-lags
-  K <- ncol(data)
-  
-  # Standardize: ----
-  scaler <- list(
-    means = data[,lapply(.SD, mean),.SDcols=var_names],
-    sd = data[,lapply(.SD, sd),.SDcols=var_names]
-  )
-  data[,(var_names):=lapply(.SD, function(i) {(i-mean(i))/sd(i)}),.SDcols=var_names]
-  
-  # Reshape: ----
-  X <- array(data = as.matrix(na.omit(data[,shift(.SD, lags)])), dim = c(N, lags, ncol(data)))
-  y <- array(data = as.matrix(data[-(1:lags),]), dim = c(N, ncol(data)))
-  
-  # Output:
-  mlstm_data <- list(
-    X=X,
-    y=y,
-    lags=lags,
-    K=K,
-    var_names=var_names,
-    scaler=scaler,
-    data=data_out
-  )
-  class(mlstm_data) <- "mlstm_data"
+  if (type=="var") {
+    var_data <- prepare_data(data, lags = lags, standardize = TRUE)
+    mlstm_data <- prepare_lstm(var_data)
+  } else if (type=="standard") {
+    mlstm_data <- mlstm_standard(data, lags=1, horizon=1)
+  }
   
   return(mlstm_data)
   

@@ -16,7 +16,7 @@ fit.mlstm <- function(mlstm,X_train=NULL,y_train=NULL,X_test=NULL,y_test=NULL,..
       function(k) {
         history <- mlstm$model_list[[k]] %>% 
           keras::fit(
-            x = X_train, y = y_train[,k],
+            x = X_train, y = y_train[,,k],
             ...
           )
         list(
@@ -32,8 +32,8 @@ fit.mlstm <- function(mlstm,X_train=NULL,y_train=NULL,X_test=NULL,y_test=NULL,..
       function(k) {
         history <- mlstm$model_list[[k]] %>% 
           keras::fit(
-            x = X_train, y = y_train[,k],
-            validation_data = list(X_test, y_test[,k]),
+            x = X_train, y = y_train[,,k],
+            validation_data = list(X_test, y_test[,,k]),
             ...
           )
         list(
@@ -107,15 +107,24 @@ predict <- function(mlstm, X=NULL) {
 }
 
 ## Mean squared error (MSE): ----
-mse.mlstm <- function(X,y,mlstm) {
+mse.mlstm <- function(mlstm,X=NULL,y=NULL) {
   
   # Check if model has been fitted:
   if (is.null(mlstm$model_histories)) {
     stop("Model has not been fitted yet.")
   }
   
+  # Has X, y been supplied?
+  if (is.null(X) & is.null(y)) {
+    X <- mlstm$X_train
+    y <- mlstm$y_train
+  } 
+  
+  # Set up:
+  model_data <- mlstm$model_data
+  
   # Predictions:
-  pred <- predict(X, mlstm)
+  pred <- predict(mlstm, X=X)
   y_hat <- pred$predictions
   y_hat[,type:="y_hat"]
   
@@ -123,7 +132,7 @@ mse.mlstm <- function(X,y,mlstm) {
   if (length(dim(y))==3) {
     y <- array_reshape(y, dim=c(dim(y)[1],dim(y)[3]))
   }
-  y_true <- invert_scaling(y, var_data)
+  y_true <- invert_scaling(y, model_data)
   y_true[,type:="y_true"]
   y_true <- melt(y_true, id.vars = "type")
   
@@ -136,7 +145,7 @@ mse.mlstm <- function(X,y,mlstm) {
   return(mse)
 }
 
-mse <- function(X,y, mlstm) {
+mse <- function(mlstm,X=NULL,y=NULL) {
   UseMethod("mse", mlstm)
 }
 

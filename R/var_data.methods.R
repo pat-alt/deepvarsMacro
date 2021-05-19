@@ -64,14 +64,19 @@ prepare_lstm.var_data <- function(var_data) {
   # Reshape:
   X <- array_reshape(X, c(nrow(X),1,ncol(X)))
   y <- array_reshape(y, c(nrow(y),1,ncol(y)))
+  
   # Output:
-  var_data_lstm <- list(
-    X = X,
-    y = y,
-    var_data = var_data
+  mlstm_data <- list(
+    X=X,
+    y=y,
+    lags=lags,
+    K=K,
+    var_names=var_names,
+    scaler=scaler,
+    data=data
   )
-  class(var_data_lstm) <- "var_data_lstm"
-  return(var_data_lstm)
+  class(mlstm_data) <- "mlstm_data"
+  return(mlstm_data)
 }
 
 prepare_lstm <- function(var_data) {

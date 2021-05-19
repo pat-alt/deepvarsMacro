@@ -53,6 +53,7 @@ dt <- rbindlist(
     }
   )
 )
+dt[,date:=as.Date(date)]
 ```
 
 # Exploring
@@ -80,7 +81,7 @@ ggplot2::ggplot(dt) +
 Let's save a copy of that raw data to disk should we ever want to transform in different ways for different approaches.
 
 ```{r}
-fwrite(dt, "data_VAR/merged_raw.csv")
+saveRDS(dt, "data_VAR/merged_raw.rds")
 ```
 
 # Transforming
@@ -88,7 +89,7 @@ fwrite(dt, "data_VAR/merged_raw.csv")
 ## VAR
 
 ```{r}
-dt <- fread("data_VAR/merged_raw.csv") # load the raw merged data
+dt <- readRDS("data_VAR/merged_raw.rds") # load the raw merged data
 ```
 
 Can formalize this through ADF tests, conintegration (VECM?), ... in case supervisor wants to see that, but for the simple VAR we may just get rid of the obvious non-stationarity. 
@@ -129,8 +130,8 @@ Now, when we omit `NA` we will automatically get rid of all rows that contain a 
 ```{r}
 dt <- na.omit(dt)
 dt_l <- melt(dt, id.vars = c("date", "country"))
-fwrite(dt, "data_VAR/preprocessed.csv")
-fwrite(dt_l, "data_VAR/preprocessed_tidy.csv")
+saveRDS(dt, "data_VAR/preprocessed.rds")
+saveRDS(dt_l, "data_VAR/preprocessed_tidy.rds")
 ```
 
 

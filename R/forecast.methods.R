@@ -1,7 +1,7 @@
 plot.forecast <- function(forecast, history=NULL) {
   
-  K <- forecast$var_data$K
-  sample <- forecast$var_data$data[,type:="Actual"]
+  K <- forecast$model_data$K
+  sample <- forecast$model_data$data[,type:="Actual"]
   if (!"date" %in% names(sample)) {
     sample[,date:=1:.N]
   }

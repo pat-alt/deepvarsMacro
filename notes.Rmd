@@ -140,7 +140,7 @@ set, thus feeding the training examples for all possible $t$: $\{\{y_{t-i}\}_{i=
 
 ```{r}
 library(data.table)
-dt <- fread("data_VAR/preprocessed.csv")
+dt <- readRDS("data_VAR/preprocessed.rds")
 ```
 
 Here I will use my `SVAA` package to run a couple of standard analyses in the VAR context.
@@ -281,21 +281,19 @@ hd(varresult = vars[[country]])
 
 ```{r}
 dt[,country:=NULL]
-model_vars = colnames(dt)[-1]
 ```
 
 
 ```{r}
-lags <- 10
+lags <- 3
 # Prepare X and y:
-var_data <- prepare_data(dt[year(date)<2020,.SD,.SDcols=model_vars], lags = lags, standardize = TRUE)
-var_data_lstm <- prepare_lstm(var_data)
+mlstm_data <- prepare_mlstm_data(dt[year(date)<2020], type="standard")
 ```
 
 Prepare the model ...
 
 ```{r}
-mlstm_ <- mlstm(var_data_lstm) # prepare MLSTM
+mlstm_ <- mlstm(mlstm_data) # prepare MLSTM
 ```
 
 Fit the model ...
@@ -310,8 +308,18 @@ pred <- predict(mlstm_)
 plot(pred, y_true = mlstm_$y_train)
 ```
 
+#### Mean squared error
+
+```{r}
+mse(mlstm_)
+```
+
 #### Forecasts
 
+```{r}
+fcst <- forecast(mlstm_, n.ahead = 10)
+plot(fcst, history = 50)
+```
 
 
 ### Train-test split
