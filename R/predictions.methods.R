@@ -4,10 +4,11 @@ plot.predictions <- function(predictions, y_true=NULL) {
   pred[,type:="Prediction"]
   model_data <- predictions$model$model_data
   if (!is.null(y_true)) {
+    y_true <- data.table::data.table(y_true)
     if (length(dim(y_true))==3) {
       y_true <- array_reshape(y_true, dim=c(dim(y_true)[1],dim(y_true)[3]))
+      y_true <- invert_scaling(y_true, model_data)
     }
-    y_true <- invert_scaling(y_true, model_data)
     y_true[,type:="Actual"]
     y_true <- melt(y_true, id.vars = "type")
   }

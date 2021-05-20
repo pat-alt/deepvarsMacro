@@ -1,5 +1,5 @@
 library(keras)
-prepare_mlstm_data <- function(data, lags=1, horizon=1, type="standard") {
+prepare_mlstm_data <- function(data, lags=1, horizon=1, type="var") {
   
   if (type=="var") {
     var_data <- prepare_var_data(data, lags = lags, standardize = TRUE)

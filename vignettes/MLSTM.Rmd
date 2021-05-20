@@ -1,0 +1,125 @@
+---
+title: "MLSTM"
+output: rmarkdown::html_vignette
+author: Patrick Altmeyer
+vignette: >
+  %\VignetteIndexEntry{VARs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+rm(list=ls())
+library(SVAA)
+
+# Dependencies
+library(tidyr)
+library(data.table)
+library(ggplot2)
+library(expm)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo=F,
+  warning = F, 
+  message = F
+)
+
+# Helper function:
+invisible(
+  lapply(
+    list.files("../R", pattern = "\\.R"),
+    function(file) {
+      source(file = file.path("../R",file))
+    }
+  )
+)
+```
+
+## Reduced-form VAR 
+
+Recall the functional from of the reduced-form VAR($p$) with $K$ variables and $p$ lags (with $m \in [1,p]$) 
+
+$$
+\begin{aligned}
+&& y_t&=A_1 y_{t-1} + A_2 y_{t-2} + ... + A_p y_{t-p} + u_t \\
+\end{aligned}
+$$
+
+where $y_{t-m}$ are $(K \times 1)$ vectors , $A_m$ are $(K \times K)$ matrices of coefficients and $u_t$ is a $(K \times 1)$ vector of residuals. 
+
+## MLSTM
+
+The MLSTM ...
+
+## A simple benchmark
+
+```{r example-data}
+dt = data.table::data.table(SVAA::canada)
+var_cols = colnames(dt)[2:ncol(dt)]
+```
+
+The underlying time series in levels look non-stationary 
+
+```{r after-diff, fig.dim=c(7,4), fig.cap="Time series in differences."}
+dt[,(var_cols) := lapply(.SD, function(i) c(0,diff(i))), .SDcols=var_cols]
+chart_data = dt
+chart_data = data.table::melt(chart_data, id.vars = "date")
+
+ggplot2::ggplot(chart_data) +
+  ggplot2::geom_line(ggplot2::aes(y=value, x=date)) +
+  ggplot2::facet_wrap(variable ~ ., scales = "free_y") +
+  ggplot2::theme_bw() +
+  ggplot2::labs(
+    x="Date",
+    y="Value"
+  )
+```
+
+Select lag length ...
+
+```{r}
+lags <- VAR_lag_select(dt[,.SD,.SDcols=var_cols])$p
+```
+
+Fit the two models ...
+
+```{r}
+# VAR
+var_model <- VAR(dt, lags = lags)
+# MLSTM
+mlstm_data <- prepare_mlstm_data(dt, lags = lags) # prepare data
+mlstm_model <- mlstm(mlstm_data, n_units = 100) # prepare model
+mlstm_model <- fit(mlstm_model, verbose=0, epochs=100) # fit model
+```
+
+### Predictions
+
+```{r}
+y_true <- var_model$y_train
+```
+
+```{r, pred-var, fig.dim=c(7,4), fig.cap="Predictions from VAR."}
+pred_var <- SVAA::predict(var_model)
+plot(pred_var, y_true = y_true)
+```
+
+```{r, pred-mlstm, fig.dim=c(7,4), fig.cap="Predictions from MLSTM."}
+pred_mlstm <- predict(mlstm_model)
+plot(pred_mlstm, y_true = y_true)
+```
+
+### MSE
+
+```{r}
+rmse_var <- SVAA::rmse(var_model)[,model:="VAR"]
+rmse_mlstm <- rmse(mlstm_model)[,model:="MLSTM"]
+tab_rmse <- rbind(rmse_var, rmse_mlstm)
+knitr::kable(
+  dcast(tab_rmse, variable ~ model, value.var = "rmse"), 
+  col.names = c("Variable", "MLSTM", "VAR")
+) 
+```
+
+

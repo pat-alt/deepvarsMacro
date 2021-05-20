@@ -164,7 +164,7 @@ rmse.mlstm <- function(mlstm,X=NULL,y=NULL) {
   } 
   
   # RMSE:
-  mse <- mse(X, y, mlstm)
+  mse <- mse(mlstm, X=X, y=y)
   rmse <- mse[,.(rmse=sqrt(mse)),by=variable]
   
   return(rmse)
