@@ -90,8 +90,8 @@ Fit the two models ...
 var_model <- VAR(dt, lags = lags)
 # MLSTM
 mlstm_data <- prepare_mlstm_data(dt, lags = lags) # prepare data
-mlstm_model <- mlstm(mlstm_data, n_units = 100) # prepare model
-mlstm_model <- fit(mlstm_model, verbose=0, epochs=100) # fit model
+mlstm_model <- mlstm(mlstm_data, n_units = 150) # prepare model
+mlstm_model <- fit(mlstm_model, verbose=0, epochs=200) # fit model
 ```
 
 ### Predictions
@@ -116,8 +116,9 @@ plot(pred_mlstm, y_true = y_true)
 rmse_var <- SVAA::rmse(var_model)[,model:="VAR"]
 rmse_mlstm <- rmse(mlstm_model)[,model:="MLSTM"]
 tab_rmse <- rbind(rmse_var, rmse_mlstm)
+tab_rmse <- dcast(tab_rmse, variable ~ model, value.var = "rmse")
 knitr::kable(
-  dcast(tab_rmse, variable ~ model, value.var = "rmse"), 
+  tab_rmse, 
   col.names = c("Variable", "MLSTM", "VAR")
 ) 
 ```
