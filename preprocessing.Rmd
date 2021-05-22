@@ -80,7 +80,7 @@ ggplot2::ggplot(dt) +
 
 Let's save a copy of that raw data to disk should we ever want to transform in different ways for different approaches.
 
-```{r}
+```{r, eval=FALSE}
 saveRDS(dt, "data_VAR/merged_raw.rds")
 ```
 
@@ -93,6 +93,9 @@ dt <- readRDS("data_VAR/merged_raw.rds") # load the raw merged data
 ```
 
 Can formalize this through ADF tests, conintegration (VECM?), ... in case supervisor wants to see that, but for the simple VAR we may just get rid of the obvious non-stationarity. 
+
+> Is CPI correctly defined here? Do we want first differences of CPI or implied inflation rate?
+> Similarly shouldn't we use differences in log of GDP (more of a growth/pct rate measure)? Same for unemployment?
 
 ```{r}
 dt[,value:=c(NA,diff(value)),by=.(variable,country)]
@@ -127,7 +130,7 @@ dt
 
 Now, when we omit `NA` we will automatically get rid of all rows that contain a missing values for at least one of the time series. Just in case we want to add further visualizations of the preprocessed data we will also save a version of the data in long (tidy) format. Both versions are then saved to disk.
 
-```{r}
+```{r, eval=FALSE}
 dt <- na.omit(dt)
 dt_l <- melt(dt, id.vars = c("date", "country"))
 saveRDS(dt, "data_VAR/preprocessed.rds")
