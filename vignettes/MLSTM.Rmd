@@ -10,7 +10,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 rm(list=ls())
-library(SVAA)
+library(deepvars)
 
 # Dependencies
 library(tidyr)
@@ -56,7 +56,7 @@ The MLSTM ...
 ## A simple benchmark
 
 ```{r example-data}
-dt = data.table::data.table(SVAA::canada)
+dt = data.table::data.table(deepvars::canada)
 var_cols = colnames(dt)[2:ncol(dt)]
 ```
 
@@ -87,11 +87,11 @@ Fit the two models ...
 
 ```{r}
 # VAR
-var_model <- VAR(dt, lags = lags)
+var_model <- vareg(dt, lags = lags)
 # MLSTM
 mlstm_data <- prepare_mlstm_data(dt, lags = lags) # prepare data
-mlstm_model <- mlstm(mlstm_data, n_units = 150) # prepare model
-mlstm_model <- fit(mlstm_model, verbose=0, epochs=200) # fit model
+mlstm_model <- mlstm(mlstm_data, n_units = 100) # prepare model
+mlstm_model <- fit(mlstm_model, verbose=0, epochs=100) # fit model
 ```
 
 ### Predictions
@@ -101,8 +101,8 @@ y_true <- var_model$y_train
 ```
 
 ```{r, pred-var, fig.dim=c(7,4), fig.cap="Predictions from VAR."}
-pred_var <- SVAA::predict(var_model)
-plot(pred_var, y_true = y_true)
+pred_var <- deepvars:::predict.var_model(var_model)
+deepvars:::plot.predictions(pred_var, y_true = y_true)
 ```
 
 ```{r, pred-mlstm, fig.dim=c(7,4), fig.cap="Predictions from MLSTM."}
@@ -113,10 +113,10 @@ plot(pred_mlstm, y_true = y_true)
 ### MSE
 
 ```{r}
-rmse_var <- SVAA::rmse(var_model)[,model:="VAR"]
+rmse_var <- deepvars::rmse(var_model)[,model:="VAR"]
 rmse_mlstm <- rmse(mlstm_model)[,model:="MLSTM"]
 tab_rmse <- rbind(rmse_var, rmse_mlstm)
-tab_rmse <- dcast(tab_rmse, variable ~ model, value.var = "rmse")
+tab_rmse <- dcast(tab_rmse, variable ~ model, value.var = "value")
 knitr::kable(
   tab_rmse, 
   col.names = c("Variable", "MLSTM", "VAR")

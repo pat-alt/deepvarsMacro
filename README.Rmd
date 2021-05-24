@@ -33,6 +33,20 @@ knitr::opts_chunk$set(echo = TRUE)
 
 - Polish the package functionality 
 
+> Now done. Repo for package is [here](). To install simply run:
+
+```{r, eval=FALSE}
+devtools::install_github("pat-alt/deepvars", build_vignettes=TRUE)
+```
+
+> Then to see how everything works simply look at the vignette about deep vars:
+
+```{r, eval=FALSE}
+library(deepvars)
+browseVignettes("deepvars")
+```
+
+
 **Rest of the week:**
 
 - Use code for model comparison: VAR, MLSTM (preferred VAR-type), MLSTM (timestamps for lags)
