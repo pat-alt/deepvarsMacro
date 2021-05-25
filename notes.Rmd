@@ -143,7 +143,7 @@ Here I will use my `SVAA` package to run a couple of standard analyses in the VA
 lags <- 12
 ```
 
-First, let us check if the VAR is stable. For this, I first run the reduced-form VAR with a conventional (?) choice of $p=12$ lags (reflecting `r p/12` year given the monthly frequency).
+First, let us check if the VAR is stable. For this, I first run the reduced-form VAR with a conventional (?) choice of $p=12$ lags (reflecting `r lags/12` year given the monthly frequency).
 
 ```{r, echo=TRUE}
 countries <- dt[,unique(country)] # run analysis by country
@@ -212,8 +212,9 @@ Below I produce reduced-form IRFs with respect to the interest rate. Confidence 
 ```{r}
 n_ahead <- 36
 country <- "US"
+var_model <- vars[[country]]
 irf_IR <- irf(
-  vars[[country]], 
+  var_model, 
   imp = "IR",
   structural = F, 
   n_ahead = 36,
@@ -227,18 +228,6 @@ irf_IR <- irf(
 > We should also check for Granger causality as in Bussmann. The latter needs to be added to the package functioanlity.
 --- Pat
 
-### Forecasts 
-
-Now let's look at forecasts for the economic indicators. I'm running an example for the US below, forecasting out to the conventional policy horizon of three years.
-
-> Here we probably want to do some performance comparison with respect to in-sample and pseudo-out-of-sample forecasts of VAR vs. NAVAR using D Miliano (DM) - or whatever this test is called.
---- Pat
-
-```{r}
-my_pred <- forecast(vars[[country]], n.ahead=n_ahead)
-plot(my_pred, history = 100)
-```
-
 ### Structural IRFs
 
 > Running simple Cholesky-decomposed GIRF. Haven't taken ordering of variables into account though.
@@ -246,7 +235,7 @@ plot(my_pred, history = 100)
 
 ```{r}
 irf_IR <- irf(
-  vars[[country]], 
+  var_model, 
   imp = "IR",
   structural = TRUE, 
   n_ahead = 36,
@@ -257,14 +246,14 @@ irf_IR <- irf(
 ### FEVD
 
 ```{r, fig.dim=c(7,4)}
-fevd_output = fevd(vars[[country]])
+fevd_output = fevd(var_model)
 fevd_output$plot
 ```
 
 ### Historical decomposition
 
 ```{r, fig.dim=c(7,4), eval=FALSE}
-hd(varresult = vars[[country]])
+hd(varresult = var_model)
 ```
 
 ## Deep VAR
@@ -275,11 +264,21 @@ hd(varresult = vars[[country]])
 dt[,country:=NULL]
 ```
 
+For the Deep VAR we vary the number of hidden layers (depth), the number of hidden neurons per layer (width) and the drop out rate (regularization). 
+
 ```{r}
-epochs <- 300
+epochs <- 150
 hidden_units <- 100
-var_model <- vareg(dt, lags=lags)
-deepvar_model <- deepvareg(dt, lags=lags, n_units = hidden_units) 
+hidden_layers <- 1
+p_drop_out <- 0.3
+deepvar_model <- deepvareg(
+  dt, 
+  lags=lags, 
+  num_units = hidden_units, 
+  num_layers = hidden_layers,
+  p_drop_out = 0.3,
+  epochs=epochs
+) 
 ```
 
 ```{r}
@@ -296,48 +295,44 @@ pred <- predict(deepvar_model)
 plot(pred, y_true = y_true)
 ```
 
-#### Mean squared error
+#### RMSE
 
 ```{r}
-mse(mlstm_)
+rmse_var <- rbind(
+  rmse(var_model)[,model:="var"][,sample:="train"]
+  # rmse(var_model, X=X_test, y=y_test)[,model:="var"][,sample:="test"]
+)
+rmse_dvar <- rbind(
+  rmse(deepvar_model)[,model:="deepvar"][,sample:="train"]
+  # rmse(deepvar_model, X=X_test, y=y_test)[,model:="deepvar"][,sample:="test"]
+)
+tab_rmse <- rbind(rmse_var, rmse_dvar)
+tab_rmse <- data.table::dcast(tab_rmse, sample + variable ~ model, value.var = "value")
+knitr::kable(
+  tab_rmse, 
+  col.names = c("Sample", "Variable", "DVAR", "VAR"),
+  digits = 2
+) 
 ```
 
 #### Forecasts
 
+Now let's look at forecasts for the economic indicators. I'm running an example for the US below, forecasting out to the conventional policy horizon of three years.
+
 ```{r}
-fcst <- forecast(mlstm_, n.ahead = 10)
-plot(fcst, history = 24)
+fcst <- forecast(var_model, n.ahead=n_ahead)
+plot(fcst, history = 100)
+```
+
+```{r}
+fcst <- forecast(deepvar_model, n.ahead = n_ahead)
+plot(fcst, history = 100)
 ```
 
 
 ### Train-test split
 
-```{r}
-# Train-test split:
-list2env(train_test_split(mlstm_data), envir = environment())
-print(dim(X_train))
-print(dim(y_train))
-print(dim(X_test))
-print(dim(y_test))
-```
-
-
-```{r}
-# Fit models
-mlstm_ <- fit(
-  mlstm_, X_train, y_train, X_test, y_test,  epochs = epochs, verbose=0
-) 
-```
-
-```{r}
-pred <- predict(mlstm_, X_train)
-plot(pred, y_true = y_train)
-```
-
-```{r}
-pred <- predict(mlstm_, X_test)
-plot(pred, y_true = y_test)
-```
+...
 
 
 # References {-}
