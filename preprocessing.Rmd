@@ -28,7 +28,7 @@ Below I just load and merge the data for the US given the .csv files you moved i
 ```{r}
 library(data.table)
 data_files <- list.files("data_VAR")
-countries <- c("US") # add more as more data available
+countries <- c("US", "UK") # add more as more data available
 dt <- rbindlist(
   lapply(
     countries,
@@ -38,10 +38,11 @@ dt <- rbindlist(
         lapply(
           data_files_country,
           function(file_path) {
+            print(file_path)
             dt <- fread(file.path("data_VAR", file_path))
             setnames(dt, colnames(dt), c("date", "value"))
             variable <- file_path
-            for (pattern in c("USA", "US",".csv","_")) {
+            for (pattern in c("UK", "US",".csv","_")) {
               variable <- stringr::str_remove(variable, pattern) # remove all patterns except variable
             }
             dt[,variable:=variable]
@@ -54,6 +55,9 @@ dt <- rbindlist(
   )
 )
 dt[,date:=as.Date(date)]
+
+us_dt <- dt[dt$country == "US",]
+uk_dt <- dt[dt$country == "UK",]
 ```
 
 # Exploring
