@@ -1,0 +1,19 @@
+---
+title: "LSTM"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 2.3.X Recurrent Neural Networks (RNN)
+
+Recurrent neural networks are based on the idea of persistent thoughts: thinking is modelled as a continuous process that instead of continuously reinventing itself and starting from scratch, evolves gradually and at each step uses information about its prior states. This hierarchical, chain-like nature of RNNs makes them particularly useful for problems that involves sequences, for example, speech recognition or time series analysis. The latter is the focus of this paper, so let us dwell on this a little further. Specially in time series analysis, taking into account prior information that emerges from the context is of foremost importance. It can be really difficult to learn the evolution of a time series of a single time series just from its closest pasr: to understand the evolution of GDP or inflation in the context of a recession, it is not enough to look at a few menths earlier on time, but to look at the whole picture. In fact, a too small choice of the context window may lead to wrong conclusions about the future evolution of a time series. In order to account for long-term dependencies we can use a Long Short Term Memory (LSTM) network, a special kind of RNN.
+
+### 2.3.X.Y Long Short-Term Memory (LSTM)
+
+Long Short-Term Memory networks were introduced by @hochreiter1997long. 
+
+
+

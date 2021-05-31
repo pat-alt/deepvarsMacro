@@ -29,6 +29,10 @@ library(data.table)
 ```{r methodology, child="methodology.Rmd"}
 ```
 
+```{r LSTM, child="LSTM.Rmd"}
+
+```
+
 \FloatBarrier
 \pagebreak
 
