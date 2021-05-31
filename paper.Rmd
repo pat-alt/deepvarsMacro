@@ -29,7 +29,17 @@ library(data.table)
 ```{r methodology, child="methodology.Rmd"}
 ```
 
+\FloatBarrier
+\pagebreak
 
+# References {-}
+
+<div id="refs"></div>
+
+\pagebreak
+
+```{r annex, child="appendix.Rmd"}
+```
 
 
 

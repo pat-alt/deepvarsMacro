@@ -1,3 +1,41 @@
 # Methodology {#methodology}
 
+In conventional Vector Autoregression (VAR) dependencies of any system variable on past realizations of itself and its covariates are modelled through linear equations. This corresponds to a particular case of the broader class of Deep Vector Autoregressions investigated here and will serve as the baseline for our analysis.
+
+## Vector Autoregression {#var}
+
+Let $\mathbf{y}_t$ denote the $(K \times 1)$ vector of system variables at time $t$. Then the VAR($p$) with $p$ lags and a constant deterministic term $\mathbf{v}$ $(K \times 1)$ can be written as
+
+\begin{equation} 
+\begin{aligned}
+&& \mathbf{y}_t&=\mathbb{v} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbb{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t \\
+\end{aligned}
+(\#eq:red-form)
+\end{equation}
+
+where $\mathbf{A}_m$, $m\in\{1,...,p\}$ contain reduced form coefficients and $u_t$ is a $(K \times 1)$ vector of errors. We refer to \@ref(eq:red-form) as the *reduced form* representation of the VAR($p$) because all right-hand side variables are predetermined. For estimation purposes we usually restate the $K$-dimensional VAR($p$) process more compactly in companion form as
+
+\begin{equation} 
+\begin{aligned}
+&& \mathbf{Y}_t&=\mathbf{v} + \mathbf{A} \mathbf{Y}_{t-1} + \mathbf{u}_t \\
+\end{aligned}
+(\#eq:companion)
+\end{equation}
+
+where $\mathbf{Y}_t=(\mathbf{y}_t^T,...,\mathbf{y}^T_{t-p+1})^T$ and $\mathbf{A}$ is referred to as the companion matrix [@kilian2017structural]. Restated in this form the reduced form coefficients can be estimated through ordinary least squares (OLS):
+
+$$
+\begin{aligned}
+&& (\mathbf{v},\mathbf{A})&= \left( \mathbf{Z}_{t-1}^T\mathbf{Z}_{t-1} \right)^{-1} \mathbf{Z}_{t-1}^T \mathbf{Y}_t\\
+\end{aligned}
+$$
+
+
+
+## Deep Vector Autoregression {#deepvar}
+
+
+
+
+
 
