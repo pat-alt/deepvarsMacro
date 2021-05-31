@@ -1,0 +1,17 @@
+# Empirics
+
+```{r, echo = FALSE}
+library(fbi)
+test <- fredmd("fredmd/2021-04.csv")
+variables <- c("date", "X6", "X25", "X113", "X84")
+variables_names <- c("date", "IP", "UR", "CPI", "FFR")
+test <- test[3:nrow(test),variables]
+colnames(test) <- variables_names
+dt <- test
+```
+
+```{r}
+train_test_split <- split(dt)
+train_data <- train_test_split$train_data
+```
+

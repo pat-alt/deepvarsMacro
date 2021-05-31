@@ -30,7 +30,9 @@ library(data.table)
 ```
 
 ```{r LSTM, child="LSTM.Rmd"}
+```
 
+```{r empirics, child="empirics.Rmd"}
 ```
 
 \FloatBarrier
