@@ -12,7 +12,23 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## To-do
 
-**Finish by Tuesday:**
+- **Abstract**
+- Polish **literature review**; turn into more of an introduction + lit review
+- Section on **Data** (Ignacio)
+- Section on **Methodology** (Pat)
+- Section on **Empirical Findings** (everyone, Marc to start)
+    - Use package for model comparison: VAR, MLSTM (preferred VAR-type), MLSTM (timestamps for lags)
+        - compare insample MSE, cumulative loss (Pat to add functionality) 
+        - Diebold Mariano
+        - provide anecdotal evidence of where/when the MLSTM performs better:
+            - train-test split
+              1. train-test split the pre-covid data
+              2. train on pre-covide, test on post-covid
+            - out-of-sample forecasts - covid (*) 
+- Section on **Caveats, Interpretability and Extensions** (links to NAVAR and Verstyuk)
+    - Show IRFs, FEVD, etc. from SVAR, talk to the intuition and highlight shortfalls of deep learning approach also linking to NAVAR and Verstyuk.
+    - Impulse response function (*)
+- **Conclusion**
 
 *Marc*:
 
@@ -29,9 +45,7 @@ knitr::opts_chunk$set(echo = TRUE)
 - Double-check US data (CPI now poorly defined, interest rate?)
     - update the preprocessing for this [preprocessing.Rmd](preprocessing.Rmd)
 
-*Pat*:
-
-- Polish the package functionality 
+## `deepvars` package
 
 > Now done. Repo for package is [here](). To install simply run:
 
@@ -46,23 +60,6 @@ library(deepvars)
 browseVignettes("deepvars")
 ```
 
-
-**Rest of the week:**
-
-- Use code for model comparison: VAR, MLSTM (preferred VAR-type), MLSTM (timestamps for lags)
-    - compare insample MSE, cumulative loss (Pat to add functionality) 
-    - Diebold Mariano
-    - provide anecdotal evidence of where/when the MLSTM performs better:
-        - train-test split
-          1. train-test split the pre-covid data
-          2. train on pre-covide, test on post-covid
-        - out-of-sample forecasts - covid (*) 
-- Section on interpretability and other approaches (links to NAVAR and Verstyuk)
-    - Show IRFs, FEVD, etc. from SVAR, talk to the intuition and highlight shortfalls of deep learning approach also linking to NAVAR and Verstyuk.
-    - Impulse response function (*)
-
-**By end of week have a draft ready!!!**
-
 ## References
 
 ### Timesteps
@@ -73,31 +70,5 @@ browseVignettes("deepvars")
 - https://karpathy.github.io/2015/05/21/rnn-effectiveness/
 - https://stats.stackexchange.com/questions/377091/time-steps-in-keras-lstm
 - https://machinelearningmastery.com/reshape-input-data-long-short-term-memory-networks-keras/ 
-
-## Structure
-        
-1. Literature review:
-    - Literature on forecasting time series
-    - Literature on high-dimensinoal data: BoE paper(s); ECB? 
-    - Monetary transmission mechanism: VAR, BVAR, SVAR
-    - Check "Related work" section in @bussmann2020neural
-    - Neural networks for time series forecasting
-2. Introduction:
-    - What?
-    - Theoretical framework: VAR vs. NAVAR?
-    - Empirical approach
-3. Methodology 
-    - VAR
-    - NAVAR
-4. Data
-5. Benchmark exercises
-    - Point, interval and density forecasts
-    - Granger causality
-    - IRFs
-    - Forecasting evaluation: DM, forecasting combination
-6. Extensions
-    - Forward guidance?
-    - QE?
-7. Conclusions
     
 # References 
