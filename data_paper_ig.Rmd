@@ -1,0 +1,19 @@
+# Data {#data}
+
+To study the monetary transmission mechanism we used monthly US data from Januray 1959 to March 2021. In order to explain the monetary transmission mechanism, we relied on foue differnt macroeconomic variables; output, prices, unemployment and rates. For each variable a time series is assigned. This time series is used as a proxy for its corresponding variables. We can see the poxies used for each variable below.
+
+- *output*: Industrial Production (IP)
+- *prices*: Consumer Price Inxex (CPI)
+- *unemployment*: Unemployment rate (UR)
+- *rates*: US Federal Fund Rates (FFR)
+
+Note that we use IP rather than GDP as a proxy for output because for the case of the GDP only quartery data was available. 
+
+As consequence of working with monthly data, we have 745 observations, each with the four variables previously mentioned.
+
+These are the standard variables to include when evaluating the empirical effects of monetary transmission mechanism.
+
+The data is taken from the Economic Research department of the Federal Reserve Bank of Saint Louis (FRED). In a recent paper, they have created a monthly database for economic research (FRED-MD), a macroeconomics data base which consists of 134 monthly US indicators. The data is automatically updated each month and can be downloaded freely, facilitating the replication of results and comparing results. 
+
+Another strength of using the FRED-MD is the fact that the data is already preprocessed. 
+
