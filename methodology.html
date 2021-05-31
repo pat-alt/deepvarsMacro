@@ -196,26 +196,70 @@ summary {
 <p>In conventional Vector Autoregression (VAR) dependencies of any system variable on past realizations of itself and its covariates are modelled through linear equations. This corresponds to a particular case of the broader class of Deep Vector Autoregressions investigated here and will serve as the baseline for our analysis.</p>
 <div id="var" class="section level2">
 <h2>Vector Autoregression</h2>
-<p>Let <span class="math inline">\(\mathbf{y}_t\)</span> denote the <span class="math inline">\((K \times 1)\)</span> vector of system variables at time <span class="math inline">\(t\)</span>. Then the VAR(<span class="math inline">\(p\)</span>) with <span class="math inline">\(p\)</span> lags and a constant deterministic term <span class="math inline">\(\mathbf{v}\)</span> <span class="math inline">\((K \times 1)\)</span> can be written as</p>
+<p>Let <span class="math inline">\(\mathbf{y}_t\)</span> denote the <span class="math inline">\((K \times 1)\)</span> vector of variables at time <span class="math inline">\(t\)</span>. Then the VAR(<span class="math inline">\(p\)</span>) with <span class="math inline">\(p\)</span> lags and a constant deterministic term is simply a linear system of stochastic equations of the following form:</p>
 <p><span class="math display">\[\begin{equation} 
 \begin{aligned}
-&amp;&amp; \mathbf{y}_t&amp;=\mathbf{v} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbf{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t \\
+&amp;&amp; \mathbf{y}_t&amp;=\mathbf{c} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbf{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t \\
 \end{aligned}
 (\#eq:red-form)
 \end{equation}\]</span></p>
-<p>where <span class="math inline">\(\mathbf{A}_m\)</span>, <span class="math inline">\(m\in\{1,...,p\}\)</span> contain reduced form coefficients and <span class="math inline">\(u_t\)</span> is a <span class="math inline">\((K \times 1)\)</span> vector of errors. We refer to @ref(eq:red-form) as the <em>reduced form</em> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined. For estimation purposes we usually restate the <span class="math inline">\(K\)</span>-dimensional VAR(<span class="math inline">\(p\)</span>) process more compactly in companion form as</p>
+<p>The matrices <span class="math inline">\(\mathbf{A}_m\)</span>, <span class="math inline">\(m\in\{1,...,p\}\)</span> contain the reduced form coefficients and <span class="math inline">\(\mathbf{u}_t\)</span> is a vector of errors for which <span class="math inline">\(\mathbb{E}\mathbf{u}_t\)</span>, <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma\)</span> and <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}\)</span> for all <span class="math inline">\(t\ne s\)</span>. We refer to @ref(eq:red-form) as the <em>reduced form</em> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined <span class="citation">[@kilian2017structural]</span>.</p>
+<p>To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from @ref(eq:red-form) that</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;&amp; y_{it}&amp;=c_i+ \sum_{m=1}^{p} \sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it} \\
+\end{aligned}
+\]</span></p>
+<p>which corresponds to the key modelling assumption that at any point in time <span class="math inline">\(t\)</span> any time series <span class="math inline">\(i\in1,...,K\)</span> is just a weighted sum of past realizations of itself and all other variables in the system. This assumption makes the estimation VAR(<span class="math inline">\(p\)</span>) processes remarkably simple. Perhaps more importantly, the assumption of linearity also greatly facilitates inference about VARs.</p>
+<p>For implementation purposes and in order to state stationarity conditions it is convenient to restate the <span class="math inline">\(K\)</span>-dimensional VAR(<span class="math inline">\(p\)</span>) process more compactly in companion form as</p>
 <p><span class="math display">\[\begin{equation} 
 \begin{aligned}
-&amp;&amp; \mathbf{Y}_t&amp;=\mathbf{v} + \mathbf{A} \mathbf{Y}_{t-1} + \mathbf{u}_t \\
+&amp;&amp; \mathbf{Y}_t&amp;= \begin{pmatrix}
+ \mathbf{c} \\
+0 \\
+\vdots \\
+0 \\
+\end{pmatrix} + \mathbf{A} \mathbf{Y}_{t-1} + \begin{pmatrix}
+ \mathbf{u}_t \\
+0 \\
+\vdots \\
+0 \\
+\end{pmatrix}  \\
 \end{aligned}
 (\#eq:companion)
 \end{equation}\]</span></p>
-<p>where <span class="math inline">\(\mathbf{Y}_t=(\mathbf{y}_t^T,...,\mathbf{y}^T_{t-p+1})^T\)</span> and <span class="math inline">\(\mathbf{A}\)</span> is referred to as the companion matrix <span class="citation">[@kilian2017structural]</span>. Restated in this form the reduced form coefficients can be estimated through ordinary least squares (OLS):</p>
+<p>where <span class="math inline">\(\mathbf{Y}_t=(\mathbf{y}_t^T,...,\mathbf{y}^T_{t-p+1})^T\)</span> and <span class="math inline">\(\mathbf{A}\)</span> is referred to as the companion matrix <span class="citation">[@kilian2017structural]</span>. Letting <span class="math inline">\(\mathbf{Z}=(\mathbf{1}, \mathbf{Y})\)</span> we have a simple closed form solution for estimating reduced form coefficients through ordinary least squares (OLS):</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \widehat{
+\left(\begin{pmatrix}
+ \mathbf{c} \\
+0 \\
+\vdots \\
+0 \\
+\end{pmatrix},\mathbf{A}\right)
+}&amp;= \left( \mathbf{Z}_{t-1}^T\mathbf{Z}_{t-1} \right)^{-1} \mathbf{Z}_{t-1}^T \mathbf{Y}_t\\
+\end{aligned}
+(\#eq:ols)
+\end{equation}\]</span></p>
+</div>
+<div id="model-selection" class="section level2">
+<h2>Model selection</h2>
+<p>The simplicity that characterizes the linear VAR model</p>
+<div id="stationarity" class="section level3">
+<h3>Stationarity</h3>
+<p>When working with time series we are generally concerned about stationarity. Broadly speaking stationarity ensures that the future is like the past and hence any predictions we make based on past data adequately describe future outcomes. In the context of VARs stationarity is follows from stability: a VAR(<span class="math inline">\(p\)</span>) is stable if the effects of shocks to the system eventually die out. Stability can assessed through the system’s autoregressive roots or equivalently by looking at the eigenvalues of companion matrix <span class="math inline">\(\mathbf{A}\)</span> <span class="citation">[@kilian2017structural]</span>. In particular, for the VAR(<span class="math inline">\(p\)</span>) in @ref(eq:companion) to be stable we condition that the <span class="math inline">\(Kp\)</span> eigenvalues <span class="math inline">\(\lambda\)</span> that satisfy</p>
 <p><span class="math display">\[
 \begin{aligned}
-&amp;&amp; (\mathbf{v},\mathbf{A})&amp;= \left( \mathbf{Z}_{t-1}^T\mathbf{Z}_{t-1} \right)^{-1} \mathbf{Z}_{t-1}^T \mathbf{Y}_t\\
+&amp;&amp; \det (\mathbf{A} - \lambda \mathbf{I}_{Kp})&amp;=0 \\
 \end{aligned}
 \]</span></p>
+<p>are all of absolute value less than one. Stability implies that the first and second moments of the VAR(<span class="math inline">\(p\)</span>) process are time-invariant, hence ensuring weak stationarity <span class="citation">[@kilian2017structural]</span>.</p>
+<p>A straight-forward way to deal with stationarity of VARs is to simply ensure that the individual time series entering the system are stationary. This usually involves differencing the time series until they are stationary: for any time series <span class="math inline">\(y_i\)</span> that is integrated of order <span class="math inline">\(I(\delta)\)</span>, there exists a <span class="math inline">\(\delta\)</span>-order difference that is stationary. An immediate drawback of this approach is the loss of information contained in the levels of the time series. Modelling approaches that take into account conintegration of individual time series can ensure system stationarity and still let individually non-stationary time series enter the system in levels <span class="citation">[@hamilton1994timeseries]</span>.</p>
+</div>
+<div id="lag-order" class="section level3">
+<h3>Lag order</h3>
+</div>
 </div>
 <div id="deepvar" class="section level2">
 <h2>Deep Vector Autoregression</h2>
