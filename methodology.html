@@ -205,14 +205,12 @@ summary {
 \end{equation}\]</span></p>
 <p>The matrices <span class="math inline">\(\mathbf{A}_m\)</span>, <span class="math inline">\(m\in\{1,...,p\}\)</span> contain the reduced form coefficients and <span class="math inline">\(\mathbf{u}_t\)</span> is a vector of errors for which <span class="math inline">\(\mathbb{E}\mathbf{u}_t\)</span>, <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma\)</span> and <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}\)</span> for all <span class="math inline">\(t\ne s\)</span>. We refer to @ref(eq:red-form) as the <em>reduced form</em> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined <span class="citation">[@kilian2017structural]</span>.</p>
 <p>To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from @ref(eq:red-form) that</p>
-<p><span class="math display">\[
-\begin{equation} 
+<p><span class="math display">\[\begin{equation} 
 \begin{aligned}
-&amp;&amp; y_{it}&amp;=c_i+ \sum_{m=1}^{p} \sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it} \\
+&amp;&amp; y_{it}&amp;=c_i+ \sum_{m=1}^{p} \sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
 \end{aligned}
 (\#eq:single-var)
-\end{equation}
-\]</span></p>
+\end{equation}\]</span></p>
 <p>which corresponds to the key modelling assumption that at any point in time <span class="math inline">\(t\)</span> any time series <span class="math inline">\(i\in1,...,K\)</span> is just a weighted sum of past realizations of itself and all other variables in the system. This assumption makes the estimation VAR(<span class="math inline">\(p\)</span>) processes remarkably simple. Perhaps more importantly, the assumption of linearity also greatly facilitates inference about VARs.</p>
 <p>For implementation purposes and in order to state stationarity conditions it is convenient to restate the <span class="math inline">\(K\)</span>-dimensional VAR(<span class="math inline">\(p\)</span>) process more compactly in companion form as</p>
 <p><span class="math display">\[\begin{equation} 
@@ -248,6 +246,18 @@ summary {
 </div>
 <div id="deepvar" class="section level2">
 <h2>Deep Vector Autoregression</h2>
+<p>We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before we let <span class="math inline">\(\mathbf{y}_t\)</span> denote the <span class="math inline">\((K \times 1)\)</span> vector that describes the state of system at time <span class="math inline">\(t\)</span>. Consistent with the conventional VAR we assume that each individual time series <span class="math inline">\(y_{it}\)</span> can be modelled as a function of lagged realizations of all variables <span class="math inline">\(y_{jt-p}\)</span>, <span class="math inline">\(j=1,...,K\)</span>, <span class="math inline">\(m=1,...,p\)</span>. More specifically we have</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; y_{it}&amp;=f_i\left( \left\{y_{jt-m}\right\}_{j=1,...,K\\m=1,...,p};\theta\right)+v_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
+\end{aligned}
+(\#eq:single-dvar)
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(f_i\)</span> is variable specific mapping from past lags to the present and <span class="math inline">\(\theta\)</span> is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR(<span class="math inline">\(p\)</span>) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form <span class="citation">[@goodfellow2016deep]</span>. A plain-vanilla approach to Deep VARs therefore boils down to simply modelling each of the univariate outcomes in @ref(eq:single-dvar) as a Deep Neural Network. Note here that if <span class="math inline">\(f_i\)</span> is assumed to be linear and additive then we are back to the conventional VAR(<span class="math inline">\(p\)</span>) equation specified in @ref(eq:single-var). This illustrates the point we made earlier that the linear VAR(<span class="math inline">\(p\)</span>) is just a particular case of a Deep VAR(<span class="math inline">\(p\)</span>).</p>
+<p>…</p>
+<div id="recurrent-neural-networks" class="section level3">
+<h3>Recurrent Neural Networks</h3>
+</div>
 </div>
 <div id="model-selection" class="section level2">
 <h2>Model selection</h2>
@@ -273,14 +283,24 @@ summary {
 <p>Here we will focus on selection based on information criteria, which to some extent makes the trade-off between bias an various explicit <span class="citation">[@kilian2017structural]</span>. In particular, it generally involves minimizing information criteria of the following form</p>
 <p><span class="math display">\[\begin{equation} 
 \begin{aligned}
-&amp;&amp; C(p)&amp;= \log(\det(\hat\Sigma(p))) + \ell(p)\\
+&amp;&amp; C(m)&amp;= \log(\det(\hat\Sigma(m))) + \ell(m)\\
 \end{aligned}
 (\#eq:ic)
 \end{equation}\]</span></p>
-<p>where <span class="math inline">\(\hat\Sigma\)</span> is just the sample estimate of the covariance matrix or errors and <span class="math inline">\(\ell\)</span> is a loss function that penalizes high lag orders. We will consider all of the most common functional choices for @ref(eq:ic).</p>
+<p>where <span class="math inline">\(\hat\Sigma\)</span> is just the sample estimate of the covariance matrix or errors and <span class="math inline">\(\ell\)</span> is a loss function that penalizes high lag orders. In particular, we have that our best estimate of the optimal lag order <span class="math inline">\(p\)</span> is simply</p>
+<p><span class="math display">\[
+\begin{equation} 
+\begin{aligned}
+&amp;&amp; \hat{p}&amp;=\arg\min_{m\in\mathcal{P}}C(m) \\
+\end{aligned}
+(\#eq:ic-min)
+\end{equation}
+\]</span></p>
+<p>where <span class="math inline">\(\mathcal{P}=[m_{\min},m_{\max}]\)</span>. We will consider all of the most common functional choices for @ref(eq:ic).</p>
 </div>
-<div id="regularization" class="section level3">
-<h3>Regularization</h3>
+<div id="neural-network-architecture" class="section level3">
+<h3>Neural Network Architecture</h3>
+<p>…</p>
 </div>
 </div>
 </div>
