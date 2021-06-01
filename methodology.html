@@ -201,13 +201,13 @@ summary {
 \begin{aligned}
 &amp;&amp; \mathbf{y}_t&amp;=\mathbf{c} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbf{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t \\
 \end{aligned}
-(\#eq:red-form)
+(\#eq:redform)
 \end{equation}\]</span></p>
-<p>The matrices <span class="math inline">\(\mathbf{A}_m\)</span>, <span class="math inline">\(m\in\{1,...,p\}\)</span> contain the reduced form coefficients and <span class="math inline">\(\mathbf{u}_t\)</span> is a vector of errors for which <span class="math inline">\(\mathbb{E}\mathbf{u}_t\)</span>, <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma\)</span> and <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}\)</span> for all <span class="math inline">\(t\ne s\)</span>. We refer to @ref(eq:red-form) as the <em>reduced form</em> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined <span class="citation">[@kilian2017structural]</span>.</p>
-<p>To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from @ref(eq:red-form) that</p>
+<p>The matrices <span class="math inline">\(\mathbf{A}_m\)</span>, <span class="math inline">\(m\in\{1,...,p\}\)</span> contain the reduced form coefficients and <span class="math inline">\(\mathbf{u}_t\)</span> is a vector of errors for which <span class="math inline">\(\mathbb{E}\mathbf{u}_t\)</span>, <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma\)</span> and <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}\)</span> for all <span class="math inline">\(t\ne s\)</span>. We refer to @ref(eq:redform) as the <em>reduced form</em> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined <span class="citation">[@kilian2017structural]</span>.</p>
+<p>To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from @ref(eq:redform) that</p>
 <p><span class="math display">\[\begin{equation} 
 \begin{aligned}
-&amp;&amp; y_{it}&amp;=c_i+ \sum_{m=1}^{p} \sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
+&amp;&amp; y_{it}&amp;=c_i+\sum_{m=1}^{p}\sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it}&amp;&amp;,&amp;&amp;\forall i=1,...,K\\
 \end{aligned}
 (\#eq:single-var)
 \end{equation}\]</span></p>
@@ -249,14 +249,31 @@ summary {
 <p>We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before we let <span class="math inline">\(\mathbf{y}_t\)</span> denote the <span class="math inline">\((K \times 1)\)</span> vector that describes the state of system at time <span class="math inline">\(t\)</span>. Consistent with the conventional VAR we assume that each individual time series <span class="math inline">\(y_{it}\)</span> can be modelled as a function of lagged realizations of all variables <span class="math inline">\(y_{jt-p}\)</span>, <span class="math inline">\(j=1,...,K\)</span>, <span class="math inline">\(m=1,...,p\)</span>. More specifically we have</p>
 <p><span class="math display">\[\begin{equation} 
 \begin{aligned}
-&amp;&amp; y_{it}&amp;=f_i\left( \left\{y_{jt-m}\right\}_{j=1,...,K\\m=1,...,p};\theta\right)+v_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
+&amp;&amp; y_{it}&amp;=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
 \end{aligned}
 (\#eq:single-dvar)
 \end{equation}\]</span></p>
-<p>where <span class="math inline">\(f_i\)</span> is variable specific mapping from past lags to the present and <span class="math inline">\(\theta\)</span> is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR(<span class="math inline">\(p\)</span>) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form <span class="citation">[@goodfellow2016deep]</span>. A plain-vanilla approach to Deep VARs therefore boils down to simply modelling each of the univariate outcomes in @ref(eq:single-dvar) as a Deep Neural Network. Note here that if <span class="math inline">\(f_i\)</span> is assumed to be linear and additive then we are back to the conventional VAR(<span class="math inline">\(p\)</span>) equation specified in @ref(eq:single-var). This illustrates the point we made earlier that the linear VAR(<span class="math inline">\(p\)</span>) is just a particular case of a Deep VAR(<span class="math inline">\(p\)</span>).</p>
-<p>…</p>
+<p>where <span class="math inline">\(\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}\)</span> is the vector of lagged realizations, <span class="math inline">\(f_i\)</span> is a variable specific mapping from past lags to the present and <span class="math inline">\(\theta\)</span> is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR(<span class="math inline">\(p\)</span>) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form <span class="citation">[@goodfellow2016deep]</span>.</p>
+<p>A plain-vanilla approach to Deep VARs boils down to simply modelling each of the univariate outcomes in @ref(eq:single-dvar) as a Deep Neural Network. This is exactly the type of Deep VAR(<span class="math inline">\(p\)</span>) we are investigating in this paper. We can restate our approach more compactly as</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}_t&amp;= \mathbf{f}(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar)
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{f}(\mathbf{y}_{t-1:t-p})=(f_1(\mathbf{y}_{t-1:t-p}), f_2(\mathbf{y}_{t-1:t-p}),...,f_K(\mathbf{y}_{t-1:t-p}))^T\)</span> is just the stacked vector of mappings to univariate outcomes described in @ref(eq:single-dvar).</p>
+<p>The notation in @ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one Deep Neural Network <span class="math inline">\(f\)</span>:</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}_t&amp;= f(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar-uni)
+\end{equation}\]</span></p>
+<p>This approach is in fact proposed and investigated by <span class="citation">@verstyuk2020modeling</span> in his upcoming publication. We decided to go with the approach in @ref(eq:dvar) for two reasons: firstly, the link to conventional VARs is made abundantly clear through this implementation and, secondly, we found that the equation-by-equation approach produces good modelling outcomes and is relatively easy to implement using state-of-the art software.</p>
+<p>Finally, note that if <span class="math inline">\(f_i\)</span> in @ref(eq:single-var) is assumed to be linear and additive for all <span class="math inline">\(i=1,...,K\)</span> then we are back to the conventional VAR(<span class="math inline">\(p\)</span>). This illustrates the point we made earlier that the linear VAR(<span class="math inline">\(p\)</span>) is just a particular case of a Deep VAR(<span class="math inline">\(p\)</span>). Since the model described in equations @ref(eq:single-dvar) and @ref(eq:dvar) is less restrictive but otherwise consistent with the conventional VAR framework, we expect that it outperforms the traditional approach towards modelling multivariate time series processes.</p>
 <div id="recurrent-neural-networks" class="section level3">
 <h3>Recurrent Neural Networks</h3>
+<p>…</p>
 </div>
 </div>
 <div id="model-selection" class="section level2">
@@ -288,14 +305,12 @@ summary {
 (\#eq:ic)
 \end{equation}\]</span></p>
 <p>where <span class="math inline">\(\hat\Sigma\)</span> is just the sample estimate of the covariance matrix or errors and <span class="math inline">\(\ell\)</span> is a loss function that penalizes high lag orders. In particular, we have that our best estimate of the optimal lag order <span class="math inline">\(p\)</span> is simply</p>
-<p><span class="math display">\[
-\begin{equation} 
+<p><span class="math display">\[\begin{equation} 
 \begin{aligned}
 &amp;&amp; \hat{p}&amp;=\arg\min_{m\in\mathcal{P}}C(m) \\
 \end{aligned}
 (\#eq:ic-min)
-\end{equation}
-\]</span></p>
+\end{equation}\]</span></p>
 <p>where <span class="math inline">\(\mathcal{P}=[m_{\min},m_{\max}]\)</span>. We will consider all of the most common functional choices for @ref(eq:ic).</p>
 </div>
 <div id="neural-network-architecture" class="section level3">
