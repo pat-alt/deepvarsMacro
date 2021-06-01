@@ -201,15 +201,16 @@ summary {
 \begin{aligned}
 &amp;&amp; \mathbf{y}_t&amp;=\mathbf{c} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbf{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t \\
 \end{aligned}
-(\#eq:red-form)
+(\#eq:redform)
 \end{equation}\]</span></p>
-<p>The matrices <span class="math inline">\(\mathbf{A}_m\)</span>, <span class="math inline">\(m\in\{1,...,p\}\)</span> contain the reduced form coefficients and <span class="math inline">\(\mathbf{u}_t\)</span> is a vector of errors for which <span class="math inline">\(\mathbb{E}\mathbf{u}_t\)</span>, <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma\)</span> and <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}\)</span> for all <span class="math inline">\(t\ne s\)</span>. We refer to @ref(eq:red-form) as the <em>reduced form</em> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined <span class="citation">[@kilian2017structural]</span>.</p>
-<p>To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from @ref(eq:red-form) that</p>
-<p><span class="math display">\[
+<p>The matrices <span class="math inline">\(\mathbf{A}_m\)</span>, <span class="math inline">\(m\in\{1,...,p\}\)</span> contain the reduced form coefficients and <span class="math inline">\(\mathbf{u}_t\)</span> is a vector of errors for which <span class="math inline">\(\mathbb{E}\mathbf{u}_t\)</span>, <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma\)</span> and <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}\)</span> for all <span class="math inline">\(t\ne s\)</span>. We refer to @ref(eq:redform) as the <em>reduced form</em> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined <span class="citation">[@kilian2017structural]</span>.</p>
+<p>To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from @ref(eq:redform) that</p>
+<p><span class="math display">\[\begin{equation} 
 \begin{aligned}
-&amp;&amp; y_{it}&amp;=c_i+ \sum_{m=1}^{p} \sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it} \\
+&amp;&amp; y_{it}&amp;=c_i+\sum_{m=1}^{p}\sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it}&amp;&amp;,&amp;&amp;\forall i=1,...,K\\
 \end{aligned}
-\]</span></p>
+(\#eq:single-var)
+\end{equation}\]</span></p>
 <p>which corresponds to the key modelling assumption that at any point in time <span class="math inline">\(t\)</span> any time series <span class="math inline">\(i\in1,...,K\)</span> is just a weighted sum of past realizations of itself and all other variables in the system. This assumption makes the estimation VAR(<span class="math inline">\(p\)</span>) processes remarkably simple. Perhaps more importantly, the assumption of linearity also greatly facilitates inference about VARs.</p>
 <p>For implementation purposes and in order to state stationarity conditions it is convenient to restate the <span class="math inline">\(K\)</span>-dimensional VAR(<span class="math inline">\(p\)</span>) process more compactly in companion form as</p>
 <p><span class="math display">\[\begin{equation} 
@@ -243,9 +244,41 @@ summary {
 (\#eq:ols)
 \end{equation}\]</span></p>
 </div>
+<div id="deepvar" class="section level2">
+<h2>Deep Vector Autoregression</h2>
+<p>We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before we let <span class="math inline">\(\mathbf{y}_t\)</span> denote the <span class="math inline">\((K \times 1)\)</span> vector that describes the state of system at time <span class="math inline">\(t\)</span>. Consistent with the conventional VAR we assume that each individual time series <span class="math inline">\(y_{it}\)</span> can be modelled as a function of lagged realizations of all variables <span class="math inline">\(y_{jt-p}\)</span>, <span class="math inline">\(j=1,...,K\)</span>, <span class="math inline">\(m=1,...,p\)</span>. More specifically we have</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; y_{it}&amp;=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
+\end{aligned}
+(\#eq:single-dvar)
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}\)</span> is the vector of lagged realizations, <span class="math inline">\(f_i\)</span> is a variable specific mapping from past lags to the present and <span class="math inline">\(\theta\)</span> is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR(<span class="math inline">\(p\)</span>) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form <span class="citation">[@goodfellow2016deep]</span>.</p>
+<p>A plain-vanilla approach to Deep VARs boils down to simply modelling each of the univariate outcomes in @ref(eq:single-dvar) as a Deep Neural Network. This is exactly the type of Deep VAR(<span class="math inline">\(p\)</span>) we are investigating in this paper. We can restate our approach more compactly as</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}_t&amp;= \mathbf{f}(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar)
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{f}(\mathbf{y}_{t-1:t-p})=(f_1(\mathbf{y}_{t-1:t-p}), f_2(\mathbf{y}_{t-1:t-p}),...,f_K(\mathbf{y}_{t-1:t-p}))^T\)</span> is just the stacked vector of mappings to univariate outcomes described in @ref(eq:single-dvar).</p>
+<p>The notation in @ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one Deep Neural Network <span class="math inline">\(f\)</span>:</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}_t&amp;= f(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar-uni)
+\end{equation}\]</span></p>
+<p>This approach is in fact proposed and investigated by <span class="citation">@verstyuk2020modeling</span> in his upcoming publication. We decided to go with the approach in @ref(eq:dvar) for two reasons: firstly, the link to conventional VARs is made abundantly clear through this implementation and, secondly, we found that the equation-by-equation approach produces good modelling outcomes and is relatively easy to implement using state-of-the art software.</p>
+<p>Finally, note that if <span class="math inline">\(f_i\)</span> in @ref(eq:single-var) is assumed to be linear and additive for all <span class="math inline">\(i=1,...,K\)</span> then we are back to the conventional VAR(<span class="math inline">\(p\)</span>). This illustrates the point we made earlier that the linear VAR(<span class="math inline">\(p\)</span>) is just a particular case of a Deep VAR(<span class="math inline">\(p\)</span>). Since the model described in equations @ref(eq:single-dvar) and @ref(eq:dvar) is less restrictive but otherwise consistent with the conventional VAR framework, we expect that it outperforms the traditional approach towards modelling multivariate time series processes.</p>
+<div id="recurrent-neural-networks" class="section level3">
+<h3>Recurrent Neural Networks</h3>
+<p>…</p>
+</div>
+</div>
 <div id="model-selection" class="section level2">
 <h2>Model selection</h2>
-<p>The simplicity that characterizes the linear VAR model</p>
+<p>There are at least two important modelling choices to be made in the context of conventional VARs. The first choice concerns properties of the time series data itself, in particular the order of integration and cointegration. The second choice is about the the lag order <span class="math inline">\(p\)</span>. In order to arrive at appropriate decisions regarding these choices the VAR literature provides a set of guiding principles. We propose to apply these same principles to the Deep VAR, firstly because they are intuitive and simple and secondly because treating both models equally to begin with allows for a better comparison of the two models at the subsequent modelling stages.</p>
 <div id="stationarity" class="section level3">
 <h3>Stationarity</h3>
 <p>When working with time series we are generally concerned about stationarity. Broadly speaking stationarity ensures that the future is like the past and hence any predictions we make based on past data adequately describe future outcomes. In the context of VARs stationarity is follows from stability: a VAR(<span class="math inline">\(p\)</span>) is stable if the effects of shocks to the system eventually die out. Stability can assessed through the system’s autoregressive roots or equivalently by looking at the eigenvalues of companion matrix <span class="math inline">\(\mathbf{A}\)</span> <span class="citation">[@kilian2017structural]</span>. In particular, for the VAR(<span class="math inline">\(p\)</span>) in @ref(eq:companion) to be stable we condition that the <span class="math inline">\(Kp\)</span> eigenvalues <span class="math inline">\(\lambda\)</span> that satisfy</p>
@@ -255,14 +288,35 @@ summary {
 \end{aligned}
 \]</span></p>
 <p>are all of absolute value less than one. Stability implies that the first and second moments of the VAR(<span class="math inline">\(p\)</span>) process are time-invariant, hence ensuring weak stationarity <span class="citation">[@kilian2017structural]</span>.</p>
-<p>A straight-forward way to deal with stationarity of VARs is to simply ensure that the individual time series entering the system are stationary. This usually involves differencing the time series until they are stationary: for any time series <span class="math inline">\(y_i\)</span> that is integrated of order <span class="math inline">\(I(\delta)\)</span>, there exists a <span class="math inline">\(\delta\)</span>-order difference that is stationary. An immediate drawback of this approach is the loss of information contained in the levels of the time series. Modelling approaches that take into account conintegration of individual time series can ensure system stationarity and still let individually non-stationary time series enter the system in levels <span class="citation">[@hamilton1994timeseries]</span>.</p>
+<p>A straight-forward way to deal with stationarity of VARs is to simply ensure that the individual time series entering the system are stationary. This usually involves differencing the time series until they are stationary: for any time series <span class="math inline">\(y_i\)</span> that is integrated of order <span class="math inline">\(I(\delta)\)</span>, there exists a <span class="math inline">\(\delta\)</span>-order difference that is stationary. An immediate drawback of this approach is the loss of information contained in the levels of the time series. Modelling approaches that take into account conintegration of individual time series can ensure system stationarity and still let individually non-stationary time series enter the system in levels <span class="citation">[@hamilton1994time]</span>.</p>
 </div>
 <div id="lag-order" class="section level3">
 <h3>Lag order</h3>
+<p>The VARs lag order <span class="math inline">\(p\)</span> can to some extent be thought of as the persistency of the process: past innovations that still affect outcomes in time <span class="math inline">\(t\)</span> happened at most <span class="math inline">\(p\)</span> periods ago. From a pure model selection perspective we can also think of additional lags in terms of additional regressors that add to the model’s complexity. From that perspective choosing a lower lag order corresponds to a form a regularization as it pertains a more parsimonious model.</p>
+<p>Various strategies have been proposed to estimate the true or optimal lag order <span class="math inline">\(p\)</span> empirically <span class="citation">[@kilian2017structural]</span>. Among the most common ones are sequential testing procedures and selection based on information criteria. The former involves sequentially adding or removing lags - <em>bottom-up</em> and <em>top-down</em> testing, respectively - and then testing model outcomes in each iteration. A common point of criticism of sequential procedures is that the order tests matters.</p>
+<blockquote>
+<p>Insert reference to Lütkepohl (2005, Section 4.2.3)</p>
+</blockquote>
+<p>Here we will focus on selection based on information criteria, which to some extent makes the trade-off between bias an various explicit <span class="citation">[@kilian2017structural]</span>. In particular, it generally involves minimizing information criteria of the following form</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; C(m)&amp;= \log(\det(\hat\Sigma(m))) + \ell(m)\\
+\end{aligned}
+(\#eq:ic)
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(\hat\Sigma\)</span> is just the sample estimate of the covariance matrix or errors and <span class="math inline">\(\ell\)</span> is a loss function that penalizes high lag orders. In particular, we have that our best estimate of the optimal lag order <span class="math inline">\(p\)</span> is simply</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \hat{p}&amp;=\arg\min_{m\in\mathcal{P}}C(m) \\
+\end{aligned}
+(\#eq:ic-min)
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(\mathcal{P}=[m_{\min},m_{\max}]\)</span>. We will consider all of the most common functional choices for @ref(eq:ic).</p>
 </div>
+<div id="neural-network-architecture" class="section level3">
+<h3>Neural Network Architecture</h3>
+<p>…</p>
 </div>
-<div id="deepvar" class="section level2">
-<h2>Deep Vector Autoregression</h2>
 </div>
 </div>
 

@@ -10,18 +10,19 @@ Let $\mathbf{y}_t$ denote the $(K \times 1)$ vector of variables at time $t$. Th
 \begin{aligned}
 && \mathbf{y}_t&=\mathbf{c} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbf{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t \\
 \end{aligned}
-(\#eq:red-form)
+(\#eq:redform)
 \end{equation}
 
-The matrices $\mathbf{A}_m$, $m\in\{1,...,p\}$ contain the reduced form coefficients and $\mathbf{u}_t$ is a vector of errors for which $\mathbb{E}\mathbf{u}_t$, $\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma$ and $\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}$ for all $t\ne s$. We refer to \@ref(eq:red-form) as the *reduced form* representation of the VAR($p$) because all right-hand side variables are predetermined [@kilian2017structural]. 
+The matrices $\mathbf{A}_m$, $m\in\{1,...,p\}$ contain the reduced form coefficients and $\mathbf{u}_t$ is a vector of errors for which $\mathbb{E}\mathbf{u}_t$, $\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma$ and $\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}$ for all $t\ne s$. We refer to \@ref(eq:redform) as the *reduced form* representation of the VAR($p$) because all right-hand side variables are predetermined [@kilian2017structural]. 
 
-To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from \@ref(eq:red-form) that 
+To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from \@ref(eq:redform) that 
 
-$$
+\begin{equation} 
 \begin{aligned}
-&& y_{it}&=c_i+ \sum_{m=1}^{p} \sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it} \\
+&& y_{it}&=c_i+\sum_{m=1}^{p}\sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it}&&,&&\forall i=1,...,K\\
 \end{aligned}
-$$
+(\#eq:single-var)
+\end{equation}
 
 which corresponds to the key modelling assumption that at any point in time $t$ any time series $i\in1,...,K$ is just a weighted sum of past realizations of itself and all other variables in the system. This assumption makes the estimation VAR($p$) processes remarkably simple. Perhaps more importantly, the assumption of linearity also greatly facilitates inference about VARs.
 
@@ -60,9 +61,50 @@ where $\mathbf{Y}_t=(\mathbf{y}_t^T,...,\mathbf{y}^T_{t-p+1})^T$ and $\mathbf{A}
 (\#eq:ols)
 \end{equation}
 
+## Deep Vector Autoregression {#deepvar}
+
+We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before we let $\mathbf{y}_t$ denote the $(K \times 1)$ vector that describes the state of system at time $t$. Consistent with the conventional VAR we assume that each individual time series $y_{it}$ can be modelled as a function of lagged realizations of all variables $y_{jt-p}$, $j=1,...,K$, $m=1,...,p$. More specifically we have 
+
+\begin{equation} 
+\begin{aligned}
+&& y_{it}&=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &&,&&\forall i=1,...,K \\
+\end{aligned}
+(\#eq:single-dvar)
+\end{equation}
+
+where $\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}$ is the vector of lagged realizations, $f_i$ is a variable specific mapping from past lags to the present and $\theta$ is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR($p$) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form [@goodfellow2016deep]. 
+
+A plain-vanilla approach to Deep VARs boils down to simply modelling each of the univariate outcomes in \@ref(eq:single-dvar) as a Deep Neural Network. This is exactly the type of Deep VAR($p$) we are investigating in this paper. We can restate our approach more compactly as 
+
+\begin{equation} 
+\begin{aligned}
+&& \mathbf{y}_t&= \mathbf{f}(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar)
+\end{equation}
+
+where $\mathbf{f}(\mathbf{y}_{t-1:t-p})=(f_1(\mathbf{y}_{t-1:t-p}), f_2(\mathbf{y}_{t-1:t-p}),...,f_K(\mathbf{y}_{t-1:t-p}))^T$ is just the stacked vector of mappings to univariate outcomes described in \@ref(eq:single-dvar).
+
+The notation in \@ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one Deep Neural Network $f$:
+
+\begin{equation} 
+\begin{aligned}
+&& \mathbf{y}_t&= f(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar-uni)
+\end{equation}
+
+This approach is in fact proposed and investigated by @verstyuk2020modeling in his upcoming publication. We decided to go with the approach in \@ref(eq:dvar) for two reasons: firstly, the link to conventional VARs is made abundantly clear through this implementation and, secondly, we found that the equation-by-equation approach produces good modelling outcomes and is relatively easy to implement using state-of-the art software.
+
+Finally, note that if $f_i$ in \@ref(eq:single-var) is assumed to be linear and additive for all $i=1,...,K$ then we are back to the conventional VAR($p$). This illustrates the point we made earlier that the linear VAR($p$) is just a particular case of a Deep VAR($p$). Since the model described in equations \@ref(eq:single-dvar) and \@ref(eq:dvar) is less restrictive but otherwise consistent with the conventional VAR framework, we expect that it outperforms the traditional approach towards modelling multivariate time series processes.
+
+### Recurrent Neural Networks
+
+...
+
 ## Model selection
 
-The simplicity that characterizes the linear VAR model 
+There are at least two important modelling choices to be made in the context of conventional VARs. The first choice concerns properties of the time series data itself, in particular the order of integration and cointegration. The second choice is about the the lag order $p$. In order to arrive at appropriate decisions regarding these choices the VAR literature provides a set of guiding principles. We propose to apply these same principles to the Deep VAR, firstly because they are intuitive and simple and secondly because treating both models equally to begin with allows for a better comparison of the two models at the subsequent modelling stages.
 
 ### Stationarity {#stationarity}
 
@@ -80,9 +122,35 @@ A straight-forward way to deal with stationarity of VARs is to simply ensure tha
 
 ### Lag order
 
-## Deep Vector Autoregression {#deepvar}
+The VARs lag order $p$ can to some extent be thought of as the persistency of the process: past innovations that still affect outcomes in time $t$ happened at most $p$ periods ago. From a pure model selection perspective we can also think of additional lags in terms of additional regressors that add to the model's complexity. From that perspective choosing a lower lag order corresponds to a form a regularization as it pertains a more parsimonious model.
 
+Various strategies have been proposed to estimate the true or optimal lag order $p$ empirically [@kilian2017structural]. Among the most common ones are sequential testing procedures and selection based on information criteria. The former involves sequentially adding or removing lags - *bottom-up* and *top-down* testing, respectively - and then testing model outcomes in each iteration. A common point of criticism of sequential procedures is that the order tests matters.
+ 
+> Insert reference to Lütkepohl (2005, Section 4.2.3)
+ 
+Here we will focus on selection based on information criteria, which to some extent makes the trade-off between bias an various explicit [@kilian2017structural]. In particular, it generally involves minimizing information criteria of the following form
 
+\begin{equation} 
+\begin{aligned}
+&& C(m)&= \log(\det(\hat\Sigma(m))) + \ell(m)\\
+\end{aligned}
+(\#eq:ic)
+\end{equation}
+
+where $\hat\Sigma$ is just the sample estimate of the covariance matrix or errors and $\ell$ is a loss function that penalizes high lag orders. In particular, we have that our best estimate of the optimal lag order $p$ is simply
+
+\begin{equation} 
+\begin{aligned}
+&& \hat{p}&=\arg\min_{m\in\mathcal{P}}C(m) \\
+\end{aligned}
+(\#eq:ic-min)
+\end{equation}
+
+where $\mathcal{P}=[m_{\min},m_{\max}]$. We will consider all of the most common functional choices for \@ref(eq:ic).
+
+### Neural Network Architecture
+
+...
 
 
 
