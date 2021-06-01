@@ -22,18 +22,16 @@ abstract: "Vector autoregression models have been the traditional technique in t
 knitr::opts_chunk$set(echo = FALSE)
 library(ggplot2)
 library(data.table)
+options(xtable.comment = FALSE)
 ```
 
 ```{r lit-review, child="lit_review.Rmd"}
 ```
 
+```{r data, child="data_paper_ig.Rmd"}
+```
+
 ```{r methodology, child="methodology.Rmd"}
-```
-
-```{r LSTM, child="LSTM.Rmd"}
-```
-
-```{r empirics, child="empirics.Rmd"}
 ```
 
 \FloatBarrier
