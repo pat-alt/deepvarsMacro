@@ -1,19 +1,62 @@
 # Data {#data}
 
-To study the monetary transmission mechanism we used monthly US data from Januray 1959 to March 2021. In order to explain the monetary transmission mechanism, we relied on foue differnt macroeconomic variables; output, prices, unemployment and rates. For each variable a time series is assigned. This time series is used as a proxy for its corresponding variables. We can see the poxies used for each variable below.
+To study the monetary transmission mechanism we used balncaded panel of monthly US data which spans the period of  January 1959 through March 2021. In order to explain the monetary transmission mechanism, the VAR literature relies on different indicators such us output and income, industrial new orders and turnover, retail sales and turnover,
+building permits, employment, consumption, price indices, exchange rates, short- and long-term interest rates, stock price indices, money and credit quantity aggregates, balance of payments and external trade, confidence indicators, and some foreign variables such as output, prices, interest rates, and stock markets from other countries used
+as proxies for external real, nominal and monetary influences.
+
+On this paper we relied on four of the macroeconomic indicators mentioned above; output, price indices, employment and rates. For each indicator we chose a time series as its proxy. We can see the proxies used for each variable below.
 
 - *output*: Industrial Production (IP)
-- *prices*: Consumer Price Inxex (CPI)
+- *price indices*: Consumer Price Index (CPI)
 - *unemployment*: Unemployment rate (UR)
 - *rates*: US Federal Fund Rates (FFR)
 
 Note that we use IP rather than GDP as a proxy for output because for the case of the GDP only quartery data was available. 
 
-As consequence of working with monthly data, we have 745 observations, each with the four variables previously mentioned.
-
-These are the standard variables to include when evaluating the empirical effects of monetary transmission mechanism.
+As consequence of working with monthly data, we worked 745 observations, each with the four variables previously mentioned.
 
 The data is taken from the Economic Research department of the Federal Reserve Bank of Saint Louis (FRED). In a recent paper, they have created a monthly database for economic research (FRED-MD), a macroeconomics data base which consists of 134 monthly US indicators. The data is automatically updated each month and can be downloaded freely, facilitating the replication of results and comparing results. 
 
-Another strength of using the FRED-MD is the fact that the data is already preprocessed. 
+Another strength of using the FRED-MD is the fact that the data is already preprocessed. To see how it has been preprocessed see the Methodology section.
+
+In the graph below we can find the time series already preprocessed by the FRED-MD.
+
+```{r, echo=FALSE}
+library(data.table)
+library("fbi")
+library("ggplot2")
+
+test <- fredmd("fredmd/2021-04.csv")
+variables <- c("date", "X6", "X25", "X113", "X84")
+variables_names <- c("date", "IP", "UR", "CPI", "FFR")
+test <- test[3:nrow(test),variables]
+colnames(test) <- variables_names
+
+dt_final <- data.table(test)
+dt_long <- melt(dt_final, id.vars = "date")
+
+ggplot(data = dt_long, aes(x=date, y=value)) +
+  geom_line() +
+  facet_wrap(~variable, scales="free_y")
+```
+
+
+```{r, results='asis'}
+library(xtable)
+library(plyr)
+dtf <- sapply(dt_final[,2:5], each(min, max, mean, sd, var, median, IQR))
+xtable(dtf, caption = c("Summary statistics"))
+```
+
+# Pre Covid vs Post Covid Summary Stats
+```{r, results='asis'}
+dtf_pre <- sapply(dt_final[date < as.Date("2020-03-01"),2:5], each(min, max, mean, sd, var, median, IQR))
+
+xtable(dtf_pre, caption = c("Summary statistics pre Covid"))
+```
+
+```{r, results='asis'}
+dtf_post <- sapply(dt_final[date >= as.Date("2020-03-01"),2:5], each(min, max, mean, sd, var, median, IQR))
+xtable(dtf_post, caption = c("Summary statistics post Covid"))
+```
 
