@@ -67,16 +67,40 @@ We propose the term Deep Vector Autoregression to refer to the broad class of Ve
 
 \begin{equation} 
 \begin{aligned}
-&& y_{it}&=f_i\left(\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K};\theta\right)+v_{it} &&,&&\forall i=1,...,K \\
+&& y_{it}&=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &&,&&\forall i=1,...,K \\
 \end{aligned}
 (\#eq:single-dvar)
 \end{equation}
 
-where $f_i$ is variable specific mapping from past lags to the present and $\theta$ is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR($p$) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form [@goodfellow2016deep]. A plain-vanilla approach to Deep VARs therefore boils down to simply modelling each of the univariate outcomes in \@ref(eq:single-dvar) as a Deep Neural Network. Note here that if $f_i$ is assumed to be linear and additive then we are back to the conventional VAR($p$) equation specified in \@ref(eq:single-var). This illustrates the point we made earlier that the linear VAR($p$) is just a particular case of a Deep VAR($p$). 
+where $\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}$ is the vector of lagged realizations, $f_i$ is a variable specific mapping from past lags to the present and $\theta$ is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR($p$) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form [@goodfellow2016deep]. 
 
-...
+A plain-vanilla approach to Deep VARs boils down to simply modelling each of the univariate outcomes in \@ref(eq:single-dvar) as a Deep Neural Network. This is exactly the type of Deep VAR($p$) we are investigating in this paper. We can restate our approach more compactly as 
+
+\begin{equation} 
+\begin{aligned}
+&& \mathbf{y}_t&= \mathbf{f}(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar)
+\end{equation}
+
+where $\mathbf{f}(\mathbf{y}_{t-1:t-p})=(f_1(\mathbf{y}_{t-1:t-p}), f_2(\mathbf{y}_{t-1:t-p}),...,f_K(\mathbf{y}_{t-1:t-p}))^T$ is just the stacked vector of mappings to univariate outcomes described in \@ref(eq:single-dvar).
+
+The notation in \@ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one Deep Neural Network $f$:
+
+\begin{equation} 
+\begin{aligned}
+&& \mathbf{y}_t&= f(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar-uni)
+\end{equation}
+
+This approach is in fact proposed and investigated by @verstyuk2020modeling in his upcoming publication. We decided to go with the approach in \@ref(eq:dvar) for two reasons: firstly, the link to conventional VARs is made abundantly clear through this implementation and, secondly, we found that the equation-by-equation approach produces good modelling outcomes and is relatively easy to implement using state-of-the art software.
+
+Finally, note that if $f_i$ in \@ref(eq:single-var) is assumed to be linear and additive for all $i=1,...,K$ then we are back to the conventional VAR($p$). This illustrates the point we made earlier that the linear VAR($p$) is just a particular case of a Deep VAR($p$). Since the model described in equations \@ref(eq:single-dvar) and \@ref(eq:dvar) is less restrictive but otherwise consistent with the conventional VAR framework, we expect that it outperforms the traditional approach towards modelling multivariate time series processes.
 
 ### Recurrent Neural Networks
+
+...
 
 ## Model selection
 
