@@ -25,6 +25,9 @@ library(data.table)
 options(xtable.comment = FALSE)
 ```
 
+```{r introduction, child="introduction.Rmd"}
+```
+
 ```{r lit-review, child="lit_review.Rmd"}
 ```
 
@@ -32,6 +35,9 @@ options(xtable.comment = FALSE)
 ```
 
 ```{r methodology, child="methodology.Rmd"}
+```
+
+```{r empirics, child="empirics.Rmd"}
 ```
 
 \FloatBarrier

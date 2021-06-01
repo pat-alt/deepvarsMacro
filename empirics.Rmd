@@ -1,17 +1,199 @@
 # Empirics
 
-```{r, echo = FALSE}
+```{r}
 library(fbi)
+library(deepvars)
+library(data.table)
+```
+
+Transform the data
+<<<<<<< HEAD
+=======
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r, echo = FALSE}
 test <- fredmd("fredmd/2021-04.csv")
 variables <- c("date", "X6", "X25", "X113", "X84")
 variables_names <- c("date", "IP", "UR", "CPI", "FFR")
 test <- test[3:nrow(test),variables]
 colnames(test) <- variables_names
-dt <- test
+dt <- data.table(test)
+var_cols = colnames(dt)[2:ncol(dt)]
 ```
 
+Train test split
 ```{r}
-train_test_split <- split(dt)
+train_test_split <- split_sample(dt)
 train_data <- train_test_split$train_data
 ```
+
+<<<<<<< HEAD
+Select the number of lags adequate to VAR
+```{r}
+lags <- VAR_lag_select(train_data[,.SD,.SDcols=var_cols])$p
+```
+Run VAR and DeepVAR
+=======
+Select the number of lags
+
+```{r}
+lags <- VAR_lag_select(train_data[,.SD,.SDcols=var_cols])$p
+```
+
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+# VAR
+var_model <- vareg(train_data, lags = lags)
+# Deep VAR
+deepvar_model <- deepvareg(train_data, lags=lags, num_units = 100, epochs=100, p_drop_out = 0.5)
+```
+<<<<<<< HEAD
+Predictions in sample
+=======
+
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+y_true <- var_model$y_train
+```
+
+<<<<<<< HEAD
+VAR:
+=======
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+pred_var <- predict(var_model)
+plot(pred_var, y_true = y_true)
+```
+<<<<<<< HEAD
+DeeVAR:
+=======
+
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+pred_deepvar <- predict(deepvar_model)
+plot(pred_deepvar, y_true = y_true)
+```
+
+<<<<<<< HEAD
+Predictions out of sample
+=======
+
+Out-of-sample
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+
+```{r}
+X_test <- prepare_test_data(train_test_split, lags=lags)$X_test
+y_test <- prepare_test_data(train_test_split, lags=lags)$y_test
+<<<<<<< HEAD
+```
+
+VAR:
+```{r}
+pred_var <- predict(var_model, X=X_test)
+plot(pred_var, y_true = y_test)
+```
+DeepVAR:
+=======
+pred_var <- predict(var_model, X=X_test)
+plot(pred_var, y_true = y_test)
+```
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+pred_dvar <- predict(deepvar_model, X=X_test)
+plot(pred_dvar, y_true = y_test)
+```
+
+<<<<<<< HEAD
+Comulative loss:
+=======
+Cumulative loss in-sample
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="var"]
+cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="deepvar"]
+dt_plot <- rbind(cum_loss_dvar, cum_loss_var)
+ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
+  ggplot2::geom_line() +
+  ggplot2::facet_wrap(~variable, scales = "free_y") +
+  ggplot2::scale_color_discrete(name="Model:") +
+  ggplot2::labs(
+      x="Date",
+      y="Squared error"
+    )
+```
+
+<<<<<<< HEAD
+RMSE:
+=======
+Cumulative loss out-of-sample
+
+```{r}
+cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="var"]
+cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="deepvar"]
+dt_plot <- rbind(cum_loss_dvar, cum_loss_var)
+ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
+  ggplot2::geom_line() +
+  ggplot2::facet_wrap(~variable, scales = "free_y") +
+  ggplot2::scale_color_discrete(name="Model:") +
+  ggplot2::labs(
+      x="Date",
+      y="Squared error"
+    )
+```
+
+
+
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+rmse_var <- rbind(
+  rmse(var_model)[,model:="var"][,sample:="train"],
+  rmse(var_model, X=X_test, y=y_test)[,model:="var"][,sample:="test"]
+)
+rmse_dvar <- rbind(
+  rmse(deepvar_model)[,model:="deepvar"][,sample:="train"],
+  rmse(deepvar_model, X=X_test, y=y_test)[,model:="deepvar"][,sample:="test"]
+)
+tab_rmse <- rbind(rmse_var, rmse_dvar)
+tab_rmse <- data.table::dcast(tab_rmse, sample + variable ~ model, value.var = "value")
+<<<<<<< HEAD
+tab_rmse[, ratio:= deepvar/var]
+knitr::kable(
+  tab_rmse, 
+  col.names = c("Sample", "Variable", "DVAR", "VAR", "Ratio"),
+=======
+knitr::kable(
+  tab_rmse, 
+  col.names = c("Sample", "Variable", "DVAR", "VAR"),
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+  digits = 5
+) 
+```
+
+<<<<<<< HEAD
+Forecasts
+
+VAR:
+=======
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+fcst_var <- forecast(var_model, n.ahead = 50)
+plot(fcst_var)
+```
+
+<<<<<<< HEAD
+DeepVAR:
+=======
+>>>>>>> ad679e02af426f6d2a0428f10efea4ea35917d5b
+```{r}
+fcst_dvar <- forecast(deepvar_model, n.ahead = 50)
+plot(fcst_dvar)
+```
+
 
