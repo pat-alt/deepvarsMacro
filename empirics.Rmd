@@ -79,6 +79,7 @@ plot(pred_dvar, y_true = y_test)
 Comulative loss:
 
 Cumulative loss in-sample
+
 ```{r}
 cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="var"]
 cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="deepvar"]
@@ -94,6 +95,7 @@ ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
 ```
 
 Cumulative loss out-of-sample
+
 ```{r}
 cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="var"]
 cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="deepvar"]
