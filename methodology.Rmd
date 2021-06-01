@@ -74,7 +74,7 @@ We propose the term Deep Vector Autoregression to refer to the broad class of Ve
 
 where $\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}$ is the vector of lagged realizations, $f_i$ is a variable specific mapping from past lags to the present and $\theta$ is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR($p$) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form [@goodfellow2016deep]. 
 
-A plain-vanilla approach to Deep VARs boils down to simply modelling each of the univariate outcomes in \@ref(eq:single-dvar) as a Deep Neural Network. This is exactly the type of Deep VAR($p$) we are investigating in this paper. We can restate our approach more compactly as 
+Note that the input and output dimensions in \@ref(eq:single-dvar) are exactly the same as in the conventional VAR($p$) model (equation \@ref(eq:single-var)): $f_i$ maps from $\mathbf{y}_{t-1:t-p} \in \mathbb{R}^{Kp}$ to a scalar. Our proposed plain-vanilla approach to Deep VARs diverges as little as possible from the conventional approach: it boils down to simply modelling each of the univariate outcomes in \@ref(eq:single-dvar) as a deep neural network. We can restate this approach more compactly as 
 
 \begin{equation} 
 \begin{aligned}
@@ -85,7 +85,7 @@ A plain-vanilla approach to Deep VARs boils down to simply modelling each of the
 
 where $\mathbf{f}(\mathbf{y}_{t-1:t-p})=(f_1(\mathbf{y}_{t-1:t-p}), f_2(\mathbf{y}_{t-1:t-p}),...,f_K(\mathbf{y}_{t-1:t-p}))^T$ is just the stacked vector of mappings to univariate outcomes described in \@ref(eq:single-dvar).
 
-The notation in \@ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one Deep Neural Network $f$:
+The notation in \@ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one deep neural network $f$:
 
 \begin{equation} 
 \begin{aligned}
@@ -100,7 +100,15 @@ Finally, note that if $f_i$ in \@ref(eq:single-var) is assumed to be linear and 
 
 ### Recurrent Neural Networks
 
-...
+So far we have been speaking about deep learning in rather general terms. For example, above we have referred to our model of choice for learning the mapping $f_i: \mathbf{y}_{t-1:t-p} \mapsto y_{it}$ as a **deep neural network**. The class of deep neural networks can further be roughly divided into **feedforward neural networks** and **recurrent neural networks**. As the term suggests, the latter is generally used for sequential data and therefore our preferred model of choice. Nonetheless, below we will begin by briefly exploring feedforward neural networks first. This should serve as a good introduction to neural networks more generally and (even though we have not tested this empirically) there is good reason to believe that even Deep VARs using feedforward neural networks perform well.
+
+The term **feedforward neural network** is used to describe a broad class of models that are composed of possibly many functions that together make up the directed acyclical graph. The functions - sometimes referred as layers - are chained together hierarchically with the first layer feeding forward its outputs to the second layer and so on [@goodfellow2016deep]. Applied to or case, a deep neural network with $H$ hidden layers can be loosely defined as $f_i(\mathbf{y}_{t-1:t-p})=f_i^{(H)}\left(f_i^{(H-1)}\left(...f_i^{(1)}\left(\mathbf{y}_{t-1:t-p}\right)\right)\right)$. The depth of the neural network is defined by the number of hidden layers $H$ where generally speaking deeper network are more complex. 
+
+> Need a reference here.
+
+The desired outputs of any $f_i^{(h)}$ that will serve as inputs for $f_i^{(h+1)}$ cannot be inferred from the training data $\mathbf{y}_{t-1:t-p}$ ex-ante, which is where the term **hidden** layer stems from. Each $f_i^{(h)}$ is typically valued on a vector of hidden units, each of them receiving a vector of inputs from $f_i^{(h-1)}$ and returning a scalar that is referred to as activation value. This approach is inspired by neuroscience, hence the term **neural** network [@goodfellow2016deep].
+
+**Recurrent neural networks** develop the basic concepts underlying feedforward neural networks further by incorporating feedback loops...
 
 ## Model selection
 
