@@ -144,3 +144,15 @@ plot(fcst_dvar)
 ```
 
 
+DIEBOLD AND MARIANO:
+
+```{r}
+tab_dm <- data.table("ID" = var_cols)
+tab_dm[, DM:= DM.test(fcst_dvar$fcst[, ID], fcst_var$fcst[, ID], h=50)]
+knitr::kable(tab_dm, 
+  col.names = c("Sample", "Variable", "DVAR", "VAR", "Ratio"),
+  digits = 5) 
+```
+
+
+
