@@ -17,14 +17,12 @@ The matrices $\mathbf{A}_m$, $m\in\{1,...,p\}$ contain the reduced form coeffici
 
 We can restate \@ref(eq:redform) more compactly as 
 
-$$
 \begin{equation} 
 \begin{aligned}
 && \mathbf{y}_t&=\mathbf{A} \mathbf{Z}_{t-1} + \mathbf{u}_t \\
 \end{aligned}
 (\#eq:sur)
 \end{equation}
-$$
 
 where $\mathbf{A}=(\mathbf{c},\mathbf{A}_1,\mathbf{A}_2,...,\mathbf{A}_p)$ is of dimension $(K \times (Kp+1))$ and $\mathbf{Z}_{t-1}=(1,\mathbf{y}_{t-1}^T,...,\mathbf{y}_{t-p}^T)^T$ is of dimension $((Kp+1)\times1)$. The expression in \@ref(eq:sur) demonstrates that the VAR($p$) can be considered as a **seemingly unrelated regression** (SUR) model composed of individual regressions with common regressors [@greene2012econometric]. In fact, it is useful to note for our purposes that the VAR($p$) can be estimated efficiently through equation-by-equation OLS regression. In particular, it follows from \@ref(eq:sur) that
 
@@ -39,25 +37,21 @@ which corresponds to the key modelling assumption that at any point in time $t$ 
 
 For implementation purposes it is generally more useful to estimate the VAR($p$) through one single OLS regression. To this end let $\mathbf{\tilde{A}}=\mathbf{A}^{-1}$ and note that \@ref(eq:sur) can be restated even more compactly as 
 
-$$
 \begin{equation} 
 \begin{aligned}
 && \mathbf{y}&=\mathbf{Z} \mathbf{\tilde{A}} +  \mathbf{u}_t \\
 \end{aligned}
 (\#eq:var-ols)
 \end{equation}
-$$
 
 with $\mathbf{y}=(\mathbf{y}_1,...,\mathbf{y}_T)^T$ $(T \times K)$ and $\mathbf{Z}$ $(T \times (Kp+1))$. Then the closed form solution for OLS is simply $\mathbf{\tilde{A}}=(\mathbf{Z}^T\mathbf{Z})^{-1}\mathbf{Z}^T\mathbf{y}$ and hence
 
-$$
 \begin{equation} 
 \begin{aligned}
 && \mathbf{A}&=\mathbf{y}^T\mathbf{Z}(\mathbf{Z}\mathbf{Z}^T)^{-1} \\
 \end{aligned}
 (\#eq:ols-sol)
 \end{equation}
-$$
 
 ## Deep Vector Autoregression {#deepvar}
 
