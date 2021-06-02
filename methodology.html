@@ -204,7 +204,16 @@ summary {
 (\#eq:redform)
 \end{equation}\]</span></p>
 <p>The matrices <span class="math inline">\(\mathbf{A}_m\)</span>, <span class="math inline">\(m\in\{1,...,p\}\)</span> contain the reduced form coefficients and <span class="math inline">\(\mathbf{u}_t\)</span> is a vector of errors for which <span class="math inline">\(\mathbb{E}\mathbf{u}_t\)</span>, <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma\)</span> and <span class="math inline">\(\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}\)</span> for all <span class="math inline">\(t\ne s\)</span>. We refer to @ref(eq:redform) as the <em>reduced form</em> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined <span class="citation">[@kilian2017structural]</span>.</p>
-<p>To facilitate the discussion of Deep VARs below it is helpful to be explicit about how each individual time series is modelled. In particular, it follows from @ref(eq:redform) that</p>
+<p>We can restate @ref(eq:redform) more compactly as</p>
+<p><span class="math display">\[
+\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}_t&amp;=\mathbf{A} \mathbf{Z}_{t-1} + \mathbf{u}_t \\
+\end{aligned}
+(\#eq:sur)
+\end{equation}
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{A}=(\mathbf{c},\mathbf{A}_1,\mathbf{A}_2,...,\mathbf{A}_p)\)</span> is of dimension <span class="math inline">\((K \times (Kp+1))\)</span> and <span class="math inline">\(\mathbf{Z}_{t-1}=(1,\mathbf{y}_{t-1}^T,...,\mathbf{y}_{t-p}^T)^T\)</span> is of dimension <span class="math inline">\(((Kp+1)\times1)\)</span>. The expression in @ref(eq:sur) demonstrates that the VAR(<span class="math inline">\(p\)</span>) can be considered as a <strong>seemingly unrelated regression</strong> (SUR) model composed of individual regressions with common regressors. In fact, it is useful to note for our purposes that the VAR(<span class="math inline">\(p\)</span>) can be estimated efficiently through equation-by-equation OLS regression. In particular, it follows from @ref(eq:sur) that</p>
 <p><span class="math display">\[\begin{equation} 
 \begin{aligned}
 &amp;&amp; y_{it}&amp;=c_i+\sum_{m=1}^{p}\sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it}&amp;&amp;,&amp;&amp;\forall i=1,...,K\\
@@ -212,7 +221,69 @@ summary {
 (\#eq:single-var)
 \end{equation}\]</span></p>
 <p>which corresponds to the key modelling assumption that at any point in time <span class="math inline">\(t\)</span> any time series <span class="math inline">\(i\in1,...,K\)</span> is just a weighted sum of past realizations of itself and all other variables in the system. This assumption makes the estimation VAR(<span class="math inline">\(p\)</span>) processes remarkably simple. Perhaps more importantly, the assumption of linearity also greatly facilitates inference about VARs.</p>
-<p>For implementation purposes and in order to state stationarity conditions it is convenient to restate the <span class="math inline">\(K\)</span>-dimensional VAR(<span class="math inline">\(p\)</span>) process more compactly in companion form as</p>
+<p>For implementation purposes it is generally more useful to estimate the VAR(<span class="math inline">\(p\)</span>) through one single OLS regression. To this end let <span class="math inline">\(\mathbf{\tilde{A}}=\mathbf{A}^{-1}\)</span> and note that @ref(eq:sur) can be restated even more compactly as</p>
+<p><span class="math display">\[
+\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}&amp;=\mathbf{Z} \mathbf{\tilde{A}} +  \mathbf{u}_t \\
+\end{aligned}
+(\#eq:var-ols)
+\end{equation}
+\]</span></p>
+<p>with <span class="math inline">\(\mathbf{y}=(\mathbf{y}_1,...,\mathbf{y}_T)^T\)</span> <span class="math inline">\((T \times K)\)</span> and <span class="math inline">\(\mathbf{Z}\)</span> <span class="math inline">\((T \times (Kp+1))\)</span>. Then the closed form solution for OLS is simply <span class="math inline">\(\mathbf{\tilde{A}}=(\mathbf{Z}^T\mathbf{Z})^{-1}\mathbf{Z}^T\mathbf{y}\)</span> and hence</p>
+<p><span class="math display">\[
+\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{A}&amp;=\mathbf{y}^T\mathbf{Z}(\mathbf{Z}\mathbf{Z}^T)^{-1} \\
+\end{aligned}
+(\#eq:ols-sol)
+\end{equation}
+\]</span></p>
+</div>
+<div id="deepvar" class="section level2">
+<h2>Deep Vector Autoregression</h2>
+<p>We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before we let <span class="math inline">\(\mathbf{y}_t\)</span> denote the <span class="math inline">\((K \times 1)\)</span> vector that describes the state of system at time <span class="math inline">\(t\)</span>. Consistent with the conventional VAR we assume that each individual time series <span class="math inline">\(y_{it}\)</span> can be modelled as a function of lagged realizations of all variables <span class="math inline">\(y_{jt-p}\)</span>, <span class="math inline">\(j=1,...,K\)</span>, <span class="math inline">\(m=1,...,p\)</span>. More specifically we have</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; y_{it}&amp;=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
+\end{aligned}
+(\#eq:single-dvar)
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}\)</span> is the vector of lagged realizations, <span class="math inline">\(f_i\)</span> is a variable specific mapping from past lags to the present and <span class="math inline">\(\theta\)</span> is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR(<span class="math inline">\(p\)</span>) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form <span class="citation">[@goodfellow2016deep]</span>.</p>
+<p>Note that the input and output dimensions in @ref(eq:single-dvar) are exactly the same as in the conventional VAR(<span class="math inline">\(p\)</span>) model (equation @ref(eq:single-var)): <span class="math inline">\(f_i\)</span> maps from <span class="math inline">\(\mathbf{y}_{t-1:t-p} \in \mathbb{R}^{Kp}\)</span> to a scalar. Our proposed plain-vanilla approach to Deep VARs diverges as little as possible from the conventional approach: it boils down to simply modelling each of the univariate outcomes in @ref(eq:single-dvar) as a deep neural network. We can restate this approach more compactly as</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}_t&amp;= \mathbf{f}(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar)
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(\mathbf{f}(\mathbf{y}_{t-1:t-p})=(f_1(\mathbf{y}_{t-1:t-p}), f_2(\mathbf{y}_{t-1:t-p}),...,f_K(\mathbf{y}_{t-1:t-p}))^T\)</span> is just the stacked vector of mappings to univariate outcomes described in @ref(eq:single-dvar).</p>
+<p>The notation in @ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one deep neural network <span class="math inline">\(f\)</span>:</p>
+<p><span class="math display">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}_t&amp;= f(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
+\end{aligned}
+(\#eq:dvar-uni)
+\end{equation}\]</span></p>
+<p>This approach is in fact proposed and investigated by <span class="citation">@verstyuk2020modeling</span> in his upcoming publication. We decided to go with the approach in @ref(eq:dvar) for two reasons: firstly, the link to conventional VARs is made abundantly clear through this implementation and, secondly, we found that the equation-by-equation approach produces good modelling outcomes and is relatively easy to implement using state-of-the art software.</p>
+<p>Finally, note that if <span class="math inline">\(f_i\)</span> in @ref(eq:single-var) is assumed to be linear and additive for all <span class="math inline">\(i=1,...,K\)</span> then we are back to the conventional VAR(<span class="math inline">\(p\)</span>). This illustrates the point we made earlier that the linear VAR(<span class="math inline">\(p\)</span>) is just a particular case of a Deep VAR(<span class="math inline">\(p\)</span>). Since the model described in equations @ref(eq:single-dvar) and @ref(eq:dvar) is less restrictive but otherwise consistent with the conventional VAR framework, we expect that it outperforms the traditional approach towards modelling multivariate time series processes.</p>
+<div id="recurrent-neural-networks" class="section level3">
+<h3>Recurrent Neural Networks</h3>
+<p>So far we have been speaking about deep learning in rather general terms. For example, above we have referred to our model of choice for learning the mapping <span class="math inline">\(f_i: \mathbf{y}_{t-1:t-p} \mapsto y_{it}\)</span> as a <strong>deep neural network</strong>. The class of deep neural networks can further be roughly divided into <strong>feedforward neural networks</strong> and <strong>recurrent neural networks</strong>. As the term suggests, the latter is generally used for sequential data and therefore our preferred model of choice. Nonetheless, below we will begin by briefly exploring feedforward neural networks first. This should serve as a good introduction to neural networks more generally and (even though we have not tested this empirically) there is good reason to believe that even Deep VARs using feedforward neural networks perform well.</p>
+<p>The term <strong>feedforward neural network</strong> is used to describe a broad class of models that are composed of possibly many functions that together make up the directed acyclical graph. The functions - sometimes referred as layers - are chained together hierarchically with the first layer feeding forward its outputs to the second layer and so on <span class="citation">[@goodfellow2016deep]</span>. Applied to or case, a deep neural network with <span class="math inline">\(H\)</span> hidden layers can be loosely defined as <span class="math inline">\(f_i(\mathbf{y}_{t-1:t-p})=f_i^{(H)}\left(f_i^{(H-1)}\left(...f_i^{(1)}\left(\mathbf{y}_{t-1:t-p}\right)\right)\right)\)</span>. The depth of the neural network is defined by the number of hidden layers <span class="math inline">\(H\)</span> where generally speaking deeper network are more complex.</p>
+<blockquote>
+<p>Need a reference here.</p>
+</blockquote>
+<p>The desired outputs of any <span class="math inline">\(f_i^{(h)}\)</span> that will serve as inputs for <span class="math inline">\(f_i^{(h+1)}\)</span> cannot be inferred from the training data <span class="math inline">\(\mathbf{y}_{t-1:t-p}\)</span> ex-ante, which is where the term <strong>hidden</strong> layer stems from. Each <span class="math inline">\(f_i^{(h)}\)</span> is typically valued on a vector of hidden units, each of them receiving a vector of inputs from <span class="math inline">\(f_i^{(h-1)}\)</span> and returning a scalar that is referred to as activation value. This approach is inspired by neuroscience, hence the term <strong>neural</strong> network <span class="citation">[@goodfellow2016deep]</span>.</p>
+<p><strong>Recurrent neural networks</strong> develop the basic concepts underlying feedforward neural networks by incorporating feedback loops…</p>
+</div>
+</div>
+<div id="model-selection" class="section level2">
+<h2>Model selection</h2>
+<p>There are at least two important modelling choices to be made in the context of conventional VARs. The first choice concerns properties of the time series data itself, in particular the order of integration and cointegration. The second choice is about the the lag order <span class="math inline">\(p\)</span>. In order to arrive at appropriate decisions regarding these choices the VAR literature provides a set of guiding principles. We propose to apply these same principles to the Deep VAR, firstly because they are intuitive and simple and secondly because treating both models equally to begin with allows for a better comparison of the two models at the subsequent modelling stages.</p>
+<div id="stationarity" class="section level3">
+<h3>Stationarity</h3>
+<p>When working with time series we are generally concerned about stationarity. Broadly speaking stationarity ensures that the future is like the past and hence any predictions we make based on past data adequately describe future outcomes. In order to state stationarity conditions in the VAR context it is convenient to restate the <span class="math inline">\(K\)</span>-dimensional VAR(<span class="math inline">\(p\)</span>) process in companion form as</p>
 <p><span class="math display">\[\begin{equation} 
 \begin{aligned}
 &amp;&amp; \mathbf{Y}_t&amp;= \begin{pmatrix}
@@ -229,59 +300,7 @@ summary {
 \end{aligned}
 (\#eq:companion)
 \end{equation}\]</span></p>
-<p>where <span class="math inline">\(\mathbf{Y}_t=(\mathbf{y}_t^T,...,\mathbf{y}^T_{t-p+1})^T\)</span> and <span class="math inline">\(\mathbf{A}\)</span> is referred to as the companion matrix <span class="citation">[@kilian2017structural]</span>. Letting <span class="math inline">\(\mathbf{Z}=(\mathbf{1}, \mathbf{Y})\)</span> we have a simple closed form solution for estimating reduced form coefficients through ordinary least squares (OLS):</p>
-<p><span class="math display">\[\begin{equation} 
-\begin{aligned}
-&amp;&amp; \widehat{
-\left(\begin{pmatrix}
- \mathbf{c} \\
-0 \\
-\vdots \\
-0 \\
-\end{pmatrix},\mathbf{A}\right)
-}&amp;= \left( \mathbf{Z}_{t-1}^T\mathbf{Z}_{t-1} \right)^{-1} \mathbf{Z}_{t-1}^T \mathbf{Y}_t\\
-\end{aligned}
-(\#eq:ols)
-\end{equation}\]</span></p>
-</div>
-<div id="deepvar" class="section level2">
-<h2>Deep Vector Autoregression</h2>
-<p>We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before we let <span class="math inline">\(\mathbf{y}_t\)</span> denote the <span class="math inline">\((K \times 1)\)</span> vector that describes the state of system at time <span class="math inline">\(t\)</span>. Consistent with the conventional VAR we assume that each individual time series <span class="math inline">\(y_{it}\)</span> can be modelled as a function of lagged realizations of all variables <span class="math inline">\(y_{jt-p}\)</span>, <span class="math inline">\(j=1,...,K\)</span>, <span class="math inline">\(m=1,...,p\)</span>. More specifically we have</p>
-<p><span class="math display">\[\begin{equation} 
-\begin{aligned}
-&amp;&amp; y_{it}&amp;=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
-\end{aligned}
-(\#eq:single-dvar)
-\end{equation}\]</span></p>
-<p>where <span class="math inline">\(\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}\)</span> is the vector of lagged realizations, <span class="math inline">\(f_i\)</span> is a variable specific mapping from past lags to the present and <span class="math inline">\(\theta\)</span> is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR(<span class="math inline">\(p\)</span>) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form <span class="citation">[@goodfellow2016deep]</span>.</p>
-<p>A plain-vanilla approach to Deep VARs boils down to simply modelling each of the univariate outcomes in @ref(eq:single-dvar) as a Deep Neural Network. This is exactly the type of Deep VAR(<span class="math inline">\(p\)</span>) we are investigating in this paper. We can restate our approach more compactly as</p>
-<p><span class="math display">\[\begin{equation} 
-\begin{aligned}
-&amp;&amp; \mathbf{y}_t&amp;= \mathbf{f}(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
-\end{aligned}
-(\#eq:dvar)
-\end{equation}\]</span></p>
-<p>where <span class="math inline">\(\mathbf{f}(\mathbf{y}_{t-1:t-p})=(f_1(\mathbf{y}_{t-1:t-p}), f_2(\mathbf{y}_{t-1:t-p}),...,f_K(\mathbf{y}_{t-1:t-p}))^T\)</span> is just the stacked vector of mappings to univariate outcomes described in @ref(eq:single-dvar).</p>
-<p>The notation in @ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one Deep Neural Network <span class="math inline">\(f\)</span>:</p>
-<p><span class="math display">\[\begin{equation} 
-\begin{aligned}
-&amp;&amp; \mathbf{y}_t&amp;= f(\mathbf{y}_{t-1:t-p}) + \mathbf{v}_t \\
-\end{aligned}
-(\#eq:dvar-uni)
-\end{equation}\]</span></p>
-<p>This approach is in fact proposed and investigated by <span class="citation">@verstyuk2020modeling</span> in his upcoming publication. We decided to go with the approach in @ref(eq:dvar) for two reasons: firstly, the link to conventional VARs is made abundantly clear through this implementation and, secondly, we found that the equation-by-equation approach produces good modelling outcomes and is relatively easy to implement using state-of-the art software.</p>
-<p>Finally, note that if <span class="math inline">\(f_i\)</span> in @ref(eq:single-var) is assumed to be linear and additive for all <span class="math inline">\(i=1,...,K\)</span> then we are back to the conventional VAR(<span class="math inline">\(p\)</span>). This illustrates the point we made earlier that the linear VAR(<span class="math inline">\(p\)</span>) is just a particular case of a Deep VAR(<span class="math inline">\(p\)</span>). Since the model described in equations @ref(eq:single-dvar) and @ref(eq:dvar) is less restrictive but otherwise consistent with the conventional VAR framework, we expect that it outperforms the traditional approach towards modelling multivariate time series processes.</p>
-<div id="recurrent-neural-networks" class="section level3">
-<h3>Recurrent Neural Networks</h3>
-<p>…</p>
-</div>
-</div>
-<div id="model-selection" class="section level2">
-<h2>Model selection</h2>
-<p>There are at least two important modelling choices to be made in the context of conventional VARs. The first choice concerns properties of the time series data itself, in particular the order of integration and cointegration. The second choice is about the the lag order <span class="math inline">\(p\)</span>. In order to arrive at appropriate decisions regarding these choices the VAR literature provides a set of guiding principles. We propose to apply these same principles to the Deep VAR, firstly because they are intuitive and simple and secondly because treating both models equally to begin with allows for a better comparison of the two models at the subsequent modelling stages.</p>
-<div id="stationarity" class="section level3">
-<h3>Stationarity</h3>
-<p>When working with time series we are generally concerned about stationarity. Broadly speaking stationarity ensures that the future is like the past and hence any predictions we make based on past data adequately describe future outcomes. In the context of VARs stationarity is follows from stability: a VAR(<span class="math inline">\(p\)</span>) is stable if the effects of shocks to the system eventually die out. Stability can assessed through the system’s autoregressive roots or equivalently by looking at the eigenvalues of companion matrix <span class="math inline">\(\mathbf{A}\)</span> <span class="citation">[@kilian2017structural]</span>. In particular, for the VAR(<span class="math inline">\(p\)</span>) in @ref(eq:companion) to be stable we condition that the <span class="math inline">\(Kp\)</span> eigenvalues <span class="math inline">\(\lambda\)</span> that satisfy</p>
+<p>where <span class="math inline">\(\mathbf{Y}_t=(\mathbf{y}_t^T,...,\mathbf{y}^T_{t-p+1})^T\)</span> and <span class="math inline">\(\mathbf{A}\)</span> is referred to as the companion matrix <span class="citation">[@kilian2017structural]</span>. Stationarity of the VAR(<span class="math inline">\(p\)</span>) follows from stability: a VAR(<span class="math inline">\(p\)</span>) is stable if the effects of shocks to the system eventually die out. Stability can assessed through the system’s autoregressive roots or equivalently by looking at the eigenvalues of companion matrix <span class="math inline">\(\mathbf{A}\)</span> <span class="citation">[@kilian2017structural]</span>. In particular, for the VAR(<span class="math inline">\(p\)</span>) in @ref(eq:companion) to be stable we condition that the <span class="math inline">\(Kp\)</span> eigenvalues <span class="math inline">\(\lambda\)</span> that satisfy</p>
 <p><span class="math display">\[
 \begin{aligned}
 &amp;&amp; \det (\mathbf{A} - \lambda \mathbf{I}_{Kp})&amp;=0 \\
