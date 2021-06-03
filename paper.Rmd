@@ -40,6 +40,9 @@ options(xtable.comment = FALSE)
 ```{r empirics, child="empirics.Rmd"}
 ```
 
+```{r extensions, child="extensions.Rmd"}
+```
+
 \FloatBarrier
 \pagebreak
 
