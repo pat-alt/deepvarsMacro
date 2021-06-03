@@ -7,7 +7,6 @@ output:
 
 ```{r, echo = FALSE, warning=FALSE,message=FALSE}
 rm(list = ls())
-library(fbi)
 library(deepvars)
 library(data.table)
 ```
@@ -245,7 +244,6 @@ correlations <- correlations(fcst_var,fcst_dvar,y_true)
 ```
 
 ```{r, results = 'asis', echo = FALSE, warning=FALSE,message=FALSE}
-
 tab_fcst <- data.table("Variable" = colnames(y_true), "VAR FRMSE"= rmsfe(fcst_var, y_true = y_true)[,value] , "Deep-VAR FRMSE"= rmsfe(fcst_dvar, y_true = y_true)[,value],
                        "VAR correlations" =correlations$cor_var ,
                        "Deep-VAR correlations" = correlations$cor_dvar)
@@ -256,40 +254,131 @@ print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = itali
 As we can see in the table, the Forecast RMSE of the Deep-VAR is lower than the one for the VAR for unemployment rate and for the federal funds rate, and it is the same for industrial production and inflation. Hence, the Deep-VAR outperforms the VAR in terms of forecasts. It is also of interest to analyze the correlation between the forecasts and the actual values. In the case of the VAR, there is, for all time series, a negative correlation, that is, when the time series evolves in one direction, the VAR forecast evolves in the opposite direction. However, this is not true for the Deep-VAR. For industrial production, is certainly true that the Deep-VAR forecast has a highly negative correlation with the actual values, but achives the same forecasting performance than the one for the VAR. However, for the rest of time series, the Deep-VAR has a positive correlation, that is, the forecast generally evolves in the same direction as the actuial values. Note that this positive correlation cannot be too strong given that the forecasts at some point in time return to the mean, and hence, have no varaiability.  
 
 ## Grid search
+
 ```{r}
-layers <- c(1,2)
-units <- c(50,100)
-dropout <- c(0.5, 0.7)
-lags <- c(10,100)
-train_rmse <- c()
-test_rmse <- c()
-fcst_rmse <- c()
-#Train test split
+# Parameters
+n_ahead <- 12
+layers <- c(1,2,5)
+units <- c(50,100,150)
+dropout <- c(0.3,0.5,0.7)
+lags <- c(10,50,100)
+grid <- data.table::CJ(
+  layer = layers,
+  unit = units,
+  dropout = dropout
+)
+n_sim <- length(lags) * grid[,.N]
+```
+
+```{r}
+# Train test:
 train_test_split <- split_sample(dt_all)
 train_data <- train_test_split$train_data
-for (l in layers){
-  for (u in units){
-    for (d in dropout){
-      for (lag in lags){
-        # Fit model
-        deepvar_model <- deepvareg(train_data, lags=lag, num_units = u, epochs=100,     p_drop_out = d)
-        y_true <- var_model$y_train
-        # Train RMSE
-        train_rmse <- rmse(deepvar_model)[,model:="var"][,sample:="train"][,layers:=l][,units:=u][,dropout:=d][,lags:=lag]
-        # Test RMSE
-        X_test <- prepare_test_data(train_test_split, lags=lags)$X_test
-        y_test <- prepare_test_data(train_test_split, lags=lags)$y_test
-        test_rmse <- rmse(deepvar_model, X=X_test, y=y_test)[,model:="var"][,sample:="test"][,layers:=l][,units:=u][,dropout:=d][,lags:=l]
-        # Forecasts RMSE
-        n_ahead <- 12
-        y_true_fcst <- y_test[1:n_ahead,]
-        fcst_dvar <- forecast(deepvar_model, n.ahead = n_ahead)
-        fcst_rms <-rmsfe(fcst_dvar, y_true = y_true_fcs)
-        # Forecasts correlations
-        corr <- correlations <- correlations(fcst_var,fcst_dvar,y_true)$cor_dvar
-        results <- rbind(train_rmse, test_rmse, fcst_rms, corr)
-      }
-    }
-  }
-}
 ```
+
+```{r}
+grid_search <- rbindlist(
+  lapply(
+    1:length(lags),
+    function(lag_idx) {
+      
+      p <- lags[lag_idx]
+      
+      message(sprintf("Running for lag=%i", p))
+      
+      # For given lag fit VAR:
+      var_model <- vareg(train_data, lags = p) 
+      y_true <- var_model$y_train
+      
+      # Test data:
+      X_test <- prepare_test_data(train_test_split, lags=p)$X_test
+      y_test <- prepare_test_data(train_test_split, lags=p)$y_test
+      y_true_fcst <- y_test[1:n_ahead,]
+      
+      # Enter loop for Deep VAR:
+      results <- rbindlist(
+        lapply(
+          1:nrow(grid),
+          function(i) {
+            
+            list2env(c(grid[i,]), envir = environment()) # retrieve parameters
+            
+            pct_done <- ( ( (lag_idx-1)*grid[,.N] + i ) / n_sim ) * 100
+            message(sprintf("Percent done: %0.2f", pct_done))
+            
+            # Fit Deep VAR model
+            deepvar_model <- deepvareg(
+              train_data, 
+              lags=p, 
+              num_units = unit,
+              num_layers = layer,
+              epochs=100,    
+              p_drop_out = dropout
+            )
+            
+            # Train RMSE
+            train_rmse <- rbind(
+              rmse(deepvar_model)[,model:="dvar"][,measure:="rmse"][,sample:="train"],
+              rmse(var_model)[,model:="var"][,measure:="rmse"][,sample:="train"]
+            )
+            
+            # Test RMSE
+            test_rmse <- rbind(
+              rmse(
+                deepvar_model, X=X_test, y=y_test
+              )[,model:="dvar"][,measure:="rmse"][,sample:="test"],
+              rmse(
+                var_model, X=X_test, y=y_test
+              )[,model:="var"][,measure:="rmse"][,sample:="test"]
+            )
+            
+            # Forecasts RMSE
+            fcst_dvar <- forecast(deepvar_model, n.ahead = n_ahead)
+            fcst_var <- forecast(var_model, n.ahead = n_ahead)
+            fcst_rms <- rbind(
+              rmsfe(
+                fcst_dvar, y_true = y_true_fcst
+              )[,model:="dvar"][,measure:="rmsfe"][,sample:="test"],
+              rmsfe(
+                fcst_var, y_true = y_true_fcst
+              )[,model:="var"][,measure:="rmsfe"][,sample:="test"]
+            )
+            
+            # Forecasts correlations:
+            fcst_corr <- rbind(
+              cor_fcst(
+                fcst_dvar, y_true = y_true_fcst
+              )[,model:="dvar"][,measure:="corr"][,sample:="test"],
+              cor_fcst(
+                fcst_var, y_true = y_true_fcst
+              )[,model:="var"][,measure:="corr"][,sample:="test"]
+            )
+            
+            # Put together:
+            results <- rbind(
+              train_rmse, 
+              test_rmse, 
+              fcst_rms, 
+              fcst_corr
+            )
+            
+            # Assign remaining variables:
+            results[,lag:=p]
+            results[,num_layer:=layer]
+            results[,num_units:=unit]
+            results[,dropout:=dropout]
+            
+            return(results)
+          }
+        )
+      )
+      
+      return(results)
+      
+    }
+  )
+)
+saveRDS(grid_search, "results/grid_search.rds")
+```
+
+
