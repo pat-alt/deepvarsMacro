@@ -255,7 +255,7 @@ As we can see in the table, the Forecast RMSE of the Deep-VAR is lower than the 
 
 ## Grid search
 
-```{r}
+```{r, include= FALSE, eval=FALSE, echo = FALSE}
 # Parameters
 n_ahead <- 12
 layers <- c(1,2,5)
@@ -270,13 +270,13 @@ grid <- data.table::CJ(
 n_sim <- length(lags) * grid[,.N]
 ```
 
-```{r}
+```{r, include= FALSE, eval=FALSE, echo = FALSE}
 # Train test:
 train_test_split <- split_sample(dt_all)
 train_data <- train_test_split$train_data
 ```
 
-```{r}
+```{r,  include= FALSE, eval=FALSE, echo = FALSE}
 grid_search <- rbindlist(
   lapply(
     1:length(lags),
