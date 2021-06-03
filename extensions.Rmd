@@ -1,2 +1,11 @@
 # Caveats and extensions
 
+In this section we will talk about the main short-falls of our work, and potentital ways to improve it.
+
+In this paper we have developed a method to produce point forecasts which has shown to overperform the traditional VAR. However, policy makers do not only take decisions based on point estimates, but they also take into account how uncertain they are. That is why, when constructing forecats you also want to infer confidence intervals for your point estimates. Doing that with the VAR methodology is not difficult, given that standard errors are inherent to the model, and easily attainable. This is not the case for the Deep VAR, but this does not mean that we cannot obtain them but that we need to rely on bootstraping or montecarlo techniques to infer these bounds. The reason for this is the following: each time that you run the Deep VAR you would get different but similar estimates, what would allow you to get standard error. Hence, by running the Deep VAR using the techniques mentioned before, you would manage to get standard errors and then confidence intervals.
+
+Impulse response functions are another missing milestone in our paper and to which future research should be dedicated. IRFs are important to see how your model captures the dynamics of the variables in response to a shock in a given period of time. When estimating the model with the traditional VAR, computing IRFs is quite straighforward. Provided that all the roots of the autoregressive polynomial lie outside the unit circle, transforming the model into its moving average representation and plugging the shock into the vector moving average (VMA) representaion resutls into the IRF of the shock analysed. However, generating the IRFs is more difficult in the Deep VAR setting given that we cannot get the Deep VMA representation as a consequence of its underlying structure. Thereby, future work would be needed in this direction to be able to derive the IRFs from the Deep VAR model. The idea would be ...
+
+
+
+
