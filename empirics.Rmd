@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Empirical results 
 
 ```{r, echo = FALSE, warning=FALSE,message=FALSE}
@@ -204,7 +209,7 @@ n_ahead <- 12
 y_true <- y_test[1:n_ahead,]
 ```
 
-
+In the following, we will compare the forecast performance of the VAR and the Deep-VAR. To do that, we compute the 1-step ahead forecast for one year. The dashed line represents the forecast and the solid black line represents the actual value of the time series. To compare the performance of both methods, we compute the Forecast RMSE.
 ```{r, echo = FALSE, warning=FALSE,message=FALSE}
 #Forecasts
 #VAR
@@ -219,23 +224,34 @@ fcst_dvar <- forecast(deepvar_model, n.ahead = n_ahead)
 plot(fcst_dvar, y_true=y_true, history = 20)
 ```
 
-```{r}
+
+In the following table, we look more specifically at this comparison. In particular, we compute the Forecast RMSE for the VAR method and for the Deep-VAR, and we also compute the correlation of the forecast with the actual value of each time series.
+
+```{r, echo = FALSE, warning=FALSE,message=FALSE, include= FALSE}
 rmsfe(fcst_dvar, y_true = y_true)
 rmsfe(fcst_var, y_true = y_true)
+correlations <- function(fcst_var,fcst_dvar,y_true){
+  list_names <- c(colnames(y_true))
+  cor_var <- c()
+  cor_dvar <- c()
+  for (n in list_names){
+    cor_var <- c(cor_var,cor(fcst_var$fcst[, ..n][-1], y_true[,n]))
+    cor_dvar <- c(cor_dvar,cor(fcst_dvar$fcst[, ..n][-1], y_true[,n]))
+    
+  }
+  return(data.table(cor_var,cor_dvar))
+}
+correlations <- correlations(fcst_var,fcst_dvar,y_true)
 ```
 
+```{r, results = 'asis', echo = FALSE, warning=FALSE,message=FALSE}
 
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
-
-#DIEBOLD AND MARIANO
-library(multDM)
-tab_dm <- data.table("ID" = var_cols)
-tab_dm[, DM:= lapply(ID, function(x) DM.test(fcst_dvar$fcst[, get(x)], fcst_var$fcst[, get(x)], H1="less", h=1, y=y_true)$p.value)]
-knitr::kable(tab_dm,
-  col.names = c("Varaible", "DM p-value"),
-  digits = 5)
+tab_fcst <- data.table("Variable" = colnames(y_true), "VAR FRMSE"= rmsfe(fcst_var, y_true = y_true)[,value] , "Deep-VAR FRMSE"= rmsfe(fcst_dvar, y_true = y_true)[,value],
+                       "VAR correlations" =correlations$cor_var ,
+                       "Deep-VAR correlations" = correlations$cor_dvar)
+dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
+print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
 
-
+As we can see in the table, the Forecast RMSE of the Deep-VAR is lower than the one for the VAR for unemployment rate and for the federal funds rate, and it is the same for industrial production and inflation. Hence, the Deep-VAR outperforms the VAR in terms of forecasts. It is also of interest to analyze the correlation between the forecasts and the actual values. In the case of the VAR, there is, for all time series, a negative correlation, that is, when the time series evolves in one direction, the VAR forecast evolves in the opposite direction. However, this is not true for the Deep-VAR. For industrial production, is certainly true that the Deep-VAR forecast has a highly negative correlation with the actual values, but achives the same forecasting performance than the one for the VAR. However, for the rest of time series, the Deep-VAR has a positive correlation, that is, the forecast generally evolves in the same direction as the actuial values. Note that this positive correlation cannot be too strong given that the forecasts at some point in time return to the mean, and hence, have no varaiability.  
 
