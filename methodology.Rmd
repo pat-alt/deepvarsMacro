@@ -237,8 +237,13 @@ where $\mathcal{P}=[m_{\min},m_{\max}]$. We will consider all of the most common
 
 ### Neural Network Architecture
 
-...
+As mentioned above, a NN is therefore charaterized for having a very large number of parameters and therefore making it relatively easy to overfit the data. This is a concern specially when the NN is trained in a relatively small data set. In time series the amount of data to train the model is quite limited, therefore having so many parameters may result in the NN learning the noise of the function, potentially leading to overfitting which in turn results in poor performance of the model in the test set. Therefore some regularization must be added into the model in order to avoid overfitting. 
 
+As proposed by One way to reduce overfitting can be fitting a lot of NN in the data and the averaging its predictions. This is not feasible due to computational problems. What one can do instead is to randomly drop some units in each layer. This is also known as dropout, this technique simulates the training of multiple NN with different architectures in the same data set. By using dropout, we add some noise into the model. This avoids a certain layer trying to adapt to a mistake made by a previous one, hence potentially leading to complex adaptations which results in overfitting. Dropout therefore can be used as a regularization technique that makes the model more robust.
 
+The way we implement dropout in the Deep VAR model is by specifying the probability to which a node is removed from the layer. This means that the information that arrives to that unit is forgotten.
 
+As another effort to avoid overfitting, we use the same architecture for each layer of the NN. That is, we do not allow each layer to have different number of units, nor different activation functions nor different dropout rates, which could potentially result in the model learning the noise. In turn the Deep VAR model is characterized for having equally sized layers of size N.
+
+The Adam optimization algorithm  @kingma2014adam can be used instead of the more traditional stochastic gradient descent to update network weights. There are several reasons to use this algorithm that are particulary appealing, among them we have its straighforward implementation, that it is computationally efficient and that the hyper-parametrization has an intuitive interpretation and typically requires little tuning. Adam is different to classic stochastic gradient descent given that in the latter learning rates and always the same for all weight updates and hence does not change during the training.
 
