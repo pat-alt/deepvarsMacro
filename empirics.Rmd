@@ -307,7 +307,7 @@ As we can see in the table, the Forecast RMSE of the Deep-VAR is lower than the 
 
 ## Hyper parameter tuning
 
-```{r}
+```{r, include= FALSE, eval=FALSE, echo = FALSE}
 # Parameters
 n_ahead <- 12
 layers <- c(1,2,5)
@@ -322,13 +322,17 @@ grid <- data.table::CJ(
 n_sim <- length(lags) * grid[,.N]
 ```
 
-```{r}
+```{r, include= FALSE, eval=FALSE, echo = FALSE}
 # Train test:
 train_test_split <- split_sample(dt)
 train_data <- train_test_split$train_data
 ```
 
+<<<<<<< HEAD
 ```{r, eval=FALSE}
+=======
+```{r,  include= FALSE, eval=FALSE, echo = FALSE}
+>>>>>>> 56a14baddbded9a083e1facc411bae7a34afc8e7
 grid_search <- rbindlist(
   lapply(
     1:length(lags),
