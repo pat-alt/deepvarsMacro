@@ -13,35 +13,34 @@ output:
 knitr::include_graphics("www/time_series.png")
 ```
 
-
 ```{r, echo=FALSE, results='asis', message= FALSE, warning=FALSE}
 library(xtable)
 library(plyr)
 dtf <- readRDS("data/sum_stats.rds")
 options(xtable.comment = FALSE)
-xtable(dtf, caption = c("Summary statistics"))
+xtable(dtf, caption = c("Summary statistics for the full sample."))
 
 ```
-
-### Pre Covid vs Post Covid Summary Stats
 
 ```{r, echo= FALSE, results='asis', message= FALSE, warning=FALSE}
 # Pre Covid vs Post Covid Summary Stats
 
 dtf_pre <- readRDS("data/pre_covid.rds")
 options(xtable.comment = FALSE)
-xtable(dtf_pre, caption = c("Summary statistics pre Covid"))
+xtable(dtf_pre, caption = c("Summary statistics pre Covid."))
 
 ```
 
 ```{r, echo= FALSE, results='asis', message= FALSE, warning=FALSE}
-# Pre Covid vs Post Covid Summary Stats
+# Post Covid vs Post Covid Summary Stats
 
 dtf_post <- readRDS("data/post_covid.rds")
 options(xtable.comment = FALSE)
-xtable(dtf_post, caption = c("Summary statistics pre Covid"))
+xtable(dtf_post, caption = c("Summary statistics post Covid."))
 
 ```
+
+\FloatBarrier
 
 ## Residuals {#resids}
 
@@ -52,6 +51,8 @@ knitr::include_graphics("www/qqplot_full.png")
 ```{r acf-full, fig.cap="ACF plots of full-sample residuals."}
 knitr::include_graphics("www/acf_full.png")
 ```
+
+\FloatBarrier
 
 ## Fitted Values
 
@@ -71,6 +72,8 @@ knitr::include_graphics("www/pred_var_test.png")
 knitr::include_graphics("www/pred_dvar_test.png")
 ```
 
+\FloatBarrier
+
 ## Forecasts {#forecasts}
 
 ```{r fcst-var, fig.cap="VAR n-step ahead forecasts plotted against observed values. Forecasts are for the first year of the test sample."}
@@ -81,10 +84,11 @@ knitr::include_graphics("www/fcst_var.png")
 knitr::include_graphics("www/fcst_dvar.png")
 ```
 
+\FloatBarrier
+
 # R Code and Package {#code}
 
 All code used for the empirical analysis presented in this article can be found on the corresponding [GitHub repository](https://github.com/pat-alt/navar). Researchers interested in using Deep VARs more generally for their own empirical work may find the R `deepvars` package useful which is being maintained by one of the authors. The package is still under development and as of now only available on [GitHub](https://github.com/pat-alt/deepvars). To install the package in R simply run:
-
 
 ```{r, eval=FALSE, echo=TRUE}
 devtools::install_github("pat-alt/deepvars", build_vignettes=TRUE)
