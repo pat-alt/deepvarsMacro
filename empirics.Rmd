@@ -1,24 +1,35 @@
 # Empirical results {#empirics}
 
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  eval=FALSE,
+  echo = FALSE,
+  warning=FALSE,
+  message=FALSE
+)
+library(deepvars)
+```
+
+```{r, eval=TRUE}
 dt <- readRDS("data_VAR/preprocessed.rds")
 var_cols <- colnames(dt)[2:ncol(dt)]
 ```
 
-```{r}
+```{r, eval=TRUE}
 # Choosing lags:
 max_lags <- 12
 lags <- lag_order(dt, max_lag = max_lags)$p
-```
-
-```{r, echo = FALSE, warning=FALSE, message=FALSE, eval=FALSE}
-# VAR fitting
-var_model <- vareg(dt, lags = lags)
-# Deep VAR fitting
+# Deep VAR params:
 num_units <- 100
 num_layers <- formals(deepvareg)$num_layers
 dropout <- formals(deepvareg)$p_drop_out
 epochs <- 100
+```
+
+```{r}
+# VAR fitting
+var_model <- vareg(dt, lags = lags)
+# Deep VAR fitting
 deepvar_model <- deepvareg(
   dt, 
   lags=lags, 
@@ -27,7 +38,7 @@ deepvar_model <- deepvareg(
 )
 ```
 
-```{r, eval=FALSE}
+```{r}
 # Cum RMSE plot
 cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="VAR"]
 cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="Deep VAR"]
@@ -70,7 +81,7 @@ ggsave(
 )
 ```
 
-```{r, eval=FALSE}
+```{r}
 lag_max <- 25
 ci <- .95
 resids_acf <- resids[
@@ -112,7 +123,7 @@ For this first emprical exercise both models are trained on the full sample. We 
 
 To assess the fit of our models we use the root mean squared error (RMSE) as our preferred loss function. Figure \@ref(fig:cum-loss-full) shows the cumulative RMSE of both the VAR model and Deep VAR model for each of the time series over the whole sample period. The first thing we can observe is that the RMSE of the Deep VAR is consistently flatter than the RMSE of the VAR. With respect to in-sample performance, the Deep VAR the VAR throughout the entire time period of the experimental analysis and for all of the considered variable. This empirical observation seems to confirm our expectation that the vector autoregressive process is characterized by important non-linear dependencies across time and variables that the conventional VAR fails to capture. 
 
-```{r cum-loss-full, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR."}
+```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR."}
 knitr::include_graphics("www/cum_loss_full.png")
 ```
 
@@ -132,69 +143,58 @@ As a santiy check we also visually inspected the distributional properties of th
 
 ## Out-of-sample fit
 
-```{r, echo = FALSE, warning=FALSE, message=FALSE}
+```{r, eval=TRUE}
 #Train test split
 train_test_split <- split_sample(dt)
 train_data <- train_test_split$train_data
-```
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
 #Select the number of lags
-lags <- lag_order(train_data)$p
+lags <- lag_order(train_data, max_lag = max_lags)$p
 ```
 
-```{r, echo = FALSE, warning=FALSE,message=FALSE, eval=TRUE}
+```{r}
 # VAR
 var_model <- vareg(train_data, lags = lags)
-saveRDS(var_model, file="results/var_model_train.rds")
 # Deep VAR
-deepvar_model <- deepvareg(train_data, lags=lags, num_units = 100, epochs=100, p_drop_out = 0.5)
-saveRDS(deepvar_model, file="results/deepvar_model_train.rds")
+deepvar_model <- deepvareg(
+  train_data, 
+  lags=lags, 
+  num_units = num_units, 
+  epochs=epochs
+)
 ```
 
-```{r, eval=FALSE}
-var_model <- readRDS("results/var_model_train.rds")
-deepvar_model <- readRDS("results/deepvar_model_train.rds")
-```
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
+```{r}
 y_true <- var_model$y_train
 ```
 
-Now, we split the data into training data and test data. The model will be fitted in the training dataset and then we assess the performance of the model in the test dataset. This is done in order to see the performace of both models on data which is independent of the data that has been used to fit the model. The training dataset goes from March 1959 to November 2007, whereas the test data goes from December 2007 to March 2021, so we train the model on 80 percent of the data and we test the model on the remaining 20 percent. 
+In order to assess if the Deep VAR's outperformance is a consequence of overfitting, we now repeat the previous exercise, but this time we train the models on a subsample of our date. The training sample spans from `r format(min(train_data$date), "%B, %Y")` to `r format(max(train_data$date), "%B, %Y")`, whereas the test data goes from `r format(min(train_test_split$test_data$date), "%B, %Y")` to `r format(max(train_test_split$test_data$date), "%B, %Y")`. This corresponds to training the model on 80 percent of the data and retaining the remaining 20 percent for testing purposes. The optimal lag order for the training subsample is $p=`r lags`$ where we use the same criterion and maximum lag order as before.
 
-```{r, echo = FALSE, warning=FALSE,message=FALSE, results=FALSE, include = FALSE}
+```{r}
 #VAR
 pred_var <- predict(var_model)
-plot(pred_var, y_true = y_true)
-```
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE, results=FALSE, include = FALSE}
+p <- plot(pred_var, y_true = y_true)
+ggsave("www/pred_var_train.png", width = 7, height = 4)
 #DeepVAR
 pred_deepvar <- predict(deepvar_model)
-plot(pred_deepvar, y_true = y_true)
+p <- plot(pred_deepvar, y_true = y_true)
+ggsave("www/pred_dvar_train.png", width = 7, height = 4)
 ```
 
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE,results=FALSE, include = FALSE}
+```{r}
 #Predictions out of sample
 X_test <- prepare_test_data(train_test_split, lags=lags)$X_test
 y_test <- prepare_test_data(train_test_split, lags=lags)$y_test
-```
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE,results=FALSE, include = FALSE}
 #VAR
 pred_var <- predict(var_model, X=X_test)
-plot(pred_var, y_true = y_test)
-```
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE,results=FALSE, include = FALSE}
+p <- plot(pred_var, y_true = y_test)
+ggsave("www/pred_var_test.png", width = 7, height = 4)
 #DeepVAR
 pred_dvar <- predict(deepvar_model, X=X_test)
-plot(pred_dvar, y_true = y_test)
+p <- plot(pred_dvar, y_true = y_test)
+ggsave("www/pred_dvar_test.png", width = 7, height = 4)
 ```
 
-```{r, echo = FALSE, results = FALSE, warning=FALSE,message=FALSE, include = FALSE}
+```{r}
 #RMSE 
 rmse_var <- rbind(
   rmse(var_model)[,model:="var"][,sample:="train"],
@@ -207,14 +207,22 @@ rmse_dvar <- rbind(
 tab_rmse <- rbind(rmse_var, rmse_dvar)
 tab_rmse <- data.table::dcast(tab_rmse, sample + variable ~ model, value.var = "value")
 tab_rmse[, ratio:= deepvar/var]
-knitr::kable(tab_rmse, 
-  col.names = c("Sample", "Variable", "DVAR", "VAR", "Ratio"),
-  digits = 5) 
+saveRDS(tab_rmse, file="results/train_test_tab_rmse.rds")
 ```
 
-The following table shows ths Root Mean Squared Error (RMSE) for the in-sample and the out-of-sample predictions of both the VAR model and the Deep-VAR model. We can see that the RMSE for the Deep VAR outperforms the one for the classic VAR for both the training data and the test data and for all time series. The fifth column of the table shows us the ratio between the Deep-VAR and the VAR. The lower the ratio, the better the Deep-VAR with respect to the VAR. Note that for the industrial production and for the unemployment rate the Deep-VAR does fairly well compared to the VAR.
+Tables \@ref(fig:tab-rmse) shows ths Root Mean Squared Error (RMSE) for the in-sample and the out-of-sample predictions of both the VAR model and the Deep VAR model. We can see that the RMSE for the Deep VAR outperforms the one for the conventional VAR for both the training data and the test data and for all time series. The fifth column of the table shows us the ratio between the RMSEs of the Deep VAR and the VAR: the lower the ratio, the better the Deep VAR compared to the VAR. With respect to the training sample, the RMSE of the Deep VAR model is consistently less than 75% of that of the conventional VAR reflecting to some extent the results of the previous sections. Turning to the test data, there is no evidence that the Deep VAR is more prone to overfitting than the VAR. For both industrial production and unemployment, the Deep VAR yields an RMSE that is around half the size of that produced by the VAR. For inflation and interest rate predictions the outperformance on the test data is less striking, but still fairly significant.
 
-```{r, echo = FALSE, results='asis', warning=FALSE,message=FALSE}
+```{r tab-rmse, fig.cap="Root mean squared error (RMSE) for the two models across subsamples and variables."}
+tab_rmse <- readRDS("results/train_test_tab_rmse.rds")
+knitr::kable(
+  tab_rmse, 
+  col.names = c("Sample", "Variable", "DVAR", "VAR", "Ratio (DVAR / VAR)"),
+  digits = 5
+) 
+```
+
+
+```{r, include=FALSE}
 library(xtable)
 dtf<- xtable(tab_rmse[, -"Mean"], caption = c("RMS"))
 names(dtf) <- c('Sample','Variable', 'DeepVAR', "VAR", "Ratio")
@@ -227,68 +235,27 @@ paste0('{\\emph{ ', x, '}}')
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE)
 ```
 
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
-#Cumulative loss in-sample
-
-cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="var"]
-cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="deepvar"]
-dt_plot <- rbind(cum_loss_dvar, cum_loss_var)
-ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
-  ggplot2::geom_line() +
-  ggplot2::facet_wrap(~variable, scales = "free_y") +
-  ggplot2::scale_color_discrete(name="Model:") +
-  ggplot2::labs(
-      x="Date",
-      y="Squared error"
-    )
-```
-
-
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
-#Cumulative loss out-of-sample
-cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="var"]
-cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="deepvar"]
-dt_plot <- rbind(cum_loss_dvar, cum_loss_var)
-ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
-  ggplot2::geom_line() +
-  ggplot2::facet_wrap(~variable, scales = "free_y") +
-  ggplot2::scale_color_discrete(name="Model:") +
-  ggplot2::labs(
-      x="Date",
-      y="Squared error"
-    )
-```
-
-## Pseudo out-of-sample forecasts
+## Forecasts
 
 ```{r}
 n_ahead <- 12
 y_true <- y_test[1:n_ahead,]
 ```
 
-In the following, we will compare the forecast performance of the VAR and the Deep-VAR. To do that, we compute the 1-step ahead forecast for one year. The dashed line represents the forecast and the solid black line represents the actual value of the time series. To compare the performance of both methods, we compute the Forecast RMSE.
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
+```{r}
 #Forecasts
 #VAR
 fcst_var <- forecast(var_model, n.ahead = n_ahead)
-plot(fcst_var, y_true=y_true, history = 20)
-```
-
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
+p <- plot(fcst_var, y_true=y_true, history = 20)
+ggsave(filename = "www/fcst_var.png", p, width=7, height=4)
 #DeepVAR
 fcst_dvar <- forecast(deepvar_model, n.ahead = n_ahead)
-plot(fcst_dvar, y_true=y_true, history = 20)
+p <- plot(fcst_dvar, y_true=y_true, history = 20)
+ggsave(filename = "www/fcst_dvar.png", p, width=7, height=4)
 ```
 
-In the following table, we look more specifically at this comparison. In particular, we compute the Forecast RMSE for the VAR method and for the Deep-VAR, and we also compute the correlation of the forecast with the actual value of each time series.
-
-```{r, echo = FALSE, warning=FALSE,message=FALSE, include= FALSE}
-rmsfe(fcst_dvar, y_true = y_true)
-rmsfe(fcst_var, y_true = y_true)
+```{r}
+# Correlations
 correlations <- function(fcst_var,fcst_dvar,y_true){
   list_names <- c(colnames(y_true))
   cor_var <- c()
@@ -301,17 +268,40 @@ correlations <- function(fcst_var,fcst_dvar,y_true){
   return(data.table(cor_var,cor_dvar))
 }
 correlations <- correlations(fcst_var,fcst_dvar,y_true)
+
+# Table
+tab_fcst <- data.table(
+  "Variable" = colnames(y_true), 
+  "VAR RMSFE"= rmsfe(fcst_var, y_true = y_true)[,value] , 
+  "Deep VAR RMSFE"= rmsfe(fcst_dvar, y_true = y_true)[,value],
+  "VAR correlations" = correlations$cor_var,
+  "Deep-VAR correlations" = correlations$cor_dvar
+)
+saveRDS(tab_fcst, file="results/tab_fcst.rds")
 ```
 
-```{r, results = 'asis', echo = FALSE, warning=FALSE,message=FALSE}
-tab_fcst <- data.table("Variable" = colnames(y_true), "VAR FRMSE"= rmsfe(fcst_var, y_true = y_true)[,value] , "Deep-VAR FRMSE"= rmsfe(fcst_dvar, y_true = y_true)[,value],
-                       "VAR correlations" =correlations$cor_var ,
-                       "Deep-VAR correlations" = correlations$cor_dvar)
+Up until now we have been assessing the 1-step ahead predictions of both models. In our context these predictions can be thought of as 1-month ahead nowcasts from a practical perspective. Since real-time nowcasts have grown in popularity during recent years, the results so far should be of great interest to central bankers and other practitioners.
+Nonetheless, there is typically also great interest in time series forecasts at longer horizons. We therefore briefly introduce $n$-step ahead pseudo out-of-sample forecasts in this section and revisit them again further below.
+
+Forecasts are produced recursively both for the VAR and the Deep VAR. Specifically, we use the models we trained on the training data to recursively predict one time period ahead, concatenate the predictions to the training data and repeat the process.^[Note that for the Deep VAR an alternative approach would be to work with a different output dimension for the underlying neural networks.]
+
+In the following table, we look more specifically at this comparison. In particular, we compute the Forecast RMSE for the VAR method and for the Deep-VAR, and we also compute the correlation of the forecast with the actual value of each time series.
+
+```{r, eval=TRUE, fig="Comparison of n-step ahead pseudo out-of-sample forecasts."}
+tab_fcst <- readRDS("results/tab_fcst.rds")
+knitr::kable(tab_fcst, digits=5)
+```
+
+
+As we can see in the table, the Forecast RMSE of the Deep-VAR is lower than the one for the VAR for unemployment rate and for the federal funds rate, and it is the same for industrial production and inflation. Hence, the Deep-VAR outperforms the VAR in terms of forecasts. It is also of interest to analyze the correlation between the forecasts and the actual values. In the case of the VAR, there is, for all time series, a negative correlation, that is, when the time series evolves in one direction, the VAR forecast evolves in the opposite direction. However, this is not true for the Deep-VAR. For industrial production, is certainly true that the Deep-VAR forecast has a highly negative correlation with the actual values, but achives the same forecasting performance than the one for the VAR. However, for the rest of time series, the Deep-VAR has a positive correlation, that is, the forecast generally evolves in the same direction as the actuial values. Note that this positive correlation cannot be too strong given that the forecasts at some point in time return to the mean, and hence, have no varaiability.  
+
+
+```{r}
 dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
 
-As we can see in the table, the Forecast RMSE of the Deep-VAR is lower than the one for the VAR for unemployment rate and for the federal funds rate, and it is the same for industrial production and inflation. Hence, the Deep-VAR outperforms the VAR in terms of forecasts. It is also of interest to analyze the correlation between the forecasts and the actual values. In the case of the VAR, there is, for all time series, a negative correlation, that is, when the time series evolves in one direction, the VAR forecast evolves in the opposite direction. However, this is not true for the Deep-VAR. For industrial production, is certainly true that the Deep-VAR forecast has a highly negative correlation with the actual values, but achives the same forecasting performance than the one for the VAR. However, for the rest of time series, the Deep-VAR has a positive correlation, that is, the forecast generally evolves in the same direction as the actuial values. Note that this positive correlation cannot be too strong given that the forecasts at some point in time return to the mean, and hence, have no varaiability.  
+
 
 ## Hyper parameter tuning
 
@@ -441,5 +431,4 @@ grid_search <- rbindlist(
 saveRDS(grid_search, "results/grid_search.rds")
 ```
 
-# end
 

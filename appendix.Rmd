@@ -12,6 +12,34 @@ knitr::include_graphics("www/qqplot_full.png")
 knitr::include_graphics("www/acf_full.png")
 ```
 
+## Fitted Values
+
+```{r pred-var-train, fig.cap="VAR fitted values plotted against observed values for the training sample."}
+knitr::include_graphics("www/pred_var_train.png")
+```
+
+```{r pred-dvar-train, fig.cap="Deep VAR fitted values plotted against observed values for the training sample."}
+knitr::include_graphics("www/pred_dvar_train.png")
+```
+
+```{r pred-var-test, fig.cap="VAR fitted values plotted against observed values for the test sample."}
+knitr::include_graphics("www/pred_var_test.png")
+```
+
+```{r pred-dvar-test, fig.cap="Deep VAR fitted values plotted against observed values for the test sample."}
+knitr::include_graphics("www/pred_dvar_test.png")
+```
+
+## Forecasts {#forecasts}
+
+```{r fcst-var, fig.cap="VAR n-step ahead forecasts plotted against observed values. Forecasts are for the first year of the test sample."}
+knitr::include_graphics("www/fcst_var.png")
+```
+
+```{r fcst-dvar, fig.cap="Deep VAR n-step ahead forecasts plotted against observed values. Forecasts are for the first year of the test sample."}
+knitr::include_graphics("www/fcst_dvar.png")
+```
+
 # R Code and Package {#code}
 
 All code used for the empirical analysis presented in this article can be found on the corresponding [GitHub repository](https://github.com/pat-alt/navar). Researchers interested in using Deep VARs more generally for their own empirical work may find the R `deepvars` package useful which is being maintained by one of the authors. The package is still under development and as of now only available on [GitHub](https://github.com/pat-alt/deepvars). To install the package in R simply run:
