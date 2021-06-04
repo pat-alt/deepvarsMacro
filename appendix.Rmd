@@ -1,4 +1,44 @@
-# (APPENDIX) Annex {-}
+# (APPENDIX) Appendix {-}
+
+# Tables and Figures {#figures}
+
+## Residuals {#resids}
+
+```{r qqplot-full, fig.cap="Quantile-quantile plots of full-sample residuals."}
+knitr::include_graphics("www/qqplot_full.png")
+```
+
+```{r acf-full, fig.cap="ACF plots of full-sample residuals."}
+knitr::include_graphics("www/acf_full.png")
+```
+
+## Fitted Values
+
+```{r pred-var-train, fig.cap="VAR fitted values plotted against observed values for the training sample."}
+knitr::include_graphics("www/pred_var_train.png")
+```
+
+```{r pred-dvar-train, fig.cap="Deep VAR fitted values plotted against observed values for the training sample."}
+knitr::include_graphics("www/pred_dvar_train.png")
+```
+
+```{r pred-var-test, fig.cap="VAR fitted values plotted against observed values for the test sample."}
+knitr::include_graphics("www/pred_var_test.png")
+```
+
+```{r pred-dvar-test, fig.cap="Deep VAR fitted values plotted against observed values for the test sample."}
+knitr::include_graphics("www/pred_dvar_test.png")
+```
+
+## Forecasts {#forecasts}
+
+```{r fcst-var, fig.cap="VAR n-step ahead forecasts plotted against observed values. Forecasts are for the first year of the test sample."}
+knitr::include_graphics("www/fcst_var.png")
+```
+
+```{r fcst-dvar, fig.cap="Deep VAR n-step ahead forecasts plotted against observed values. Forecasts are for the first year of the test sample."}
+knitr::include_graphics("www/fcst_dvar.png")
+```
 
 # R Code and Package {#code}
 
