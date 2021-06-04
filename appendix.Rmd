@@ -1,4 +1,16 @@
-# (APPENDIX) Annex {-}
+# (APPENDIX) Appendix {-}
+
+# Tables and Figures {#figures}
+
+## Residuals {#resids}
+
+```{r qqplot-full, fig.cap="Quantile-quantile plots of full-sample residuals."}
+knitr::include_graphics("www/qqplot_full.png")
+```
+
+```{r acf-full, fig.cap="ACF plots of full-sample residuals."}
+knitr::include_graphics("www/acf_full.png")
+```
 
 # R Code and Package {#code}
 

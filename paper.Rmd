@@ -19,10 +19,13 @@ abstract: "Vector autoregression models have been the traditional technique in t
 ---
 
 ```{r setup, include=FALSE}
+rm(list=ls())
 knitr::opts_chunk$set(echo = FALSE)
 library(ggplot2)
 library(data.table)
+library(deepvars)
 options(xtable.comment = FALSE)
+theme_set(theme_bw())
 ```
 
 ```{r introduction, child="introduction.Rmd"}
