@@ -137,7 +137,7 @@ As the Global Financial Crisis unfolds around 2007 the pattern we observed for t
 
 Finally, it is also interesting to observe how both models perform in response to the  unprecedented exogenous shock that Covid-19 constitutes. Both models incurr huge errors with respect to both IP and UR - the two series most significantly affected by Covid. Evidently though, the magnidtude of the errors is somewhat larger for the VAR than for the Deep VAR. This, once again seems to confirm our hypothesis that the Deep VAR model captures important non-linear dependences across time and variables that the conventional VAR fails to catpure.
 
-As a santiy check we also visually inspected the distributional properties of the model residuals for the full-sample fit. The outcomes are broadly consistent across models: while for some variables residuals are clearly not Gaussian, we see no evidence of serial autocorrelation of residuals. Visualizations can be found in section \@ref(#resids) of the appendix.
+As a santiy check we also visually inspected the distributional properties of the model residuals for the full-sample fit. The outcomes are broadly consistent across models: while for some variables residuals are clearly not Gaussian, we see no evidence of serial autocorrelation of residuals. Visualizations can be found in section \@ref(resids) of the appendix.
 
 \FloatBarrier
 
@@ -210,14 +210,15 @@ tab_rmse[, ratio:= deepvar/var]
 saveRDS(tab_rmse, file="results/train_test_tab_rmse.rds")
 ```
 
-Tables \@ref(fig:tab-rmse) shows ths Root Mean Squared Error (RMSE) for the in-sample and the out-of-sample predictions of both the VAR model and the Deep VAR model. We can see that the RMSE for the Deep VAR outperforms the one for the conventional VAR for both the training data and the test data and for all time series. The fifth column of the table shows us the ratio between the RMSEs of the Deep VAR and the VAR: the lower the ratio, the better the Deep VAR compared to the VAR. With respect to the training sample, the RMSE of the Deep VAR model is consistently less than 75% of that of the conventional VAR reflecting to some extent the results of the previous sections. Turning to the test data, there is no evidence that the Deep VAR is more prone to overfitting than the VAR. For both industrial production and unemployment, the Deep VAR yields an RMSE that is around half the size of that produced by the VAR. For inflation and interest rate predictions the outperformance on the test data is less striking, but still fairly significant.
+Tables \@ref(tab:rmse) shows ths Root Mean Squared Error (RMSE) for the in-sample and the out-of-sample predictions of both the VAR model and the Deep VAR model. We can see that the RMSE for the Deep VAR outperforms the one for the conventional VAR for both the training data and the test data and for all time series. The fifth column of the table shows us the ratio between the RMSEs of the Deep VAR and the VAR: the lower the ratio, the better the Deep VAR compared to the VAR. With respect to the training sample, the RMSE of the Deep VAR model is consistently less than 75% of that of the conventional VAR reflecting to some extent the results of the previous sections. Turning to the test data, there is no evidence that the Deep VAR is more prone to overfitting than the VAR. For both industrial production and unemployment, the Deep VAR yields an RMSE that is around half the size of that produced by the VAR. For inflation and interest rate predictions the outperformance on the test data is less striking, but still fairly significant.
 
-```{r tab-rmse, fig.cap="Root mean squared error (RMSE) for the two models across subsamples and variables."}
+```{r rmse}
 tab_rmse <- readRDS("results/train_test_tab_rmse.rds")
 knitr::kable(
   tab_rmse, 
   col.names = c("Sample", "Variable", "DVAR", "VAR", "Ratio (DVAR / VAR)"),
-  digits = 5
+  digits = 5,
+  caption = 'Root mean squared error (RMSE) for the two models across subsamples and variables.'
 ) 
 ```
 
@@ -283,25 +284,22 @@ saveRDS(tab_fcst, file="results/tab_fcst.rds")
 Up until now we have been assessing the 1-step ahead predictions of both models. In our context these predictions can be thought of as 1-month ahead nowcasts from a practical perspective. Since real-time nowcasts have grown in popularity during recent years, the results so far should be of great interest to central bankers and other practitioners.
 Nonetheless, there is typically also great interest in time series forecasts at longer horizons. We therefore briefly introduce $n$-step ahead pseudo out-of-sample forecasts in this section and revisit them again further below.
 
-Forecasts are produced recursively both for the VAR and the Deep VAR. Specifically, we use the models we trained on the training data to recursively predict one time period ahead, concatenate the predictions to the training data and repeat the process.^[Note that for the Deep VAR an alternative approach would be to work with a different output dimension for the underlying neural networks.]
+Forecasts are produced recursively both for the VAR and the Deep VAR. Specifically, we use the models we trained on the training data to recursively predict one time period ahead, concatenate the predictions to the training data and repeat the process.^[Note that for the Deep VAR an alternative approach would be to work with a different output dimension for the underlying neural networks.] This way we produce one-year ahead forecasts beginning from the first date in the test sample (`r format(max(train_data$date), "%B, %Y")`).
 
-In the following table, we look more specifically at this comparison. In particular, we compute the Forecast RMSE for the VAR method and for the Deep-VAR, and we also compute the correlation of the forecast with the actual value of each time series.
+Table \@ref(tab:fcst) shows the resulting root mean squared forecast errors (RMSFE) along with correlation between forecasts and realizations. As we can see in the table, the RMSFE of the Deep VAR is consistently lower than the one for the VAR. Regarding correlations the VAR produces forecasts that are negatively correlated with actual outcomes for all time series: in other words, when the time series evolves in one direction, the VAR forecast tends to evolve in the opposite direction. For industrial production, the Deep VAR forecast also has a highly negative correlation with the actual values. For the rest of time series the Deep VAR forecasts correlate positively with actual outcome, albeit weakly. Another general obervation we made with respect to these forecasts is that the forecasts from the conventional VAR are fairly volatile, while the Deep VAR forcasts swiftly revert to steady levels (see section \@ref(forecasts) in the appendix).
 
-```{r, eval=TRUE, fig="Comparison of n-step ahead pseudo out-of-sample forecasts."}
+```{r fcst, eval=TRUE}
 tab_fcst <- readRDS("results/tab_fcst.rds")
-knitr::kable(tab_fcst, digits=5)
+knitr::kable(
+  tab_fcst, digits=5,
+  caption = "Comparison of n-step ahead pseudo out-of-sample forecasts."
+)
 ```
-
-
-As we can see in the table, the Forecast RMSE of the Deep-VAR is lower than the one for the VAR for unemployment rate and for the federal funds rate, and it is the same for industrial production and inflation. Hence, the Deep-VAR outperforms the VAR in terms of forecasts. It is also of interest to analyze the correlation between the forecasts and the actual values. In the case of the VAR, there is, for all time series, a negative correlation, that is, when the time series evolves in one direction, the VAR forecast evolves in the opposite direction. However, this is not true for the Deep-VAR. For industrial production, is certainly true that the Deep-VAR forecast has a highly negative correlation with the actual values, but achives the same forecasting performance than the one for the VAR. However, for the rest of time series, the Deep-VAR has a positive correlation, that is, the forecast generally evolves in the same direction as the actuial values. Note that this positive correlation cannot be too strong given that the forecasts at some point in time return to the mean, and hence, have no varaiability.  
-
 
 ```{r}
 dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
-
-
 
 ## Hyper parameter tuning
 
@@ -431,4 +429,12 @@ grid_search <- rbindlist(
 saveRDS(grid_search, "results/grid_search.rds")
 ```
 
+```{r, eval=TRUE, include=FALSE}
+knitr::opts_chunk$set(
+  eval=TRUE,
+  echo = FALSE,
+  warning=FALSE,
+  message=FALSE
+)
+```
 
