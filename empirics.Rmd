@@ -15,7 +15,16 @@ lags <- lag_order(dt, max_lag = max_lags)$p
 # VAR fitting
 var_model <- vareg(dt, lags = lags)
 # Deep VAR fitting
-deepvar_model <- deepvareg(dt, lags=lags, num_units = 100, epochs=100, p_drop_out = 0.5)
+num_units <- 100
+num_layers <- formals(deepvareg)$num_layers
+dropout <- formals(deepvareg)$p_drop_out
+epochs <- 100
+deepvar_model <- deepvareg(
+  dt, 
+  lags=lags, 
+  num_units = num_units, 
+  epochs=epochs
+)
 ```
 
 ```{r, eval=FALSE}
@@ -99,21 +108,23 @@ The final part of this section relaxes the constraint on the framing conditions.
 
 ## In-sample fit
 
-To assess the fit of our models we use the root mean squared error (RMSE) as our preferred loss function. Figure \@ref(fig:cum-loss-full) shows the cumulative RMSE of both the VAR model and Deep-VAR model for each of the time series over the whole sample period. We have decided to include the post-Covid sample period despite the associated structural break, since it serves as interesting point of comparison. The first thing we can observe is that the RMSE of the Deep VAR is consistently flatter than the RMSE of the VAR. With respect to in-sample performance, the Deep VAR the VAR throughout the entire time period of the experimental analysis and for all of the considered variable. This empirical observation seems to confirm our expectation that the vector autoregressive process is characterized by important non-linear dependencies across time and variables that the conventional VAR fails to capture. 
+For this first emprical exercise both models are trained on the full sample. We have decided to include the post-Covid sample period despite the associated structural break, since it serves as interesting point of comparison. The optimal lag order as determined by the Akaike Information Criterium is $p=`r lags`$, where we used a maximum possible lag of $p_{\max}=`r max_lags`$ corresponding to one year. The LSTMs underlying the Deep VAR model are composed of $H=`r num_layers`$ that count $N=`r num_units`$ hidden units each. The dropout rate is set to $p=`r dropout`$. 
+
+To assess the fit of our models we use the root mean squared error (RMSE) as our preferred loss function. Figure \@ref(fig:cum-loss-full) shows the cumulative RMSE of both the VAR model and Deep VAR model for each of the time series over the whole sample period. The first thing we can observe is that the RMSE of the Deep VAR is consistently flatter than the RMSE of the VAR. With respect to in-sample performance, the Deep VAR the VAR throughout the entire time period of the experimental analysis and for all of the considered variable. This empirical observation seems to confirm our expectation that the vector autoregressive process is characterized by important non-linear dependencies across time and variables that the conventional VAR fails to capture. 
 
 ```{r cum-loss-full, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR."}
 knitr::include_graphics("www/cum_loss_full.png")
 ```
 
-Figure \@ref(fig:cum-loss-full) is especially useful to asses in which specific periods the Deep VAR model achieves better modelling outcomes than the VAR model. From the very beginning and across variables, we observe that the increase in cumulative loss for the VAR model is greater than for the Deep VAR model. We can ndicating that even in normal economic times, soft non linear relationships may be present in the series.
+Figure \@ref(fig:cum-loss-full) is especially useful to asses in which specific periods the Deep VAR model achieves better modelling outcomes than the VAR model. From the very beginning and across variables, we observe that the increase in cumulative loss for the VAR model is greater than for the Deep VAR model. The US economy during 1960s was influence by John F. Kennedy's introduction of **New Economics**, which was informed by Keynesian ideas and characterized by increasing levels of inflation, a reduction in unemployment and output growth. The change in government certainly corresponded to a regime switch with respect to the economy [@perry2010economic] and in that sense it is interesting to observe that the Deep VAR appears to be doing a better job at capturing the underlying changes. The 1970s can be broadly thought of as a continuation of New Economicy and loosely defined as a period of stagflation. The Deep VAR continues to outperform the VAR during that period.
 
-The first interesting development we can observe is at the beginning of the 1980s. During the beginning of this decade, the cumulative RMSE of the Deep VAR almost remains constant (it slope is close to zero), therefore, it almost makes no error. On the other hand, the RMSE of the VAR keeps increasing. For the case of the IP and the UR, the RMSE of the VAR  maintains its previous slope, meaning no improvement nor deterioration appears. Whereas for the CPI, it becomes approximately as twice as big, hence doubling its error, and for the FFR it is approximately quadrupled.
+The first truly interesting development we can observe in Figure \@ref(fig:cum-loss-full) coincides with the onset of the Volcker disinflation period. Following years of sustained CPI growth, Paul Volcker set the Federal Reserve on course for a series of interest rate hikes as soon as he became chairperson of the central bank in August 1979. The shift in monetary policy triggered fundamental changes to the US economy and in particular the key econmic indicators we are analysing here throughout the 1980s [@goodfriend2005incredible]. Despite this structural break, the increase in the cumulative RMSE of the Deep VAR remains almost constant during this decade for most variables. The performance of the VAR on the other hand is unsurprisingly poor over the same period, in particularly so for the CPI and the Fed Funds Rate, which arguably were the two variables most directly affected by the change in policy. The Deep VAR also clearly dominates the VAR with respect to the output related variables (IP) and to a lesser extent unempoyment. These findings indicate that changes to the monetary transmission mechanism in response to sudden policy shifts are not well captured by a linear-additive vector autoregressive model. Instead they appear to unfold in a high-dimensional latent state space, which the Deep VAR by its very construction is designed to learn.
 
-This can be explained by the early 1980s recession. This recession is considered to be the most sever since World War II. As Figure \@ref(fig:cum-loss-full) shows, the Deep-VAR model almost perfectly fits the data in this period. This is due to the fact that economic recessions have a very high component of non linear relationships, therefore not only the Deep-VAR does better than the VAR, but it almost accomplishes a perfect fit. This idea is then reinforced by the poor performance of the VAR in this period for the CPI and FFR series. Both series, specially the FFR, are very volatile in this period. This means that non linear relationships are present and therefore, the Deep-VAR model remains unaffected by the volatility, while the VAR model struggles a lot to fit the data due to its limitations for fitting data generating processes with non linear components.
+Following the Volcker disinflation period, Figure \@ref(fig:cum-loss-full) does not reveal any clear outperformance of either of the models during the 1990s. Interestingly the dot-com bubble has little affect on either of the models, aside from a small pick-up in cumulative loss with respect to the CPI for both models. With all that noted, the Deep VAR still continuously outperforms the VAR since evidently its cumulative loss increases at a lower pace alltoghether. 
 
-For the case of the 2007 recession we can see a pattern similar to the one for the recession of the early 1980: the Deep-VAR achieves a better fit because it can correctly identify the pattern soon enough. Furthermore, in the recovery time, the Deep-VAR cumulative RMSE still has a lower slope than the VAR cumulative RMSE. 
+As the Global Financial Crisis unfolds around 2007 the pattern we observed for the Volcker disinflation reemerges, albeit to a lesser extent: there is a marked jump in the difference between the cumulative loss of the VAR and the Deep VAR, in particular so for the CPI, the Fed Funds rate and industrial production. The gap for all these variables continues to widen during the aftermath of the crisis. The Deep VAR once again does a better job at modelling the changes that the dynamical system undergoes: post-crisis US monetary policy was characterized by very low interest rates, low levels of inflation as well as the introduction of a range of non-conventional monetary policy tools including quantitative easing and forward guidance. 
 
-Finally, we can compare how both models perform in a period with highly non linear components, the Covid era. It can be clearly seen that, for both IP and UR, that is, the series that really changed its behavior with Covid, the VAR model struggles a lot to fit the data. For the VAR model, both series add in a few months approximately 50% of the error tehy had been accumulating for the previous 60 years. Whereas in the case of the Deep-VAR model, they only accumulate approximately 30% of the error they had been accumulating before. This, once again, reinforces our hypothesis that the Deep-VAR model structure helps dealing with non linarities on the data generating process and therefore fitting the data better on periods where non-linareities are present, which means that the Deep-VAR model can be extremely useful for recession periods.
+Finally, it is also interesting to observe how both models perform in response to the  unprecedented exogenous shock that Covid-19 constitutes. Both models incurr huge errors with respect to both IP and UR - the two series most significantly affected by Covid. Evidently though, the magnidtude of the errors is somewhat larger for the VAR than for the Deep VAR. This, once again seems to confirm our hypothesis that the Deep VAR model captures important non-linear dependences across time and variables that the conventional VAR fails to catpure.
 
 As a santiy check we also visually inspected the distributional properties of the model residuals for the full-sample fit. The outcomes are broadly consistent across models: while for some variables residuals are clearly not Gaussian, we see no evidence of serial autocorrelation of residuals. Visualizations can be found in section \@ref(#resids) of the appendix.
 
@@ -121,18 +132,16 @@ As a santiy check we also visually inspected the distributional properties of th
 
 ## Out-of-sample fit
 
-```{r, echo = FALSE, warning=FALSE,message=FALSE}
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
 #Train test split
 train_test_split <- split_sample(dt)
 train_data <- train_test_split$train_data
 ```
 
-
 ```{r, echo = FALSE, warning=FALSE,message=FALSE}
 #Select the number of lags
 lags <- lag_order(train_data)$p
 ```
-
 
 ```{r, echo = FALSE, warning=FALSE,message=FALSE, eval=TRUE}
 # VAR
@@ -142,7 +151,6 @@ saveRDS(var_model, file="results/var_model_train.rds")
 deepvar_model <- deepvareg(train_data, lags=lags, num_units = 100, epochs=100, p_drop_out = 0.5)
 saveRDS(deepvar_model, file="results/deepvar_model_train.rds")
 ```
-
 
 ```{r, eval=FALSE}
 var_model <- readRDS("results/var_model_train.rds")
@@ -307,7 +315,7 @@ As we can see in the table, the Forecast RMSE of the Deep-VAR is lower than the 
 
 ## Hyper parameter tuning
 
-```{r, include= FALSE, eval=FALSE, echo = FALSE}
+```{r}
 # Parameters
 n_ahead <- 12
 layers <- c(1,2,5)
@@ -322,17 +330,13 @@ grid <- data.table::CJ(
 n_sim <- length(lags) * grid[,.N]
 ```
 
-```{r, include= FALSE, eval=FALSE, echo = FALSE}
+```{r}
 # Train test:
 train_test_split <- split_sample(dt)
 train_data <- train_test_split$train_data
 ```
 
-<<<<<<< HEAD
 ```{r, eval=FALSE}
-=======
-```{r,  include= FALSE, eval=FALSE, echo = FALSE}
->>>>>>> 56a14baddbded9a083e1facc411bae7a34afc8e7
 grid_search <- rbindlist(
   lapply(
     1:length(lags),
