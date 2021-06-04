@@ -1,6 +1,47 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # (APPENDIX) Appendix {-}
 
 # Tables and Figures {#figures}
+
+## Data 
+
+```{r time-series, fig.cap="Time series"}
+knitr::include_graphics("www/time_series.png")
+```
+
+
+```{r, echo=FALSE, results='asis', message= FALSE, warning=FALSE}
+library(xtable)
+library(plyr)
+dtf <- readRDS("data/sum_stats.rds")
+options(xtable.comment = FALSE)
+xtable(dtf, caption = c("Summary statistics"))
+
+```
+
+### Pre Covid vs Post Covid Summary Stats
+
+```{r, echo= FALSE, results='asis', message= FALSE, warning=FALSE}
+# Pre Covid vs Post Covid Summary Stats
+
+dtf_pre <- readRDS("data/pre_covid.rds")
+options(xtable.comment = FALSE)
+xtable(dtf_pre, caption = c("Summary statistics pre Covid"))
+
+```
+
+```{r, echo= FALSE, results='asis', message= FALSE, warning=FALSE}
+# Pre Covid vs Post Covid Summary Stats
+
+dtf_post <- readRDS("data/post_covid.rds")
+options(xtable.comment = FALSE)
+xtable(dtf_post, caption = c("Summary statistics pre Covid"))
+
+```
 
 ## Residuals {#resids}
 

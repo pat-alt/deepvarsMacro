@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Data {#data}
 
 To study the monetary transmission mechanism we used balncaded panel of monthly US data which spans the period of  January 1959 through March 2021. In order to explain the monetary transmission mechanism, the VAR literature relies on different indicators such us output and income, industrial new orders and turnover, retail sales and turnover,
@@ -19,8 +24,6 @@ The data is taken from the Economic Research department of the Federal Reserve B
 
 Another strength of using the FRED-MD is the fact that the data is already preprocessed. To see how it has been preprocessed see the Methodology section.
 
-In the graph below we can find the time series already preprocessed by the FRED-MD.
-
 ```{r, echo=FALSE}
 library(data.table)
 library("fbi")
@@ -35,28 +38,41 @@ colnames(test) <- variables_names
 dt_final <- data.table(test)
 dt_long <- melt(dt_final, id.vars = "date")
 
-ggplot(data = dt_long, aes(x=date, y=value)) +
+p <- ggplot(data = dt_long, aes(x=date, y=value)) +
   geom_line() +
   facet_wrap(~variable, scales="free_y")
+
+ggsave(
+  filename = "www/time_series.png", 
+  plot = p,
+  width = 8,
+  height = 4
+)
 ```
 
 
-```{r, results='asis'}
+```{r, echo = FALSE, results='asis', results= FALSE}
 library(xtable)
 library(plyr)
 dtf <- sapply(dt_final[,2:5], each(min, max, mean, sd, var, median, IQR))
 xtable(dtf, caption = c("Summary statistics"))
+options(xtable.comment = FALSE)
+saveRDS(dtf, file="data/sum_stats.rds")
 ```
 
+
+```{r, echo= FALSE, results='asis', results= FALSE}
 # Pre Covid vs Post Covid Summary Stats
-```{r, results='asis'}
+
 dtf_pre <- sapply(dt_final[date < as.Date("2020-03-01"),2:5], each(min, max, mean, sd, var, median, IQR))
 
 xtable(dtf_pre, caption = c("Summary statistics pre Covid"))
+saveRDS(dtf_pre, file="data/pre_covid.rds")
 ```
 
-```{r, results='asis'}
+```{r, echo= FALSE,results='asis', results= FALSE}
 dtf_post <- sapply(dt_final[date >= as.Date("2020-03-01"),2:5], each(min, max, mean, sd, var, median, IQR))
 xtable(dtf_post, caption = c("Summary statistics post Covid"))
+saveRDS(dtf_post, file="data/post_covid.rds")
 ```
 
