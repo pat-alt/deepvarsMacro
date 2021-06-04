@@ -52,6 +52,10 @@ theme_set(theme_bw())
 ```{r extensions, child="extensions.Rmd"}
 ```
 
+```{r conclusions, child="conclusions.Rmd"}
+```
+
+
 \FloatBarrier
 \pagebreak
 
