@@ -18,7 +18,7 @@ Let $\mathbf{y}_t$ denote the $(K \times 1)$ vector of variables at time $t$. Th
 (\#eq:redform)
 \end{equation}
 
-The matrices $\mathbf{A}_m \in \mathbb{R}^{K \times K}$, where $m\in\{1,...,p\}$, contain the reduced form coefficients and $\mathbf{u}_t \in \mathbb{R}^{K}$ is a vector of errors for which $\mathbb{E}\mathbf{u}_t$, $\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma$ and $\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}$ for all $t\ne s$. We refer to \@ref(eq:redform) as the **reduced form** representation of the VAR($p$) because all right-hand side variables are predetermined [@kilian2017structural]. 
+The matrices $\mathbf{A}_m \in \mathbb{R}^{K \times K}$, where $m\in\{1,...,p\}$, contain the reduced form coefficients and $\mathbf{u}_t \in \mathbb{R}^{K \times1}$ is a vector of errors for which $\mathbb{E}\mathbf{u}_t$, $\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma$ and $\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}$ for all $t\ne s$. We refer to \@ref(eq:redform) as the **reduced form** representation of the VAR($p$) because all right-hand side variables are predetermined [@kilian2017structural]. 
 
 We can restate \@ref(eq:redform) more compactly as 
 
@@ -142,6 +142,7 @@ where $\mathbf{b} \in \mathbb{R}^{N \times1}$ and $\mathbf{c} \in \mathbb{R}^{K 
 
 A shortfall of generic recurrent neural networks is that they fail to capture long-term dependencies. More specifically, if parameters are propagated over too many stages in a simple RNN it typically suffers from the problem of **vanishing gradients** [@goodfellow2016deep]. Fortunately, there exist effective extensions of the RNN, most notably the long short-term memory (LSTM), which is our model of choice for Deep VARs. The key idea underlying LSTMs is to regulate exactly how much information is propagated from one cell state vector $\mathbf{C}_{t-1}$ to the next $\mathbf{C}_{t}$ through the introduction of so called sigmoid gates:
 
+
 > "The LSTM [has] the ability to remove or add information to the cell state, carefully regulated by structures called gates. Gates are a way to optionally let information through."
 --- @olah2015understanding
 
@@ -215,7 +216,7 @@ Various strategies have been proposed to estimate the true or optimal lag order 
  
 > Insert reference to Lütkepohl (2005, Section 4.2.3)
  
-Here we will focus on selection based on information criteria, which to some extent makes the trade-off between bias an various explicit [@kilian2017structural]. In particular, it generally involves minimizing information criteria of the following form
+Here we will focus on selection based on information criteria, which to some extent makes the trade-off between bias an variance explicit [@kilian2017structural]. In particular, it generally involves minimizing information criteria of the following form
 
 \begin{equation} 
 \begin{aligned}
