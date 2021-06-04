@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # Methodology {#methodology}
 
 In conventional Vector Autoregression (VAR) dependencies of any system variable on past realizations of itself and its covariates are modelled through linear equations. This corresponds to a particular case of the broader class of Deep Vector Autoregressions investigated here and will serve as the baseline for our analysis.
@@ -13,7 +18,7 @@ Let $\mathbf{y}_t$ denote the $(K \times 1)$ vector of variables at time $t$. Th
 (\#eq:redform)
 \end{equation}
 
-The matrices $\mathbf{A}_m$, $m\in\{1,...,p\}$ contain the reduced form coefficients and $\mathbf{u}_t$ is a vector of errors for which $\mathbb{E}\mathbf{u}_t$, $\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma$ and $\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}$ for all $t\ne s$. We refer to \@ref(eq:redform) as the **reduced form** representation of the VAR($p$) because all right-hand side variables are predetermined [@kilian2017structural]. 
+The matrices $\mathbf{A}_m \in \mathbb{R}^{K \times K}$, where $m\in\{1,...,p\}$, contain the reduced form coefficients and $\mathbf{u}_t \in \mathbb{R}^{K}$ is a vector of errors for which $\mathbb{E}\mathbf{u}_t$, $\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma$ and $\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}$ for all $t\ne s$. We refer to \@ref(eq:redform) as the **reduced form** representation of the VAR($p$) because all right-hand side variables are predetermined [@kilian2017structural]. 
 
 We can restate \@ref(eq:redform) more compactly as 
 
@@ -24,7 +29,7 @@ We can restate \@ref(eq:redform) more compactly as
 (\#eq:sur)
 \end{equation}
 
-where $\mathbf{A}=(\mathbf{c},\mathbf{A}_1,\mathbf{A}_2,...,\mathbf{A}_p)$ is of dimension $(K \times (Kp+1))$ and $\mathbf{Z}_{t-1}=(1,\mathbf{y}_{t-1}^T,...,\mathbf{y}_{t-p}^T)^T$ is of dimension $((Kp+1)\times1)$. The expression in \@ref(eq:sur) demonstrates that the VAR($p$) can be considered as a **seemingly unrelated regression** (SUR) model composed of individual regressions with common regressors [@greene2012econometric]. In fact, it is useful to note for our purposes that the VAR($p$) can be estimated efficiently through equation-by-equation OLS regression. In particular, it follows from \@ref(eq:sur) that
+where $\mathbf{A}=(\mathbf{c},\mathbf{A}_1,\mathbf{A}_2,...,\mathbf{A}_p) \in \mathbb{R}^{K \times (Kp+1)}$ and $\mathbf{Z}_{t-1}=(1,\mathbf{y}_{t-1}^T,...,\mathbf{y}_{t-p}^T)^T \in \mathbb{R}^{(Kp+1)\times1}$. The expression in \@ref(eq:sur) demonstrates that the VAR($p$) can be considered as a **seemingly unrelated regression** (SUR) model composed of individual regressions with common regressors [@greene2012econometric]. In fact, it is useful to note for our purposes that the VAR($p$) can be estimated efficiently through equation-by-equation OLS regression. In particular, it follows from \@ref(eq:sur) that
 
 \begin{equation} 
 \begin{aligned}
@@ -33,7 +38,7 @@ where $\mathbf{A}=(\mathbf{c},\mathbf{A}_1,\mathbf{A}_2,...,\mathbf{A}_p)$ is of
 (\#eq:single-var)
 \end{equation}
 
-which corresponds to the key modelling assumption that at any point in time $t$ any time series $i\in1,...,K$ is just a weighted sum of past realizations of itself and all other variables in the system. This assumption makes the estimation VAR($p$) processes remarkably simple. Perhaps more importantly, the assumption of linearity also greatly facilitates inference about VARs. 
+which corresponds to the key modelling assumption that at any point in time $t$ any time series $i\in1,...,K$ is just a weighted sum of past realizations of itself and all other variables in the system. This assumption makes the estimation of VAR($p$) processes remarkably simple. Perhaps more importantly, the assumption of linearity also greatly facilitates inference about VARs. 
 
 For implementation purposes it is generally more useful to estimate the VAR($p$) through one single OLS regression. To this end let $\mathbf{\tilde{A}}=\mathbf{A}^{-1}$ and note that \@ref(eq:sur) can be restated even more compactly as 
 
@@ -44,7 +49,7 @@ For implementation purposes it is generally more useful to estimate the VAR($p$)
 (\#eq:var-ols)
 \end{equation}
 
-with $\mathbf{y}=(\mathbf{y}_1,...,\mathbf{y}_T)^T$ $(T \times K)$ and $\mathbf{Z}$ $(T \times (Kp+1))$. Then the closed form solution for OLS is simply $\mathbf{\tilde{A}}=(\mathbf{Z}^T\mathbf{Z})^{-1}\mathbf{Z}^T\mathbf{y}$ and hence
+with $\mathbf{y}=(\mathbf{y}_1,...,\mathbf{y}_T)^T \in \mathbb{R}^{T \times K}$ and $\mathbf{Z} \in \mathbb{R}^{T \times (Kp+1)}$. Then the closed form solution for OLS is simply $\mathbf{\tilde{A}}=(\mathbf{Z}^T\mathbf{Z})^{-1}\mathbf{Z}^T\mathbf{y}$ and hence
 
 \begin{equation} 
 \begin{aligned}
@@ -64,9 +69,9 @@ We propose the term Deep Vector Autoregression to refer to the broad class of Ve
 (\#eq:single-dvar)
 \end{equation}
 
-where $\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}$ is the vector of lagged realizations, $f_i$ is a variable specific mapping from past lags to the present and $\theta$ is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR($p$) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional form [@goodfellow2016deep]. 
+where $\mathbf{y}_{t-1:t-p}=\left\{y_{jt-m}\right\}^{m=1,...,p}_{j=1,...,K}$ is the vector of lagged realizations, $f_i$ is a variable specific mapping from past lags to the present and $\theta$ is a vector of parameters. While in the conventional VAR above we assumed that the multivariate process can be modelled as a system of linear stochastic equations, our proposed Deep VAR($p$) can similarly be understood as a system of potentially highly non-linear equations. As we argued earlier, Deep Learning has been shown to be remarkably successful at learning mappings of arbitrary functional forms [@goodfellow2016deep]. 
 
-Note that the input and output dimensions in \@ref(eq:single-dvar) are exactly the same as in the conventional VAR($p$) model (equation \@ref(eq:single-var)): $f_i$ maps from $\mathbf{y}_{t-1:t-p} \in \mathbb{R}^{Kp}$ to a scalar. Our proposed plain-vanilla approach to Deep VARs diverges as little as possible from the conventional approach: it boils down to simply modelling each of the univariate outcomes in \@ref(eq:single-dvar) as a deep neural network. We can restate this approach more compactly as 
+Note that the input and output dimensions in \@ref(eq:single-dvar) are exactly the same as in the conventional VAR($p$) model (equation \@ref(eq:single-var)): $f_i$ maps from $\mathbf{y}_{t-1:t-p} \in \mathbb{R}^{Kp \times1}$ to a scalar. Our proposed plain-vanilla approach to Deep VARs diverges as little as possible from the conventional approach: it boils down to simply modelling each of the univariate outcomes in \@ref(eq:single-dvar) as a deep neural network. We can restate this approach more compactly as 
 
 \begin{equation} 
 \begin{aligned}
@@ -75,13 +80,13 @@ Note that the input and output dimensions in \@ref(eq:single-dvar) are exactly t
 (\#eq:dvar)
 \end{equation}
 
-where $\mathbf{f}(\cdot)=(f_1(\cdot), f_2(\cdot),...,f_K(\cdot)^T$ is just the stacked vector of mappings to univariate outcomes described in \@ref(eq:single-dvar).
+where $\mathbf{f}(\cdot)=(f_1(\cdot), f_2(\cdot),...,f_K(\cdot))^T \in \mathbb{R}^{K \times1}$ is just the stacked vector of mappings to univariate outcomes described in \@ref(eq:single-dvar).
 
-The notation in \@ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one deep neural network $f$:
+The notation in \@ref(eq:dvar) gives rise to a more unified and general approach to Deep VARs that would treat the whole process as one single dynamical system to be modelled through one deep neural network $\mathbf{g}$:
 
 \begin{equation} 
 \begin{aligned}
-&& \mathbf{y}_t&= f(\mathbf{y}_{t-1:t-p};\theta) + \mathbf{v}_t \\
+&& \mathbf{y}_t&= \mathbf{g}(\mathbf{y}_{t-1:t-p};\theta) + \mathbf{v}_t \\
 \end{aligned}
 (\#eq:dvar-uni)
 \end{equation}
@@ -96,18 +101,16 @@ So far we have been speaking about deep learning in rather general terms. For ex
 
 ### Deep Feedforward Neural Networks
 
-The term **deep feedforward neural network** or **multilayer perceptron** (MLP) is used to describe a broad class of models that are composed of possibly many functions that together make up the directed acyclical graph. The functions $f_i(\cdot)$ - sometimes referred as layers $\bf{h_i}$ - are chained together hierarchically with the first layer feeding forward its outputs to the second layer and so on [@goodfellow2016deep]. Applied to our case, an MLP with $H$ hidden layers can be loosely defined as follows:
+The term **deep feedforward neural network** or **multilayer perceptron** (MLP) is used to describe a broad class of models that are composed of possibly many functions that together make up the directed acyclical graph. The functions $f_i(\cdot)$ - sometimes referred as layers $\mathbf{h}_{i}$ - are chained together hierarchically with the first layer feeding forward its outputs to the second layer and so on [@goodfellow2016deep]. Applied to our case, an MLP with $H$ hidden layers can be loosely defined as follows:
 
-$$
 \begin{equation} 
 \begin{aligned}
 && f_i(\mathbf{y}_{t-1:t-p};\theta)&=f_i^{(H)}\left(f_i^{(H-1)}\left(...f_i^{(1)}\left(\mathbf{y}_{t-1:t-p}\right)\right)\right) \\
 \end{aligned}
 (\#eq:mlp)
 \end{equation}
-$$
 
-The depth of the MLP is defined by the number of hidden layers $H$ where generally speaking deeper networks are more complex. 
+The depth of the MLP is defined by the number of hidden layers $H$, where, generally speaking, deeper networks are more complex. 
 
 > Need a reference here.
 
@@ -117,63 +120,55 @@ The desired outputs of any $f_i^{(h)}$ that will serve as inputs for $f_i^{(h+1)
 
 **Recurrent neural networks** (RNN) are based on the idea of persistent learning: a continuous process that evolves gradually and at each step uses information about its prior states instead of continuously reinventing itself and starting from scratch. To this end, RNNs develop the basic concepts underlying feedforward neural networks by incorporating feedback loops. Formally the loop is typically made explicit as follows
 
-$$
 \begin{equation} 
 \begin{aligned}
 && \mathbf{h}_t&=f(\mathbf{h}_{t-1},\mathbf{x}_t;\theta) \\
 \end{aligned}
 (\#eq:hidden-state)
 \end{equation}
-$$
 
-where $\mathbf{h}_t$ corresponds to the hidden state of the dynamical system at time $t$ that the RNN learns [@goodfellow2016deep]. In the given context we have that $\mathbf{x}_t=\mathbf{y}_{t-1:t-p}$ as specified in \@ref(eq:dvar). Given some random initial hidden state vector $\mathbf{h}_0$ the RNN updates parameters sequentially at each time step $t$ as follows
+where $\mathbf{h}_t \in \mathbb{R}^{N \times1}$ corresponds to the hidden state of the dynamical system at time $t$ that the RNN learns [@goodfellow2016deep], and $N$ corresponds to the number of hidden units in each hidden layer, known as the width of the layer. In the given context we have that $\mathbf{x}_t=\mathbf{y}_{t-1:t-p}$ as specified in \@ref(eq:dvar). Given some random initial hidden state vector $\mathbf{h}_0$ the RNN updates parameters sequentially at each time step $t$ as follows
 
-$$
 \begin{equation} 
 \begin{aligned}
-&& \mathbf{a}_t&=\mathbf{b} + \mathbf{W}\bf{h}_{t-1} + \mathbf{U}\bf{h}_{-1} \\
-&& \bf{h}_{t}&=\tanh(\mathbf{a}_t) \\
-&& \bf{\hat{y}}_t&=\mathbf{c} + \bf{V}\bf{h}_t\\
+&& \mathbf{a}_t&=\mathbf{b} + \mathbf{W}\mathbf{h}_{t-1} + \mathbf{U}\mathbf{h}_{-1} \\
+&& \mathbf{h}_{t}&=\tanh(\mathbf{a}_t) \\
+&& \mathbf{\hat{y}}_t&=\mathbf{c} + \mathbf{V}\mathbf{h}_t\\
 \end{aligned}
 (\#eq:rnn)
 \end{equation}
-$$
 
-where $\bf{b}$ and $\bf{c}$ are vectors of constants (biases), $\tanh$ is the hyperbolic tangent activation function and $\mathbf{W}$, $\mathbf{U}$, $\mathbf{V}$ are coefficient matrices. Note that to simplify the notation we have omitted the layer index in \@ref(eq:rnn): to be specific, $\mathbf{h}_t$ really represents $\mathbf{h}^{(H)}_t$ (the ultimate hidden layer), $\mathbf{h}_{-1}$ stands for $\mathbf{h}^{(H-1)}_t$ (the penultimate layer). Finally, at each step $t$ the first layer $\mathbf{h}^{(0)}_t$ of the forward propagation corresponds to $\mathbf{y}_{t-1:t-p}$. 
+where $\mathbf{b} \in \mathbb{R}^{N \times1}$ and $\mathbf{c} \in \mathbb{R}^{K \times1}$ are vectors of constants (biases), $\tanh$ is the hyperbolic tangent activation function and $\mathbf{W}$, $\mathbf{U}$, $\mathbf{V}$ are coefficient matrices, where $\mathbf{W},\mathbf{U} \in \mathbb{R}^{N \times N}$ and $\mathbf{V} \in \mathbb{R}^{K \times N}$. Note that to simplify the notation we have omitted the layer index in \@ref(eq:rnn): to be specific, $\mathbf{h}_t$ really represents $\mathbf{h}^{(H)}_t$ (the ultimate hidden layer), $\mathbf{h}_{-1}$ stands for $\mathbf{h}^{(H-1)}_t$ (the penultimate layer). Finally, at each step $t$ the first layer $\mathbf{h}^{(0)}_t$ of the forward propagation corresponds to $\mathbf{y}_{t-1:t-p}$. 
 
-A shortfall of generics recurrent neural networks is that they fail to capture long-term dependencies. More specifically, if parameters are propagated over too many stages in a simple RNN it typically suffers from the problem of **vanishing gradients** [@goodfellow2016deep]. Fortunately, there exist effective extensions of the RNN, most notably the long short-term memory (LSTM), which is our model of choice for Deep VARs. The key idea underlying LSTMs is to regulate exactly how much information is propagated from one cell state vector $\bf{C}_{t-1}$ to the next $\bf{C}_{t}$ through the introduction of so called sigmoid gates:
+A shortfall of generic recurrent neural networks is that they fail to capture long-term dependencies. More specifically, if parameters are propagated over too many stages in a simple RNN it typically suffers from the problem of **vanishing gradients** [@goodfellow2016deep]. Fortunately, there exist effective extensions of the RNN, most notably the long short-term memory (LSTM), which is our model of choice for Deep VARs. The key idea underlying LSTMs is to regulate exactly how much information is propagated from one cell state vector $\mathbf{C}_{t-1}$ to the next $\mathbf{C}_{t}$ through the introduction of so called sigmoid gates:
 
 > "The LSTM [has] the ability to remove or add information to the cell state, carefully regulated by structures called gates. Gates are a way to optionally let information through."
 --- @olah2015understanding
 
-These regulating gate layers include a **forget gate** $\mathbf{f}_t$, an **input gate** $\mathbf{i}_t$ and a **output gate** $\mathbf{o}_t$. Each of them are vector-values sigmoid functions whose elements $\bf{f}_{it},\bf{i}_{it},\bf{o}_{it}$ are bound between $0$ and $1$. Their individual purposes are implied by their names: faced with $\bf{h}_{t-1}$ and $\mathbf{y}_{t-1:t-p}$, the forget gate regulates how much of each individual unit in $\bf{C}_{t-1}$ is retained. Then the input gate regulates which units of $\bf{C}_{t-1}$ should be updated and to what candidate values $\bf{\tilde{C}}_{t-1}$. Using the previous two steps the actual update is performed according to the following rule
+These regulating gate layers include a **forget gate** $\mathbf{f}_t$, an **input gate** $\mathbf{i}_t$ and a **output gate** $\mathbf{o}_t$. Each of them are vector-values sigmoid functions whose elements $\mathbf{f}_{it},\mathbf{i}_{it},\mathbf{o}_{it}$ are bound between $0$ and $1$. Their individual purposes are implied by their names: faced with $\mathbf{h}_{t-1}$ and $\mathbf{y}_{t-1:t-p}$, the forget gate regulates how much of each individual unit in $\mathbf{C}_{t-1}$ is retained. Then the input gate regulates which units of $\mathbf{C}_{t-1}$ should be updated and to what candidate values $\mathbf{\tilde{C}}_{t-1}$. Using the previous two steps the actual update is performed according to the following rule
 
-$$
 \begin{equation} 
 \begin{aligned}
-&& \bf{C}_{t}&=\bf{f}_t \odot \bf{C}_{t-1} + \bf{i}_t \odot \bf{\tilde{C}}_{t-1}\\
+&& \mathbf{C}_{t}&=\mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \mathbf{\tilde{C}}_{t-1}\\
 \end{aligned}
 (\#eq:lstm-update)
 \end{equation}
-$$
 
-where $\odot$ indicates the element-wise product. Finally, the output gate acts like a filter on $\bf{C}_{t}$: the new hidden state is computed as $\bf{h_t}=\bf{o}_t \odot \tanh (\bf{C_t})$ where as before we use the hyperbolic tangent as our activation function.^[For a clear and detailed exposition see @olah2015understanding.] Formally, we can summarize the LSTM neural network underlying our Deep VAR framework as follows
+where $\odot$ indicates the element-wise product. Finally, the output gate acts like a filter on $\mathbf{C}_{t}$: the new hidden state is computed as $\mathbf{h}_{t}=\mathbf{o}_t \odot \tanh (\mathbf{C}_{t})$ where as before we use the hyperbolic tangent as our activation function.^[For a clear and detailed exposition see @olah2015understanding.] Formally, we can summarize the LSTM neural network underlying our Deep VAR framework as follows:
 
-$$
 \begin{equation} 
 \begin{aligned}
-&& \mathbf{f}_t&=\sigma \left( \mathbf{b}_f + \mathbf{W}_f\bf{h}_{t-1} + \mathbf{U}_f\bf{h}_{-1} \right) \\
-&& \mathbf{i}_t&=\sigma \left( \mathbf{b}_i + \mathbf{W}_i\bf{h}_{t-1} + \mathbf{U}_i\bf{h}_{-1} \right) \\
-&& \mathbf{o}_t&=\sigma \left( \mathbf{b}_o + \mathbf{W}_o\bf{h}_{t-1} + \mathbf{U}_o\bf{h}_{-1} \right) \\
-&& \bf{C}_t&=\mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tanh \left( \mathbf{b}_C + \mathbf{W}_C\bf{h}_{t-1} + \mathbf{U}_C\bf{h}_{-1} \right) \\
-&&\bf{h_t}&=\bf{o}_t \odot \tanh (\bf{C_t}) \\
-&& \bf{\hat{y}}_t&=\mathbf{c} + \bf{V}\bf{h}_t\\
+&& \mathbf{f}_t&=\sigma \left( \mathbf{b}_f + \mathbf{W}_f\mathbf{h}_{t-1} + \mathbf{U}_f\mathbf{h}_{-1} \right) \\
+&& \mathbf{i}_t&=\sigma \left( \mathbf{b}_i + \mathbf{W}_i\mathbf{h}_{t-1} + \mathbf{U}_i\bf{h}_{-1} \right) \\
+&& \mathbf{o}_t&=\sigma \left( \mathbf{b}_o + \mathbf{W}_o\mathbf{h}_{t-1} + \mathbf{U}_o\mathbf{h}_{-1} \right) \\
+&& \mathbf{C}_t&=\mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tanh \left( \mathbf{b}_C + \mathbf{W}_C\mathbf{h}_{t-1} + \mathbf{U}_C\mathbf{h}_{-1} \right) \\
+&&\mathbf{h}_{t}&=\bf{o}_t \odot \tanh (\mathbf{C_t}) \\
+&& \mathbf{\hat{y}}_t&=\mathbf{c} + \mathbf{V}\mathbf{h}_t\\
 \end{aligned}
 (\#eq:lstm)
 \end{equation}
-$$
 
-which is best understood when read from top to bottom. Once again we have simplified the notation we have omitted the layer index in \@ref(eq:rnn). The same notation as before applies.
+which is best understood when read from top to bottom. Once again we have simplified the notation by ommitting the layer index in \@ref(eq:rnn). The same notation as before applies.
 
 ## Model selection
 
@@ -200,7 +195,7 @@ When working with time series we are generally concerned about stationarity. Bro
 (\#eq:companion)
 \end{equation}
 
-where $\mathbf{Y}_t=(\mathbf{y}_t^T,...,\mathbf{y}^T_{t-p+1})^T$ and $\mathbf{A}$ is referred to as the companion matrix [@kilian2017structural]. Stationarity of the VAR($p$) follows from stability: a VAR($p$) is stable if the effects of shocks to the system eventually die out. Stability can assessed through the system's autoregressive roots or equivalently by looking at the eigenvalues of companion matrix $\mathbf{A}$ [@kilian2017structural]. In particular, for the VAR($p$) in \@ref(eq:companion) to be stable we condition that the $Kp$ eigenvalues $\lambda$ that satisfy 
+where $\mathbf{Y}_t=(\mathbf{y}_t^T,...,\mathbf{y}^T_{t-p+1})^T \in \mathbb{R}^{Kp \times1}$ and $\mathbf{A} \in \mathbb{R}^{Kp \times Kp}$ is referred to as the companion matrix [@kilian2017structural]. Stationarity of the VAR($p$) follows from stability: a VAR($p$) is stable if the effects of shocks to the system eventually die out. Stability can be assessed through the system's autoregressive roots or equivalently by looking at the eigenvalues of the companion matrix $\mathbf{A}$ [@kilian2017structural]. In particular, for the VAR($p$) in \@ref(eq:companion) to be stable we condition that the $Kp$ eigenvalues $\lambda$ that satisfy 
 
 $$
 \begin{aligned}
@@ -214,7 +209,7 @@ A straight-forward way to deal with stationarity of VARs is to simply ensure tha
 
 ### Lag order
 
-The VARs lag order $p$ can to some extent be thought of as the persistency of the process: past innovations that still affect outcomes in time $t$ happened at most $p$ periods ago. From a pure model selection perspective we can also think of additional lags in terms of additional regressors that add to the model's complexity. From that perspective choosing a lower lag order corresponds to a form a regularization as it pertains a more parsimonious model.
+The VARs lag order $p$ can to some extent be thought of as the persistency of the process: past innovations that still affect outcomes in time $t$ happened at most $p$ periods ago. From a pure model selection perspective we can also think of additional lags in terms of additional regressors that add to the model's complexity. From that perspective, choosing a lower lag order corresponds to a form of regularization as it pertains to a more parsimonious model.
 
 Various strategies have been proposed to estimate the true or optimal lag order $p$ empirically [@kilian2017structural]. Among the most common ones are sequential testing procedures and selection based on information criteria. The former involves sequentially adding or removing lags - **bottom-up** and **top-down** testing, respectively - and then testing model outcomes in each iteration. A common point of criticism of sequential procedures is that the order tests matters.
  
