@@ -26,7 +26,7 @@ dropout <- formals(deepvareg)$p_drop_out
 epochs <- 100
 ```
 
-```{r}
+```{r, eval=FALSE}
 # VAR fitting
 var_model <- vareg(dt, lags = lags)
 # Deep VAR fitting
@@ -38,7 +38,7 @@ deepvar_model <- deepvareg(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Cum RMSE plot
 cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="VAR"]
 cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="Deep VAR"]
@@ -60,7 +60,7 @@ ggsave(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 resids <- rbind(
   deepvar_model$res[,model:="Deep VAR"],
   data.table(var_model$res)[,model:="VAR"]
@@ -81,7 +81,7 @@ ggsave(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 lag_max <- 25
 ci <- .95
 resids_acf <- resids[
@@ -151,7 +151,7 @@ train_data <- train_test_split$train_data
 lags <- lag_order(train_data, max_lag = max_lags)$p
 ```
 
-```{r}
+```{r, eval=FALSE}
 # VAR
 var_model <- vareg(train_data, lags = lags)
 # Deep VAR
@@ -163,13 +163,13 @@ deepvar_model <- deepvareg(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 y_true <- var_model$y_train
 ```
 
 In order to assess if the Deep VAR's outperformance is a consequence of overfitting, we now repeat the previous exercise, but this time we train the models on a subsample of our date. The training sample spans from `r format(min(train_data$date), "%B, %Y")` to `r format(max(train_data$date), "%B, %Y")`, whereas the test data goes from `r format(min(train_test_split$test_data$date), "%B, %Y")` to `r format(max(train_test_split$test_data$date), "%B, %Y")`. This corresponds to training the model on 80 percent of the data and retaining the remaining 20 percent for testing purposes. The optimal lag order for the training subsample is $p=`r lags`$ where we use the same criterion and maximum lag order as before.
 
-```{r}
+```{r, eval=FALSE}
 #VAR
 pred_var <- predict(var_model)
 p <- plot(pred_var, y_true = y_true)
@@ -180,7 +180,7 @@ p <- plot(pred_deepvar, y_true = y_true)
 ggsave("www/pred_dvar_train.png", width = 7, height = 4)
 ```
 
-```{r}
+```{r, eval=FALSE}
 #Predictions out of sample
 X_test <- prepare_test_data(train_test_split, lags=lags)$X_test
 y_test <- prepare_test_data(train_test_split, lags=lags)$y_test
@@ -194,7 +194,7 @@ p <- plot(pred_dvar, y_true = y_test)
 ggsave("www/pred_dvar_test.png", width = 7, height = 4)
 ```
 
-```{r}
+```{r, eval=FALSE}
 #RMSE 
 rmse_var <- rbind(
   rmse(var_model)[,model:="var"][,sample:="train"],
@@ -212,7 +212,7 @@ saveRDS(tab_rmse, file="results/train_test_tab_rmse.rds")
 
 Tables \@ref(tab:rmse) shows ths Root Mean Squared Error (RMSE) for the in-sample and the out-of-sample predictions of both the VAR model and the Deep VAR model. We can see that the RMSE for the Deep VAR outperforms the one for the conventional VAR for both the training data and the test data and for all time series. The fifth column of the table shows us the ratio between the RMSEs of the Deep VAR and the VAR: the lower the ratio, the better the Deep VAR compared to the VAR. With respect to the training sample, the RMSE of the Deep VAR model is consistently less than 75% of that of the conventional VAR reflecting to some extent the results of the previous sections. Turning to the test data, there is no evidence that the Deep VAR is more prone to overfitting than the VAR. For both industrial production and unemployment, the Deep VAR yields an RMSE that is around half the size of that produced by the VAR. For inflation and interest rate predictions the outperformance on the test data is less striking, but still fairly significant.
 
-```{r rmse}
+```{r rmse, eval=TRUE}
 tab_rmse <- readRDS("results/train_test_tab_rmse.rds")
 knitr::kable(
   tab_rmse, 
@@ -223,7 +223,7 @@ knitr::kable(
 ```
 
 
-```{r, include=FALSE}
+```{r, include=FALSE, eval=FALSE}
 library(xtable)
 dtf<- xtable(tab_rmse[, -"Mean"], caption = c("RMS"))
 names(dtf) <- c('Sample','Variable', 'DeepVAR', "VAR", "Ratio")
@@ -238,12 +238,12 @@ print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = itali
 
 ## Forecasts
 
-```{r}
+```{r, eval=FALSE}
 n_ahead <- 12
 y_true <- y_test[1:n_ahead,]
 ```
 
-```{r}
+```{r, eval=FALSE}
 #Forecasts
 #VAR
 fcst_var <- forecast(var_model, n.ahead = n_ahead)
@@ -255,7 +255,7 @@ p <- plot(fcst_dvar, y_true=y_true, history = 20)
 ggsave(filename = "www/fcst_dvar.png", p, width=7, height=4)
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Correlations
 correlations <- function(fcst_var,fcst_dvar,y_true){
   list_names <- c(colnames(y_true))
@@ -296,14 +296,14 @@ knitr::kable(
 )
 ```
 
-```{r}
+```{r, eval=FALSE}
 dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
 
-## Hyper parameter tuning
+## Hyperparameter tuning
 
-```{r}
+```{r, eval=TRUE}
 # Parameters
 n_ahead <- 12
 layers <- c(1,2,5)
@@ -318,7 +318,7 @@ grid <- data.table::CJ(
 n_sim <- length(lags) * grid[,.N]
 ```
 
-```{r}
+```{r, eval=FALSE}
 # Train test:
 train_test_split <- split_sample(dt)
 train_data <- train_test_split$train_data
@@ -429,6 +429,94 @@ grid_search <- rbindlist(
 saveRDS(grid_search, "results/grid_search.rds")
 ```
 
+```{r, eval=TRUE}
+grid_search <- readRDS("results/grid_search.rds")
+```
+
+```{r}
+library(ggpubr)
+```
+
+```{r, eval=FALSE}
+p_list <- invisible(
+  lapply(
+    unique(grid_search$variable),
+    function(var) {
+      p <- ggplot(
+        data=grid_search[
+          sample=="test" & 
+            measure=="rmse" & 
+            model =="dvar" & 
+            variable == var
+        ], 
+        aes(x=lag, y=value, colour=factor(dropout))
+      ) +
+        scale_colour_discrete(name="Dropout rate:") +
+        geom_line() + geom_point() +
+        facet_grid(
+          rows=vars(num_layer),
+          cols=vars(num_units)
+        ) +
+        labs(
+          x="Lag",
+          y="RMSE",
+          title = var
+        )
+      return(p)
+    }
+  )
+)
+p <- ggarrange(
+  plotlist = p_list, ncol=2, nrow=2, 
+  common.legend = TRUE, legend="bottom"
+)
+ggsave("www/grid_rmse_test.png", plot=p, width = 9, height = 9)
+```
+
+```{r, eval=FALSE}
+p_list <- invisible(
+  lapply(
+    unique(grid_search$variable),
+    function(var) {
+      p <- ggplot(
+        data=grid_search[
+          sample=="train" & 
+            measure=="rmse" & 
+            model =="dvar" & 
+            variable == var
+        ], 
+        aes(x=lag, y=value, colour=factor(dropout))
+      ) +
+        scale_colour_discrete(name="Dropout rate:") +
+        geom_line() + geom_point() +
+        facet_grid(
+          rows=vars(num_layer),
+          cols=vars(num_units)
+        ) +
+        labs(
+          x="Lag",
+          y="RMSE",
+          title = var
+        )
+      return(p)
+    }
+  )
+)
+p <- ggarrange(
+  plotlist = p_list, ncol=2, nrow=2, 
+  common.legend = TRUE, legend="bottom"
+)
+ggsave("www/grid_rmse_train.png", plot=p, width = 9, height = 9)
+```
+
+```{r, eval=TRUE, fig.cap="Train sample RMSE for Deep VAR for different variables."}
+knitr::include_graphics("www/grid_rmse_train.png")
+```
+
+```{r, eval=TRUE, fig.cap="Test sample RMSE for Deep VAR for different variables."}
+knitr::include_graphics("www/grid_rmse_test.png")
+```
+
 ```{r, eval=TRUE, include=FALSE}
 knitr::opts_chunk$set(
   eval=TRUE,
@@ -438,3 +526,4 @@ knitr::opts_chunk$set(
 )
 ```
 
+\FloatBarrier
