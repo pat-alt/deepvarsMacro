@@ -1,26 +1,10 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # Data {#data}
 
-To study the monetary transmission mechanism we used a balanced panel of monthly US data which spans the period of January 1959 through March 2021. In order to explain the monetary transmission mechanism, the VAR literature relies on different indicators such us output and income, industrial new orders and turnover, retail sales and turnover, building permits, employment, consumption, price indices, exchange rates, short and long term interest rates, stock price indices, money and credit quantity aggregates, balance of payments and external trade, confidence indicators, and some foreign variables such as output, prices, interest rates, and stock markets from other countries used as proxies for external real, nominal and monetary influences.
+To evaluate our proposed methodology empirically we use a sample of monthly US data on leading economic indicators, which spans the period of January 1959 through March 2021. We use the relatively novel FRED-MD data base which is updated monthly and publicly available [@mccracken2016fred]. The sample spans from `r dt[,format(min(date), "%B, %Y")]` to `r dt[,format(max(date), "%B, %Y")]` providing us with a relatively rich data set of macroeconomic time series with $T=`r dt[,.N]`$ observations.
 
-On this paper we relied on four of the macroeconomic indicators mentioned above; output, price indices, employment and rates. For each indicator we chose a time series as its proxy. We can see the proxies used for each variable below.
+In order to investigate the monetary transmission mechanism, the literature typically focuses on variables related to economic output, price levels, short and long term interest rates as well as labour market indicators. Some go beyond to also include stock price indices, money and credit aggregates, balance of payments figures, confidence indicators and some cases foreign domestic indicators. In this paper we limit our attention to the four main indicators mentioned above. In particular we use changes in the industrial production index (IP) to measure output growth, changes in the growth of the (all items) consumer price index (CPI) to measure inflation, the Federal Funds Rate (FFR) as our interest rate and the unemployment rate (UR) as our labour market indicator. Note that we use IP rather than the gross domestic product as a proxy for output, because the latter is only available at quarterly frequency. 
 
-- *output*: Industrial Production (IP)
-- *price indices*: Consumer Price Index (CPI)
-- *unemployment*: Unemployment rate (UR)
-- *rates*: US Federal Fund Rate (FFR)
-
-Note that we use IP rather than GDP as a proxy for output because for the case of the GDP only quartery data was available. 
-
-As consequence of working with monthly data, we worked with 745 observations, each of them with the four variables previously mentioned.
-
-The data is taken from the Economic Research department of the Federal Reserve Bank of Saint Louis (FRED). In a recent paper, they have created a monthly database for economic research (FRED-MD), a macroeconomics data base which consists of 134 monthly US indicators. The data is automatically updated each month and can be downloaded freely, facilitating the replication of results and comparing results. 
-
-Another strength of using the FRED-MD is the fact that the data is already preprocessed. To see how it has been preprocessed see the Methodology section.
+Another strength of the FRED-MD is the fact that the data is already preprocessed. Specifically, the industrial production index comes in log differences, the CPI in second-order log differences and both the Fed Funds Rate and the unemployment rate in first-order differences. This has allowed us to let the data enter into our estimations without any further adjustments, which should facilitate the reproducibility of our results.
 
 ```{r, echo=FALSE}
 library(data.table)
