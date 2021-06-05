@@ -40,7 +40,7 @@ where $\mathbf{A}=(\mathbf{c},\mathbf{A}_1,\mathbf{A}_2,...,\mathbf{A}_p) \in \m
 
 which corresponds to the key modelling assumption that at any point in time $t$ any time series $i\in1,...,K$ is just a weighted sum of past realizations of itself and all other variables in the system. This assumption makes the estimation of VAR($p$) processes remarkably simple. Perhaps more importantly, the assumption of linearity also greatly facilitates inference about VARs. 
 
-For implementation purposes it is generally more useful to estimate the VAR($p$) through one single OLS regression. To this end let $\mathbf{\tilde{A}}=\mathbf{A}^{-1}$ and note that \@ref(eq:sur) can be restated even more compactly as 
+For implementation purposes it is generally more useful to estimate the VAR($p$) through one single OLS regression. To this end let $\mathbf{\tilde{A}}=\mathbf{A}^{T}$ and note that \@ref(eq:sur) can be restated even more compactly as 
 
 \begin{equation} 
 \begin{aligned}
@@ -60,7 +60,7 @@ with $\mathbf{y}=(\mathbf{y}_1,...,\mathbf{y}_T)^T \in \mathbb{R}^{T \times K}$ 
 
 ## Deep Vector Autoregression {#deepvar}
 
-We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before we let $\mathbf{y}_t$ denote the $(K \times 1)$ vector that describes the state of system at time $t$. Consistent with the conventional VAR we assume that each individual time series $y_{it}$ can be modelled as a function of lagged realizations of all variables $y_{jt-p}$, $j=1,...,K$, $m=1,...,p$. More specifically we have 
+We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before, we let $\mathbf{y}_t$ denote the $(K \times 1)$ vector that describes the state of system at time $t$. Consistent with the conventional VAR structure we assume that each individual time series $y_{it}$ can be modelled as a function of lagged realizations of all variables $y_{jt-p}$, $j=1,...,K$, $m=1,...,p$. More specifically, we have 
 
 \begin{equation} 
 \begin{aligned}
@@ -138,7 +138,7 @@ where $\mathbf{h}_t \in \mathbb{R}^{N \times1}$ corresponds to the hidden state 
 
 where $\mathbf{b} \in \mathbb{R}^{N \times1}$ and $\mathbf{c} \in \mathbb{R}^{K \times1}$ are vectors of constants (biases), $\tanh$ is the hyperbolic tangent activation function and $\mathbf{W}$, $\mathbf{U}$, $\mathbf{V}$ are coefficient matrices, where $\mathbf{W},\mathbf{U} \in \mathbb{R}^{N \times N}$ and $\mathbf{V} \in \mathbb{R}^{K \times N}$. Note that to simplify the notation we have omitted the layer index in \@ref(eq:rnn): to be specific, $\mathbf{h}_t$ really represents $\mathbf{h}^{(H)}_t$ (the ultimate hidden layer), $\mathbf{h}_{-1}$ stands for $\mathbf{h}^{(H-1)}_t$ (the penultimate layer). Finally, at each step $t$ the first layer $\mathbf{h}^{(0)}_t$ of the forward propagation corresponds to $\mathbf{y}_{t-1:t-p}$. 
 
-A shortfall of generic recurrent neural networks is that they fail to capture long-term dependencies. More specifically, if parameters are propagated over too many stages in a simple RNN it typically suffers from the problem of **vanishing gradients** [@goodfellow2016deep]. Fortunately, there exist effective extensions of the RNN, most notably the long short-term memory (LSTM), which was introduced by @hochreiter1997long and is our model of choice for Deep VARs. The key idea underlying LSTMs is to regulate exactly how much information is propagated from one cell state vector $\mathbf{C}_{t-1}$ to the next $\mathbf{C}_{t}$ through the introduction of so called sigmoid gates:
+A shortfall of generic recurrent neural networks is that they fail to capture long-term dependencies. More specifically, if parameters are propagated over too many stages in a simple RNN, it typically suffers from the problem of **vanishing gradients** [@goodfellow2016deep]. Fortunately, there exist effective extensions of the RNN, most notably the long short-term memory (LSTM), which was introduced by @hochreiter1997long and is our model of choice for Deep VARs. The key idea underlying LSTMs is to regulate exactly how much information is propagated from one cell state vector $\mathbf{C}_{t-1}$ to the next $\mathbf{C}_{t}$ through the introduction of so called sigmoid gates:
 
 
 > "The LSTM [has] the ability to remove or add information to the cell state, carefully regulated by structures called gates. Gates are a way to optionally let information through."
@@ -161,7 +161,7 @@ where $\odot$ indicates the element-wise product. Finally, the output gate acts 
 && \mathbf{i}_t&=\sigma \left( \mathbf{b}_i + \mathbf{W}_i\mathbf{h}_{t-1} + \mathbf{U}_i\bf{h}_{-1} \right) \\
 && \mathbf{o}_t&=\sigma \left( \mathbf{b}_o + \mathbf{W}_o\mathbf{h}_{t-1} + \mathbf{U}_o\mathbf{h}_{-1} \right) \\
 && \mathbf{C}_t&=\mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tanh \left( \mathbf{b}_C + \mathbf{W}_C\mathbf{h}_{t-1} + \mathbf{U}_C\mathbf{h}_{-1} \right) \\
-&&\mathbf{h}_{t}&=\bf{o}_t \odot \tanh (\mathbf{C_t}) \\
+&&\mathbf{h}_{t}&=\mathbf{o}_t \odot \tanh (\mathbf{C}_t) \\
 && \mathbf{\hat{y}}_t&=\mathbf{c} + \mathbf{V}\mathbf{h}_t\\
 \end{aligned}
 (\#eq:lstm)
@@ -234,13 +234,9 @@ where $\mathcal{P}=[m_{\min},m_{\max}]$. We will consider all of the most common
 
 ### Neural Network Architecture
 
-As mentioned above, a NN is therefore charaterized for having a very large number of parameters and therefore making it relatively easy to overfit the data. This is a concern specially when the NN is trained in a relatively small dataset. In time series the amount of data to train the model is quite limited, therefore having so many parameters may result in the NN learning the noise of the function, potentially leading to overfitting which in turn results in failry poor performance results of the model in the test set. Therefore some regularization must be added into the model in order to avoid overfitting. 
+As mentioned above, a NN is therefore charaterized for having a very large number of parameters and therefore making it relatively easy to overfit the data. This is a concern specially when the NN is trained in a relatively small dataset. In time series the amount of data to train the model is quite limited, therefore having so many parameters may result in the NN learning the noise of the function, potentially leading to overfitting which in turn results in failry poor performance results of the model in the test set. Therefore, some regularization must be added into the model in order to avoid overfitting. 
 
-As proposed in @srivastava2014dropout, one way to reduce overfitting can be fitting a lot of NN in the data and the averaging its predictions. This is not feasible due to computational problems. What one can do instead is to randomly drop some units in each layer. This is also known as dropout, this technique simulates the training of multiple NN with different architectures in the same data set. By using dropout, we add some noise into the model. This avoids a certain layer trying to adapt to a mistake made by a previous one, hence potentially leading to complex adaptations which results in overfitting. Dropout therefore can be used as a regularization technique that makes the model more robust.
-
-The way we implement dropout in the Deep VAR model is by specifying the probability to which a node is removed from the layer. This means that the information that arrives to that unit is forgotten.
-
-As another effort to avoid overfitting, we use the same architecture for each layer of the NN. That is, we do not allow each layer to have different number of units, nor different activation functions nor different dropout rates, which could potentially result in the model learning the noise. In turn the Deep VAR model is characterized for having equally sized layers of size N.
+As proposed in @srivastava2014dropout, one way to reduce overfitting can be fitting a lot of NNs in the data and the averaging its predictions. This is not feasible due to computational problems. What one can do instead is to randomly drop some units in each layer. This is also known as dropout, this technique simulates the training of multiple NN with different architectures in the same data set. By using dropout, we add some noise into the model. This avoids a certain layer trying to adapt to a mistake made by a previous one, hence potentially leading to complex adaptations which results in overfitting. Dropout can then be used as a regularization technique that makes the model more robust. The way we implement dropout in the Deep VAR model is by specifying the probability to which a node is removed from the layer. This means that the information that arrives to that unit is forgotten.
 
 ```{r nn-arch, eval=TRUE, fig.cap="Neural Network Architecture."}
 knitr::include_graphics("www/nn.png")
