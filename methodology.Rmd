@@ -112,8 +112,6 @@ The term **deep feedforward neural network** or **multilayer perceptron** (MLP) 
 
 The depth of the MLP is defined by the number of hidden layers $H$, where, generally speaking, deeper networks are more complex. 
 
-> Need a reference here.
-
 The desired outputs of any $f_i^{(h)}$ that will serve as inputs for $f_i^{(h+1)}$ cannot be inferred from the training data $\mathbf{y}_{t-1:t-p}$ ex-ante, which is where the term **hidden** layer stems from. Each $f_i^{(h)}$ is typically valued on a vector of hidden units, each of them receiving a vector of inputs from $f_i^{(h-1)}$ and returning a scalar that is referred to as activation value. This approach is inspired by neuroscience, hence the term **neural** network [@goodfellow2016deep].
 
 ### Deep Recurrent Neural Networks
@@ -212,9 +210,7 @@ A straight-forward way to deal with stationarity of VARs is to simply ensure tha
 
 The VARs lag order $p$ can to some extent be thought of as the persistency of the process: past innovations that still affect outcomes in time $t$ happened at most $p$ periods ago. From a pure model selection perspective we can also think of additional lags in terms of additional regressors that add to the model's complexity. From that perspective, choosing a lower lag order corresponds to a form of regularization as it pertains to a more parsimonious model.
 
-Various strategies have been proposed to estimate the true or optimal lag order $p$ empirically [@kilian2017structural]. Among the most common ones are sequential testing procedures and selection based on information criteria. The former involves sequentially adding or removing lags - **bottom-up** and **top-down** testing, respectively - and then testing model outcomes in each iteration. A common point of criticism of sequential procedures is that the order tests matters.
- 
-> Insert reference to Lütkepohl (2005, Section 4.2.3)
+Various strategies have been proposed to estimate the true or optimal lag order $p$ empirically [@kilian2017structural]. Among the most common ones are sequential testing procedures and selection based on information criteria. The former involves sequentially adding or removing lags - **bottom-up** and **top-down** testing, respectively - and then testing model outcomes in each iteration. A common point of criticism of sequential procedures is that the order tests matters (@lutkepohl2005new).
  
 Here we will focus on selection based on information criteria, which to some extent makes the trade-off between bias an variance explicit [@kilian2017structural]. In particular, it generally involves minimizing information criteria of the following form
 
