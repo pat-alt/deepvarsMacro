@@ -5,20 +5,18 @@ output:
 ---
 # Data {#data}
 
-To study the monetary transmission mechanism we used balncaded panel of monthly US data which spans the period of  January 1959 through March 2021. In order to explain the monetary transmission mechanism, the VAR literature relies on different indicators such us output and income, industrial new orders and turnover, retail sales and turnover,
-building permits, employment, consumption, price indices, exchange rates, short- and long-term interest rates, stock price indices, money and credit quantity aggregates, balance of payments and external trade, confidence indicators, and some foreign variables such as output, prices, interest rates, and stock markets from other countries used
-as proxies for external real, nominal and monetary influences.
+To study the monetary transmission mechanism we used a balanced panel of monthly US data which spans the period of January 1959 through March 2021. In order to explain the monetary transmission mechanism, the VAR literature relies on different indicators such us output and income, industrial new orders and turnover, retail sales and turnover, building permits, employment, consumption, price indices, exchange rates, short and long term interest rates, stock price indices, money and credit quantity aggregates, balance of payments and external trade, confidence indicators, and some foreign variables such as output, prices, interest rates, and stock markets from other countries used as proxies for external real, nominal and monetary influences.
 
 On this paper we relied on four of the macroeconomic indicators mentioned above; output, price indices, employment and rates. For each indicator we chose a time series as its proxy. We can see the proxies used for each variable below.
 
 - *output*: Industrial Production (IP)
 - *price indices*: Consumer Price Index (CPI)
 - *unemployment*: Unemployment rate (UR)
-- *rates*: US Federal Fund Rates (FFR)
+- *rates*: US Federal Fund Rate (FFR)
 
 Note that we use IP rather than GDP as a proxy for output because for the case of the GDP only quartery data was available. 
 
-As consequence of working with monthly data, we worked 745 observations, each with the four variables previously mentioned.
+As consequence of working with monthly data, we worked with 745 observations, each of them with the four variables previously mentioned.
 
 The data is taken from the Economic Research department of the Federal Reserve Bank of Saint Louis (FRED). In a recent paper, they have created a monthly database for economic research (FRED-MD), a macroeconomics data base which consists of 134 monthly US indicators. The data is automatically updated each month and can be downloaded freely, facilitating the replication of results and comparing results. 
 
