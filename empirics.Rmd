@@ -119,7 +119,7 @@ The final part of this section relaxes the constraint on the framing conditions.
 
 ## In-sample fit
 
-For this first emprical exercise both models are trained on the full sample. We have decided to include the post-Covid sample period despite the associated structural break, since it serves as interesting point of comparison. The optimal lag order as determined by the Akaike Information Criterium is $p=`r lags`$, where we used a maximum possible lag of $p_{\max}=`r max_lags`$ corresponding to one year. The LSTMs underlying the Deep VAR model are composed of $H=`r num_layers`$ that count $N=`r num_units`$ hidden units each. The dropout rate is set to $p=`r dropout`$. 
+For this first emprical exercise both models are trained on the full sample. We have decided to include the post-Covid sample period despite the associated structural break, since it serves as interesting point of comparison. The optimal lag order as determined by the Akaike Information Criterium is $p=`r lags`$, where we used a maximum possible lag of $p_{\max}=`r max_lags`$ corresponding to one year. A look at the eigenvalues of the companion matrix showed that the VAR($`r lags`$) is stable. The LSTMs underlying the Deep VAR model are composed of $H=`r num_layers`$ that count $N=`r num_units`$ hidden units each. The dropout rate is set to $p=`r dropout`$. 
 
 To assess the fit of our models we use the root mean squared error (RMSE) as our preferred loss function. Figure \@ref(fig:cum-loss-full) shows the cumulative RMSE of both the VAR model and Deep VAR model for each of the time series over the whole sample period. The first thing we can observe is that the RMSE of the Deep VAR is consistently flatter than the RMSE of the VAR. With respect to in-sample performance, the Deep VAR the VAR throughout the entire time period of the experimental analysis and for all of the considered variable. This empirical observation seems to confirm our expectation that the vector autoregressive process is characterized by important non-linear dependencies across time and variables that the conventional VAR fails to capture. 
 
@@ -141,7 +141,7 @@ As a santiy check we also visually inspected the distributional properties of th
 
 \FloatBarrier
 
-## Out-of-sample fit
+## Out-of-sample fit {#oosample}
 
 ```{r, eval=TRUE}
 #Train test split
@@ -167,7 +167,7 @@ deepvar_model <- deepvareg(
 y_true <- var_model$y_train
 ```
 
-In order to assess if the Deep VAR's outperformance is a consequence of overfitting, we now repeat the previous exercise, but this time we train the models on a subsample of our date. The training sample spans from `r format(min(train_data$date), "%B, %Y")` to `r format(max(train_data$date), "%B, %Y")`, whereas the test data goes from `r format(min(train_test_split$test_data$date), "%B, %Y")` to `r format(max(train_test_split$test_data$date), "%B, %Y")`. This corresponds to training the model on 80 percent of the data and retaining the remaining 20 percent for testing purposes. The optimal lag order for the training subsample is $p=`r lags`$ where we use the same criterion and maximum lag order as before.
+In order to assess if the Deep VAR's outperformance is a consequence of overfitting, we now repeat the previous exercise, but this time we train the models on a subsample of our date. The training sample spans from `r format(min(train_data$date), "%B, %Y")` to `r format(max(train_data$date), "%B, %Y")`, whereas the test data goes from `r format(min(train_test_split$test_data$date), "%B, %Y")` to `r format(max(train_test_split$test_data$date), "%B, %Y")`. This corresponds to training the model on 80 percent of the data and retaining the remaining 20 percent for testing purposes. The optimal lag order for the training subsample is $p=`r lags`$ where we use the same criterion and maximum lag order as before. Once again we find this VAR specification to be stable.
 
 ```{r, eval=FALSE}
 #VAR
@@ -666,9 +666,33 @@ p <- ggplot(
 ggsave("www/grid_benchmark.png", plot=p, width = 10, height = 4)
 ```
 
-```{r grid-benchmark, eval=TRUE, fig.cap="Train sample RMSE for Deep VAR for different variables."}
+While up until now with respect to model selection we have intentionally remained strictly within the conventional VAR framework, we will now relax that constraint and vary the lag length as well as hyperparameters of the Deep VAR. In particular, we perform a grid search where we vary the number of hidden layers ($1$,$2$,$5$), number of hidden units per layer ($50$,$100$,$150$), the dropout rate ($0.3$,$0.5$,$0.7$) and the lag order ($10$, $50$, $100$). For each combination of parameter choices we train the two models and compute the various performance measures introduced above.^[Of course, with respect to the conventional VAR only the lag order affects outcomes.] Our expectation is that the conventional VAR is prone to overfitting and will produce poor out-of-sample outcomes for higher lag orders. For the Deep VAR we expect to interesting variation in the outcomes for different lag order and hyperparameter choices. It is not clear ex-ante that the Deep VAR should suffer from the same issue of overfitting for higher lag orders. The bulk of the corresponding visualizations can be found in the appendix.
+
+### Tuning the Deep VAR
+
+To begin with, we shall forget about benchmarking for a moment and focus on the outcomes for the Deep VAR as we vary parameters. Recall that a higher number of hidden layers (depth), a higher number of hidden units (width) and a smaller choice for the dropout rate all correspond to an increase in neural network complexity. Consistent with this intuition we find that the in-sample loss for the Deep VAR improve as complexity increases (Figure \@ref(fig:grid-rmse-train)): higher complexity leads to a reduction in bias and as we noted earlier the underlying recurrent neural networks should in principle be able to model arbitrary functions [@goodfellow2016deep]. Conversely, we observe exactly the opposite pattern for out-of-sample loss: as evident from Figure \@ref(fig:grid-rmse-test) a higher choice for the dropout rate and lower choices for the depth and width of the neural networks generally yields a smaller out-of-sample RMSE across variables. 
+
+Interestingly, both in- and out-of-sample loss tend to decrease significantly as the number of lags increases. In other words, the Deep VAR seems to be relatively insensitive to overfitting with respect to the lag order. With that in mind, we find that using standard lag order selection tools such as the AIC above may in fact not be appropriate for Deep VARs.
+
+Finally, Figure \@ref(fig:grid-rmsfe-test) provides an overview of how pseudo out-of-sample forecasting errors behave as we vary the hyperparameters. As before we produce one-year ahead forecasts starting from the end of the 80% training sample. In this context, the pattern is less clear and varies across variables. As the lag order increases, for example, the forecast performance for the unemployment rate deteriorates. For inflation, forecasts are poor for the medium lag choice of $p=50$ and much better for the low and high lag orders. The exact opposite relationship appears to hold for the Fed Funds Rate. With respect to the choices for the Deep VAR hyperparameters it is difficult to establish any clear pattern at all. The magnitude of differences in RMSFE is generally very small, so overall we conclude that to some extent the variation we do observe may be random. 
+
+In light of this evidence, we propose that for the purpose of hyperparameter tuning Deep VARs researchers should focus on the RMSE associated with the 1-step ahead fitted values. For the underlying data, a reasonable set of hyperparameter choices could be: 1 hidden layer, 50 hidden units and a dropout rate of 0.5.
+
+### Benchmark
+
+Using the hyperparameter choices proposed above we now turn back to comparing the performance of the Deep VAR to the conventional VAR. Figure \@ref(fig:grid-benchmark) shows the pseudo out-of-sample RMSE and RMSFE for both models across the different lag choices. For the sake of completeness we also include the performance measures we obtained when we initially ran both models in section \@ref(oosample) using the optimal lag order as determined by the AIC.
+
+The first observation is that the Deep VAR outperforms the VAR across the board, reflecting our earlier findings. As expected, the VAR is subject to overfitting for when high lag order are chosen. This trend is observed both for the RMSE as well as the RMSFE. The fact that $n$-step ahead forecasts of the VAR are also subject to overfitting with respect to the lag order, while the Deep VAR appears unaffected, to some extent may reflect what we observed earlier: for the given data, Deep VAR forecasts swiftly converge to steady levels, while VAR forecasts are volatile, which may explain the relative outperformance of the Deep VAR. It appears that this effect is amplified for higher lag orders.
+
+```{r grid-benchmark, eval=TRUE, fig.cap="Pseudo out-of-sample RMSE and RMSFE for both models across the different lag choices. For the sake of completeness we also include the performance measures we obtained when we initially ran both models using the optimal lag order as determined by the AIC."}
 knitr::include_graphics("www/grid_benchmark.png")
 ```
+
+To conclude this empirical section we summarize our main findings:
+
+1. We provide evidence that the conventional, linear VAR fails to capture important non-linear dependencies across time and variables that are typically used to model the monetary transmission mechanism. 
+2. Tapping into the broader class of Deep VARs leads to consistently better modelling outcomes. 
+3. Deep VARs appear to be relatively insensitive to very high lag orders at which conventional VARs are prone to overfitting.
 
 ```{r, eval=TRUE, include=FALSE}
 knitr::opts_chunk$set(
