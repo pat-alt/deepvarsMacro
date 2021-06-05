@@ -1,9 +1,4 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
-# Conclusions
+# Conclusions {#concl}
 
 The initial motivation of this study was to see whether by implementing some of the lastest developments in the machine learning field, and in particular, in the deep learning domain, we could yield potential improvements in the forecasting performance of the traditional econometric techniques used in the literature. In order to do that, we introduce a new framework based on the neural network architecture while mantaining the VAR sturcture, which we name Deep VAR. 
 

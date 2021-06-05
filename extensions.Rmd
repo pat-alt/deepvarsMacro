@@ -1,9 +1,4 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
-# Caveats and extensions
+# Caveats and extensions {#exten}
 
 In this section we will talk about the main short-falls of our work, and potentital ways to improve it.
 
