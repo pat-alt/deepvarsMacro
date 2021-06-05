@@ -242,11 +242,11 @@ The way we implement dropout in the Deep VAR model is by specifying the probabil
 
 As another effort to avoid overfitting, we use the same architecture for each layer of the NN. That is, we do not allow each layer to have different number of units, nor different activation functions nor different dropout rates, which could potentially result in the model learning the noise. In turn the Deep VAR model is characterized for having equally sized layers of size N.
 
-```{r Neural Network Architecture, eval=TRUE, fig.cap="Neural Network Architecture."}
-knitr::include_graphics("nn.png")
+```{r nn-arch, eval=TRUE, fig.cap="Neural Network Architecture."}
+knitr::include_graphics("www/nn.png")
 ```
 
-Figure 1 shows the neural network architecture for the case of two lags ($p=2$) and four variables ($K=4$). We can see that the first layer corresponds to the inputs, that is, the input layer $\in \mathbb{R}^{Kp \times1}$. This architecture consists of two hidden layers each made of fourteen units. Given that we are aiming at prediciting four variables the output layer consists of four nodes. The edges illustrate the flow of information of the network, where each edge has an associated weight. 
+Figure \@ref(fig:nn-arch) shows the neural network architecture for the case of two lags ($p=2$) and four variables ($K=4$). We can see that the first layer corresponds to the inputs, that is, the input layer $\in \mathbb{R}^{Kp \times1}$. This architecture consists of two hidden layers each made of fourteen units. Given that we are aiming at prediciting four variables the output layer consists of four nodes. The edges illustrate the flow of information of the network, where each edge has an associated weight. 
 
 Finally, with respect to how the LSTMs underlying the Deep VAR are compiled, the Adam optimization algorithm @kingma2014adam is used. This algorithm can be used instead of the more traditional stochastic gradient descent to update network weights. There are several reasons to use this algorithm that are particulary appealing, among them we have its straighforward implementation, that it is computationally efficient and that the hyper-parametrization has an intuitive interpretation and typically requires little tuning. Adam is different to classic stochastic gradient descent given that in the latter learning rates and always the same for all weight updates and hence does not change during the training.
 
