@@ -1,5 +1,10 @@
 # Data {#data}
 
+```{r}
+dt <- readRDS("data_VAR/preprocessed.rds")
+```
+
+
 To evaluate our proposed methodology empirically we use a sample of monthly US data on leading economic indicators, which spans the period of January 1959 through March 2021. We use the relatively novel FRED-MD data base which is updated monthly and publicly available [@mccracken2016fred]. The sample spans from `r dt[,format(min(date), "%B, %Y")]` to `r dt[,format(max(date), "%B, %Y")]` providing us with a relatively rich data set of macroeconomic time series with $T=`r dt[,.N]`$ observations.
 
 In order to investigate the monetary transmission mechanism, the literature typically focuses on variables related to economic output, price levels, short and long term interest rates as well as labour market indicators. Some go beyond to also include stock price indices, money and credit aggregates, balance of payments figures, confidence indicators and some cases foreign domestic indicators. In this paper we rely limit our attention to the four main indicators mentioned above. In particular we use changes in the industrial production index (IP) to measure output growth, changes in the growth of the (all items) consumer price index (CPI) to measure inflation, the Federal Funds Rate (FFR) as our interest rate and the unemployment rate (UR) as our labour market indicator. Note that we use IP rather than the gross domestic product as a proxy for output, because the latter is only available at quarterly frequency. 

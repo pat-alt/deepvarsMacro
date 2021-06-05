@@ -60,7 +60,7 @@ with $\mathbf{y}=(\mathbf{y}_1,...,\mathbf{y}_T)^T \in \mathbb{R}^{T \times K}$ 
 
 ## Deep Vector Autoregression {#deepvar}
 
-We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependences between system variables through time. In particular, as before we let $\mathbf{y}_t$ denote the $(K \times 1)$ vector that describes the state of system at time $t$. Consistent with the conventional VAR we assume that each individual time series $y_{it}$ can be modelled as a function of lagged realizations of all variables $y_{jt-p}$, $j=1,...,K$, $m=1,...,p$. More specifically we have 
+We propose the term Deep Vector Autoregression to refer to the broad class of Vector Autoregressive models that use deep learning to model the dependencies between system variables through time. In particular, as before we let $\mathbf{y}_t$ denote the $(K \times 1)$ vector that describes the state of system at time $t$. Consistent with the conventional VAR we assume that each individual time series $y_{it}$ can be modelled as a function of lagged realizations of all variables $y_{jt-p}$, $j=1,...,K$, $m=1,...,p$. More specifically we have 
 
 \begin{equation} 
 \begin{aligned}
@@ -167,7 +167,7 @@ where $\odot$ indicates the element-wise product. Finally, the output gate acts 
 (\#eq:lstm)
 \end{equation}
 
-which is best understood when read from top to bottom. Once again we have simplified the notation by ommitting the layer index in \@ref(eq:rnn). The same notation as before applies.
+which is best understood when read from top to bottom. Once again we have simplified the notation by omitting the layer index in \@ref(eq:rnn). The same notation as before applies.
 
 ## Model selection
 
