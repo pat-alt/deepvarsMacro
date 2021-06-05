@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # Literature review {#lit-review}
 
 There is a large agreement among economists on the fact that monetary policy has a short-term influence on the economic activity. @friedman2008monetary found that monetary policy actions are followed by movements in real output that may last for two years or more (@romer1989does; @bernanke1990federal). However, what are the forces that trigger these effects is of interest for most economists, in particular, economists aim to understand the monetary transmission mechanism. If monetary policy affects the real economy, what is the transmission mechanism by which these effects occur? This is one of the questions which is among the most important and controversial in macroeconomics.
