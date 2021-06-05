@@ -112,8 +112,6 @@ The term **deep feedforward neural network** or **multilayer perceptron** (MLP) 
 
 The depth of the MLP is defined by the number of hidden layers $H$, where, generally speaking, deeper networks are more complex. 
 
-> Need a reference here.
-
 The desired outputs of any $f_i^{(h)}$ that will serve as inputs for $f_i^{(h+1)}$ cannot be inferred from the training data $\mathbf{y}_{t-1:t-p}$ ex-ante, which is where the term **hidden** layer stems from. Each $f_i^{(h)}$ is typically valued on a vector of hidden units, each of them receiving a vector of inputs from $f_i^{(h-1)}$ and returning a scalar that is referred to as activation value. This approach is inspired by neuroscience, hence the term **neural** network [@goodfellow2016deep].
 
 ### Deep Recurrent Neural Networks
@@ -212,9 +210,7 @@ A straight-forward way to deal with stationarity of VARs is to simply ensure tha
 
 The VARs lag order $p$ can to some extent be thought of as the persistency of the process: past innovations that still affect outcomes in time $t$ happened at most $p$ periods ago. From a pure model selection perspective we can also think of additional lags in terms of additional regressors that add to the model's complexity. From that perspective, choosing a lower lag order corresponds to a form of regularization as it pertains to a more parsimonious model.
 
-Various strategies have been proposed to estimate the true or optimal lag order $p$ empirically [@kilian2017structural]. Among the most common ones are sequential testing procedures and selection based on information criteria. The former involves sequentially adding or removing lags - **bottom-up** and **top-down** testing, respectively - and then testing model outcomes in each iteration. A common point of criticism of sequential procedures is that the order tests matters.
- 
-> Insert reference to Lütkepohl (2005, Section 4.2.3)
+Various strategies have been proposed to estimate the true or optimal lag order $p$ empirically [@kilian2017structural]. Among the most common ones are sequential testing procedures and selection based on information criteria. The former involves sequentially adding or removing lags - **bottom-up** and **top-down** testing, respectively - and then testing model outcomes in each iteration. A common point of criticism of sequential procedures is that the order tests matters (@lutkepohl2005new).
  
 Here we will focus on selection based on information criteria, which to some extent makes the trade-off between bias an variance explicit [@kilian2017structural]. In particular, it generally involves minimizing information criteria of the following form
 
@@ -245,6 +241,12 @@ As proposed in @srivastava2014dropout, one way to reduce overfitting can be fitt
 The way we implement dropout in the Deep VAR model is by specifying the probability to which a node is removed from the layer. This means that the information that arrives to that unit is forgotten.
 
 As another effort to avoid overfitting, we use the same architecture for each layer of the NN. That is, we do not allow each layer to have different number of units, nor different activation functions nor different dropout rates, which could potentially result in the model learning the noise. In turn the Deep VAR model is characterized for having equally sized layers of size N.
+
+```{r Neural Network Architecture, eval=TRUE, fig.cap="Neural Network Architecture."}
+knitr::include_graphics("nn.png")
+```
+
+Figure 1 shows the neural network architecture for the case of two lags ($p=2$) and four variables ($K=4$). We can see that the first layer corresponds to the inputs, that is, the input layer $\in \mathbb{R}^{Kp \times1}$. This architecture consists of two hidden layers each made of fourteen units. Given that we are aiming at prediciting four variables the output layer consists of four nodes. The edges illustrate the flow of information of the network, where each edge has an associated weight. 
 
 Finally, with respect to how the LSTMs underlying the Deep VAR are compiled, the Adam optimization algorithm @kingma2014adam is used. This algorithm can be used instead of the more traditional stochastic gradient descent to update network weights. There are several reasons to use this algorithm that are particulary appealing, among them we have its straighforward implementation, that it is computationally efficient and that the hyper-parametrization has an intuitive interpretation and typically requires little tuning. Adam is different to classic stochastic gradient descent given that in the latter learning rates and always the same for all weight updates and hence does not change during the training.
 

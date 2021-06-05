@@ -13,7 +13,7 @@ When it comes to the out-of-sample fit, a priori it may seem that the Deep VAR i
 
 Policy makers, however, are mainly interested in the forecasting performance of a given model rather than its fit. In this realm, the Deep VAR also performs better than the traditional VAR. In particular, it results in a lower forecasting root mean squared error for each of the analyzed series. To sum up, we can conclude that the Deep VAR outperforms the VAR in every domain explored; the in-sample and out-of-sample fit and the forecasting one. 
 
-To the best of our knowledge, the Deep VAR framework has not been  introduced in the time series literature, and as any brand new methodology, it leaves a lot of unaswered questions, hence future research on Deep VAR is still missing. In particular, future research should be addressed to develop a methodology to recover standard errors for the point estimates, and therefore, coming up with confidence intervals. Furthermore, exploring a method to be able to create impulse response functions would make of the Deep VAR framework a method as complete as the VAR one, but which has proved to outperfrom in all possible aspects.
+The Deep VAR framework has not been introduced in the time series literature, and as any brand new methodology, it leaves a lot of unaswered questions, hence future research on Deep VAR is still missing. In particular, future research should be addressed to develop a methodology to recover standard errors for the point estimates, and therefore, coming up with confidence intervals. Furthermore, exploring a method to be able to create impulse response functions would make of the Deep VAR framework a method as complete as the VAR one, but which has proved to outperfrom in all possible aspects.
 
 
 
