@@ -5,13 +5,7 @@ output:
 ---
 # (APPENDIX) Appendix {-}
 
-# Tables and Figures {#figures}
-
-## Data 
-
-```{r time-series, fig.cap="Time series"}
-knitr::include_graphics("www/time_series.png")
-```
+# Tables {#tables}
 
 ```{r, echo=FALSE, results='asis', message= FALSE, warning=FALSE}
 library(xtable)
@@ -41,8 +35,13 @@ xtable(dtf_post, caption = c("Summary statistics post Covid."))
 ```
 
 \FloatBarrier
+\pagebreak
 
-## Residuals {#resids}
+# Figures {#figures}
+
+```{r time-series, fig.cap="Time series"}
+knitr::include_graphics("www/time_series.png")
+```
 
 ```{r qqplot-full, fig.cap="Quantile-quantile plots of full-sample residuals."}
 knitr::include_graphics("www/qqplot_full.png")
@@ -51,10 +50,6 @@ knitr::include_graphics("www/qqplot_full.png")
 ```{r acf-full, fig.cap="ACF plots of full-sample residuals."}
 knitr::include_graphics("www/acf_full.png")
 ```
-
-\FloatBarrier
-
-## Fitted Values
 
 ```{r pred-var-train, fig.cap="VAR fitted values plotted against observed values for the training sample."}
 knitr::include_graphics("www/pred_var_train.png")
@@ -72,10 +67,6 @@ knitr::include_graphics("www/pred_var_test.png")
 knitr::include_graphics("www/pred_dvar_test.png")
 ```
 
-\FloatBarrier
-
-## Forecasts {#forecasts}
-
 ```{r fcst-var, fig.cap="VAR n-step ahead forecasts plotted against observed values. Forecasts are for the first year of the test sample."}
 knitr::include_graphics("www/fcst_var.png")
 ```
@@ -84,7 +75,28 @@ knitr::include_graphics("www/fcst_var.png")
 knitr::include_graphics("www/fcst_dvar.png")
 ```
 
+```{r grid-rmse-train, eval=TRUE, fig.cap="Train sample RMSE for Deep VAR for different variables."}
+knitr::include_graphics("www/grid_rmse_train.png")
+```
+
+```{r grid-rmse-test, eval=TRUE, fig.cap="Test sample RMSE for Deep VAR for different variables."}
+knitr::include_graphics("www/grid_rmse_test.png")
+```
+
+```{r grid-rmsfe-test, eval=TRUE, fig.cap="Pseudo out-of-sample RMSFE for Deep VAR for different variables."}
+knitr::include_graphics("www/grid_rmsfe_test.png")
+```
+
+```{r grid-rmse-benchmark, eval=TRUE, fig.cap="Comparison of out-of-sample RMSE for conventional VAR and Deep VAR for different variables."}
+knitr::include_graphics("www/grid_rmse_benchmark.png")
+```
+
+```{r grid-rmsfe-benchmark, eval=TRUE, fig.cap="Comparison of pseudo out-of-sample RMSFE for conventional VAR and Deep VAR for different variables."}
+knitr::include_graphics("www/grid_rmsfe_benchmark.png")
+```
+
 \FloatBarrier
+\pagebreak
 
 # R Code and Package {#code}
 

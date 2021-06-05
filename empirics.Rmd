@@ -137,7 +137,7 @@ As the Global Financial Crisis unfolds around 2007 the pattern we observed for t
 
 Finally, it is also interesting to observe how both models perform in response to the  unprecedented exogenous shock that Covid-19 constitutes. Both models incurr huge errors with respect to both IP and UR - the two series most significantly affected by Covid. Evidently though, the magnidtude of the errors is somewhat larger for the VAR than for the Deep VAR. This, once again seems to confirm our hypothesis that the Deep VAR model captures important non-linear dependences across time and variables that the conventional VAR fails to catpure.
 
-As a santiy check we also visually inspected the distributional properties of the model residuals for the full-sample fit. The outcomes are broadly consistent across models: while for some variables residuals are clearly not Gaussian, we see no evidence of serial autocorrelation of residuals. Visualizations can be found in section \@ref(resids) of the appendix.
+As a santiy check we also visually inspected the distributional properties of the model residuals for the full-sample fit. The outcomes are broadly consistent across models: while for some variables residuals are clearly not Gaussian, we see no evidence of serial autocorrelation of residuals (see Figures \@ref(fig:qqplot-full) and \@ref(fig:acf-full) in the appendix). 
 
 \FloatBarrier
 
@@ -286,7 +286,7 @@ Nonetheless, there is typically also great interest in time series forecasts at 
 
 Forecasts are produced recursively both for the VAR and the Deep VAR. Specifically, we use the models we trained on the training data to recursively predict one time period ahead, concatenate the predictions to the training data and repeat the process.^[Note that for the Deep VAR an alternative approach would be to work with a different output dimension for the underlying neural networks.] This way we produce one-year ahead forecasts beginning from the first date in the test sample (`r format(max(train_data$date), "%B, %Y")`).
 
-Table \@ref(tab:fcst) shows the resulting root mean squared forecast errors (RMSFE) along with correlation between forecasts and realizations. As we can see in the table, the RMSFE of the Deep VAR is consistently lower than the one for the VAR. Regarding correlations the VAR produces forecasts that are negatively correlated with actual outcomes for all time series: in other words, when the time series evolves in one direction, the VAR forecast tends to evolve in the opposite direction. For industrial production, the Deep VAR forecast also has a highly negative correlation with the actual values. For the rest of time series the Deep VAR forecasts correlate positively with actual outcome, albeit weakly. Another general obervation we made with respect to these forecasts is that the forecasts from the conventional VAR are fairly volatile, while the Deep VAR forcasts swiftly revert to steady levels (see section \@ref(forecasts) in the appendix).
+Table \@ref(tab:fcst) shows the resulting root mean squared forecast errors (RMSFE) along with correlation between forecasts and realizations. As we can see in the table, the RMSFE of the Deep VAR is consistently lower than the one for the VAR. Regarding correlations the VAR produces forecasts that are negatively correlated with actual outcomes for all time series: in other words, when the time series evolves in one direction, the VAR forecast tends to evolve in the opposite direction. For industrial production, the Deep VAR forecast also has a highly negative correlation with the actual values. For the rest of time series the Deep VAR forecasts correlate positively with actual outcome, albeit weakly. Another general obervation we made with respect to these forecasts is that the forecasts from the conventional VAR are fairly volatile, while the Deep VAR forcasts swiftly revert to steady levels (see Figures \@ref(fig:fcst-var) and \@ref(fig:fcst-dvar) in the appendix).
 
 ```{r fcst, eval=TRUE}
 tab_fcst <- readRDS("results/tab_fcst.rds")
@@ -301,7 +301,7 @@ dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
 
-## Hyperparameter tuning
+## Varying hyperparameters
 
 ```{r, eval=TRUE}
 # Parameters
@@ -509,12 +509,165 @@ p <- ggarrange(
 ggsave("www/grid_rmse_train.png", plot=p, width = 9, height = 9)
 ```
 
-```{r, eval=TRUE, fig.cap="Train sample RMSE for Deep VAR for different variables."}
-knitr::include_graphics("www/grid_rmse_train.png")
+```{r, eval=FALSE}
+p_list <- invisible(
+  lapply(
+    unique(grid_search$variable),
+    function(var) {
+      p <- ggplot(
+        data=grid_search[
+          sample=="test" & 
+            measure=="rmsfe" & 
+            model =="dvar" & 
+            variable == var
+        ], 
+        aes(x=lag, y=value, colour=factor(dropout))
+      ) +
+        scale_colour_discrete(name="Dropout rate:") +
+        geom_line() + geom_point() +
+        facet_grid(
+          rows=vars(num_layer),
+          cols=vars(num_units)
+        ) +
+        labs(
+          x="Lag",
+          y="RMSFE",
+          title = var
+        )
+      return(p)
+    }
+  )
+)
+p <- ggarrange(
+  plotlist = p_list, ncol=2, nrow=2, 
+  common.legend = TRUE, legend="bottom"
+)
+ggsave("www/grid_rmsfe_test.png", plot=p, width = 9, height = 9)
 ```
 
-```{r, eval=TRUE, fig.cap="Test sample RMSE for Deep VAR for different variables."}
-knitr::include_graphics("www/grid_rmse_test.png")
+```{r, eval=FALSE}
+p_list <- invisible(
+  lapply(
+    unique(grid_search$variable),
+    function(var) {
+      p <- ggplot(
+        data=grid_search[
+          sample=="test" & 
+            measure=="rmse" & 
+            dropout == 0.5 & 
+            variable == var
+        ], 
+        aes(x=lag, y=value, colour=factor(model))
+      ) +
+        scale_colour_discrete(name="Model:") +
+        geom_line() + geom_point() +
+        facet_grid(
+          rows=vars(num_layer),
+          cols=vars(num_units)
+        ) +
+        labs(
+          x="Lag",
+          y="RMSFE",
+          title = var
+        )
+      return(p)
+    }
+  )
+)
+p <- ggarrange(
+  plotlist = p_list, ncol=2, nrow=2, 
+  common.legend = TRUE, legend="bottom"
+)
+ggsave("www/grid_rmse_benchmark.png", plot=p, width = 9, height = 9)
+```
+
+```{r, eval=FALSE}
+p_list <- invisible(
+  lapply(
+    unique(grid_search$variable),
+    function(var) {
+      p <- ggplot(
+        data=grid_search[
+          sample=="test" & 
+            measure=="rmsfe" & 
+            dropout == 0.5 & 
+            variable == var
+        ], 
+        aes(x=lag, y=value, colour=factor(model))
+      ) +
+        scale_colour_discrete(name="Model:") +
+        geom_line() + geom_point() +
+        facet_grid(
+          rows=vars(num_layer),
+          cols=vars(num_units)
+        ) +
+        labs(
+          x="Lag",
+          y="RMSFE",
+          title = var
+        )
+      return(p)
+    }
+  )
+)
+p <- ggarrange(
+  plotlist = p_list, ncol=2, nrow=2, 
+  common.legend = TRUE, legend="bottom"
+)
+ggsave("www/grid_rmsfe_benchmark.png", plot=p, width = 9, height = 9)
+```
+
+```{r, eval=FALSE}
+dt_plot <- grid_search[
+  sample=="test" &
+    measure %in% c("rmse", "rmsfe") &
+    dropout == 0.5 & 
+    num_units == 50 & 
+    num_layer == 1
+][,.(variable, value, model, measure, lag)][,type:="Grid search"]
+
+# Merge in results from initial run:
+tab_rmse <- readRDS("results/train_test_tab_rmse.rds")
+tab_rmse <- tab_rmse[sample=="test"][, sample:=NULL]
+tab_rmse[,ratio:=NULL]
+setnames(tab_rmse, "deepvar", "dvar")
+tab_rmse <- melt(tab_rmse, id.vars = "variable", variable.name = "model")
+tab_rmse[,measure:="rmse"]
+tab_fcst <- readRDS("results/tab_fcst.rds")
+tab_fcst[,`VAR correlations`:=NULL][,`Deep-VAR correlations`:=NULL]
+setnames(tab_fcst, colnames(tab_fcst), c("variable", "var", "dvar"))
+tab_fcst <- melt(tab_fcst, id.vars = "variable", variable.name = "model")
+tab_fcst[,measure:="rmsfe"]
+tab_init <- rbind(tab_rmse, tab_fcst)
+tab_init[,lag:=7][,type:="Optimal lag order (AIC)"]
+dt_plot <- rbind(dt_plot, tab_init)
+dt_plot[,model:=factor(model)]
+levels(dt_plot$model) <- c("Deep VAR", "VAR")
+dt_plot[,measure:=factor(measure)]
+levels(dt_plot$measure) <- c("RMSE", "RMSFE")
+
+p <- ggplot(
+  data=dt_plot, 
+  aes(x=factor(lag), y=value, fill=model, alpha=type)
+) +
+  scale_fill_discrete(name="Model:") +
+  geom_col(position = "dodge") +
+  scale_alpha_discrete(name="Exercise:", range=c(1,0.3)) +
+  facet_wrap(
+    measure ~ variable,
+    nrow = 2,
+    scales = "free_y"
+  ) +
+  labs(
+    x="Lag",
+    y="Estimate"
+  )
+     
+ggsave("www/grid_benchmark.png", plot=p, width = 10, height = 4)
+```
+
+```{r grid-benchmark, eval=TRUE, fig.cap="Train sample RMSE for Deep VAR for different variables."}
+knitr::include_graphics("www/grid_benchmark.png")
 ```
 
 ```{r, eval=TRUE, include=FALSE}
