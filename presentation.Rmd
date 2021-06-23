@@ -185,6 +185,12 @@ devtools::install_github(
 
 # Hiddens
 
+## Cumulative loss for random walk
+
+```{r, fig.cap="Cumulative mean squared error for naive (random walk) prediction.", out.width=300}
+knitr::include_graphics("www/cum_loss_full_random_walk.png")
+```
+
 ## LSTM - Forget gate
 
 ![Forget gate. Source: @olah2015understanding](www/lstm_forget_gate.png)
