@@ -1,0 +1,31 @@
+---
+title: "Deep Vector Autoregression for Macroeconomic Data"
+subtitle: "Extended abstract - IFC workshop on 'Data Science in Central Banking'" 
+author:
+- "Marc Agustí (marc.agusti_i_torres@ecb.europa.eu)"
+- "Patrick Altmeyer (p.altmeyer@tudelft.nl)"
+- "Ignacio Vidal-Quadras Costa (ignacio.vidal-quadras_costa@ecb.europa.eu)"
+output: 
+  bookdown::pdf_document2: 
+    toc: false
+fontsize: 10pt
+linkcolor: blue
+---
+
+\pagenumbering{gobble}
+
+Vector Autoregression (VAR) models are a popular choice for forecasting time series data. Due to their simplicity and success at modelling the monetary economic indicators VARs have become a standard tool for central bankers to construct economic forecasts. Impulse response functions can be readily retrieved from the conventional VAR and used for inference purposes. They are typically employed to investigate various interactions between variables that form part of the monetary transmission mechanism. 
+
+A crucial assumption underlying conventional VARs is that these interactions between variables through time can be modelled linearly. We propose a novel approach towards VARs that relaxes this assumption. In particular, we offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established framework. By staying as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network. 
+
+To evaluate our proposed methodology empirically we use a sample of monthly US data on leading economic indicators, which spans the period from January 1959 through March 2021. We use the relatively novel FRED-MD data base which is updated monthly and publicly available. In particular, we look at variables typically analysed in the context of the monetary transmission mechanism including output, inflation, interest rates and unemployment.
+
+Our empirical findings show a consistent and significant improvement in modelling performance associated with Deep VARs compared to its conventional benchmark: our proposed model produces significantly lower cumulative loss over the entire period and for each of the analysed time series. The improvements in modelling performance are particularly pronounced during periods of economic stress and uncertainty. This appears to confirm or initial hypothesis that by modelling time series through a Deep VAR it is possible to capture complex, non-linear dependencies that seem to characterize periods of structural economic change.
+
+We also point out a number of shortcomings of our proposed approach, which we believe can be alleviated through future research. Firstly, policy-makers are typically concerned with uncertainty quantification, inference and overall model explainability. Future research on Deep VARs should therefore address the estimation of confidence intervals, impulse response functions as well as variance decompositions typically analysed in the context of VAR models. We point to a number of possible avenues, most notably Monte Carlo dropout. Secondly, in our initial paper we benchmarked the Deep VAR only against the conventional VAR. In future work we will introduce other non-linear approaches to allow for a fairer comparison.^[As part of his PhD in Trustworthy AI, Patrick intends to dedicate some time to these efforts during the coming months.]
+
+Our paper has been selected for publication as a [preprint](https://thevoice.bse.eu/2021/09/16/deep-vector-autoregression-for-macroeconomic-data/) on the public repository of University Pompeu Fabra. To facilitate further research on Deep VAR, we also contribute a companion R package [deepvars](https://github.com/pat-alt/deepvars) that can be installed from GitHub. We also aim to continue working on the package as we develop our research further. 
+
+
+
+
