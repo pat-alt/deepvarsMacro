@@ -1,0 +1,50 @@
+---
+title: "Deep Vector Autoregression for Macroeconomic Data"
+author:
+- "Marc Agusti (marc.agusti_i_torres@ecb.europa.eu)"
+- "Patrick Altmeyer (p.altmeyer@tudelft.nl)"
+- "Ignacio Vidal-Quadras Costa (ignacio.vidal-quadras_costa@ecb.europa.eu)"
+date: "`r format(Sys.Date(), '%B, %Y')`"
+output: 
+  bookdown::pdf_document2: 
+    toc: false
+    includes:
+      in_header: preamble.tex
+      before_body: before_body.tex
+  bookdown::html_document2: default
+fontsize: 12pt
+bibliography: "bib.bib"
+link-citations: true
+abstract: "Vector Autoregression (VAR) models are a popular choice for forecasting time series data. Due to their simplicity and success at modelling monetary economic indicators VARs have become a standard tool for central bankers to construct economic forecasts. Impulse response functions can be readily retrieved from the conventional VAR and used for inference purposes. They are typically employed to investigate various interactions between variables that form part of the monetary transmission mechanism. A crucial assumption underlying conventional VARs is that these interactions between variables through time can be modelled linearly. We propose a novel approach towards VARs that relaxes this assumption. In particular, we offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established framework. By fitting each equation of the VAR system with a deep neural network, the Deep VAR outperforms its conventional benchmark in terms of in-sample fit, out-of-sample fit and point forecasting accuracy. In particular, we find that the Deep VAR is able to better capture the structural economic changes during periods of uncertainty and recession.^[The authors would like to thank Christian Brownlees for being a helpful supervisor. We would also like to thank Eddie Gerba, research manager of the Bank of England's Markets Directorate, for helpful comments and fruitful discussions.]"
+suppress-bibliography: true
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning=FALSE,
+  message=FALSE,
+  out.width = 450,
+  fig.align = "center"
+)
+library(ggplot2)
+library(data.table)
+# library(deepvars)
+options(xtable.comment = FALSE)
+theme_set(theme_bw())
+```
+
+```{r introduction, child="introduction.Rmd"}
+```
+
+```{r empirics, child="empirics.Rmd"}
+```
+
+```{r conclusions, child="conclusions.Rmd"}
+```
+
+
+
+
+
