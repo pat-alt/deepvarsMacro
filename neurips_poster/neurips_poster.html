@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<!--
+Font-awesome icons ie github or twitter
+-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/brands.css" integrity="sha384-n9+6/aSqa9lBidZMRCQHTHKJscPq6NW4pCQBiMmHdUCvPN8ZOg2zJJTkC7WIezWv" crossorigin="anonymous">
+
+<!--
+Google fonts api stuff
+-->
+
+
+
+<title>Deep Vector Autoregression for Macroeconomic Data</title>
+
+<script src="neurips_poster_files/header-attrs-2.11/header-attrs.js"></script>
+
+
+
+
+
+<style>
+@page {
+size: 45in 38in;
+margin: 0;
+padding: 0;
+}
+body {
+margin: 0;
+font-size: 45px;
+width: 45in;
+height: 38in;
+padding: 0;
+text-align: justify;
+font-family: Palatino;
+}
+.poster_wrap {
+width: 45in;
+height: 38in;
+padding: 0cm;
+}
+.title_container {
+width: 45in;
+height: calc(38in * 0.15);
+overflow: hidden;
+background-color: #0b4545;
+border: 0 solid #0b4545;
+}
+.logo_left {
+float: left;
+width: 10%;
+height: 100%;
+background-color: #0b4545;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.logo_right {
+float: right;
+width: 10%;
+height: 100%;
+background-color: #0b4545;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.poster_title {
+text-align: center;
+position: relative;
+float: left;
+width: 80%;
+height: 100%;
+color: #FFFFFF;
+top: 50%;
+transform: translateY(-50%);
+-webkit-transform: translateY(-50%);
+}
+#title {
+font-family: Palatino;
+}
+/* unvisited link */
+a:link {
+color: #cc0000;
+}
+.mybreak {
+  break-before: column;
+}
+/* visited link */
+a:visited {
+color: #cc0000;
+}
+
+/* mouse over link */
+a:hover {
+color: #cc0000;
+}
+
+/* selected link */
+a:active {
+color: #cc0000;
+}
+.poster_body {
+-webkit-column-count: 3; /* Chrome, Safari, Opera */
+-moz-column-count: 3; /* Firefox */
+column-count: 3;
+-webkit-column-fill: auto;
+-moz-column-fill: auto;
+column-fill: auto;
+-webkit-column-rule-width: 1mm;
+-moz-column-rule-width: 1mm;
+column-rule-width: 1mm;
+-webkit-column-rule-style: dashed;
+-moz-column-rule-style: dashed;
+column-rule-style: dashed;
+-webkit-column-rule-color: #0b4545;
+-moz-column-rule-color: #0b4545;
+column-rule-color: #0b4545;
+column-gap: 1em;
+padding-left: 0.5em;
+padding-right: 0.5em;
+height: 100%;
+color: #000000
+background-color: #ffffff;
+}
+.poster_title h1 {
+font-size: 75pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+.poster_body_wrap{
+width: calc(45in + 0 + 0);
+height: calc(38in * 0.83);
+padding-top: calc(38in * 0.005);
+padding-bottom: calc(38in * 0.01);
+background-color: #ffffff;
+}
+.poster_title h3 {
+color: #ffffff;
+font-size: 50pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+.poster_title h3 > sup {
+  font-size: 35pt;
+  margin-left: 0.02em;
+}
+.poster_title h5 {
+color: #FFFFFF;
+font-size: 35pt;
+margin: 0;
+border: 0;
+font-weight: normal;
+}
+img {
+margin-top: 2cm;
+margin-bottom: 0;
+}
+.section {
+  padding: 0.2em;
+}
+.poster_body h1 {
+text-align: center;
+color: #FFFFFF;
+font-size: 65pt;
+border: 2mm solid #0b4545;
+background-color: #0b4545;
+border-radius: 4mm 0mm;
+margin-top: 2mm;
+margin-bottom: 2mm;
+font-weight: normal;
+}
+.poster_body h2 {
+color: #000000;
+font-size: 40pt;
+padding-left: 4mm;
+font-weight: normal;
+}
+.span {
+width: 200%;
+}
+/* center align leaflet map,
+from https://stackoverflow.com/questions/52112119/center-leaflet-in-a-rmarkdown-document */
+.html-widget {
+margin: auto;
+position: sticky;
+margin-top: 2cm;
+margin-bottom: 2cm;
+}
+.leaflet.html-widget.html-widget-static-bound.leaflet-container.leaflet-touch.leaflet-fade-anim.leaflet-grab.leaflet-touch-drag.leaflet-touch-zoom {
+position: sticky;
+width: 100%;
+}
+pre.sourceCode.r {
+background-color: #dddddd40;
+border-radius: 4mm;
+padding: 4mm;
+width: 75%;
+/* align-items: center; */
+margin: auto;
+padding-left: 2cm;
+}
+code.sourceCode.r{
+background-color: transparent;
+font-size: 20pt;
+border-radius: 2mm;
+}
+.caption {
+font-size: 25pt;
+}
+.table caption {
+font-size: 25pt;
+padding-bottom: 3mm;
+
+}
+code {
+font-size: 1em;
+font-family: monospace;
+background-color: #00808024;
+color: #0b4545;
+padding: 1.2mm;
+border-radius: 2mm;
+}
+.poster_title code {
+font-size: 1em;
+}
+table {
+font-size: 40px;
+margin: auto;
+border-top: 3px solid #666;
+border-bottom: 3px solid #666;
+}
+table thead th {
+border-bottom: 3px solid #ddd;
+}
+td {
+padding: 8px;
+}
+th {
+padding: 15px;
+}
+caption {
+margin-bottom: 10px;
+}
+.poster_body p {
+margin-right: 4mm;
+margin-left: 4mm;
+margin-top: 6mm;
+margin-bottom: 10mm;
+}
+.poster_body ol {
+margin-right: 4mm;
+margin-left: 4mm;
+}
+#ul {
+margin-right: 4mm;
+margin-left: 4mm;
+}
+.references p {
+font-size: 20pt;
+}
+.orcid img {
+  width: 1em;
+}
+</style>
+</head>
+<body>
+
+
+<div class="poster_wrap">
+<div class="title_container">
+<!-- Left Logo  -->
+<div class="logo_left">
+<img src= 'https://raw.githubusercontent.com/brentthorne/posterdown/master/images/betterhexlogo.png' style="width: 80%">
+</div>
+<!-- Poster Title -->
+<div class= "poster_title">
+<h1 id="title">Deep Vector Autoregression for Macroeconomic Data</h1>
+<h3 id="author">Patrick Altmeyer<sup>1</sup>, Marc Agusti<sup>2</sup>, Ignacio Vidal-Quadras Costa<sup>2</sup></h3><br>
+<h5 id="affiliation"><sup>1</sup> Delft University of Technology<br> <sup>2</sup> European Central Bank</h5>
+</div>
+<!-- Right Logo  -->
+<div class="logo_right">
+<img src=https://raw.githubusercontent.com/brentthorne/posterdown/master/images/betterhexlogo.png style="width: 80%">
+</div>
+</div>
+
+<div class='poster_body_wrap'>
+<div class='poster_body'>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>Vector Autoregression (VAR) models are a popular choice for forecasting time series data. Due to their simplicity and success at modelling the monetary economic indicators the VAR has become a standard tool for central bankers to construct economic forecasts. Impulse response functions can be readily retrieved from the conventional VAR and used for inference purposes. They are typically employed to investigate various interactions between variables that form part of the monetary transmission mechanism.</p>
+<p>We offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established benchmark. By staying as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network.</p>
+</div>
+<div id="contributions" class="section level1">
+<h1>Contributions</h1>
+<ol style="list-style-type: decimal">
+<li>Propose a simple methodological framework that is close to the conventional and trusted benchmark.</li>
+<li>Demonstrate improved modelling and forecasting performance of Deep VAR.</li>
+<li>Open source R package <span class="citation">(Altmeyer, n.d.)</span> to faciliate reproducibility and future research.</li>
+</ol>
+</div>
+<div id="methodology" class="section level1">
+<h1>Methodology</h1>
+<p>Let <span class="math inline">\(\mathbf{y}_t\)</span> denote the <span class="math inline">\((K \times 1)\)</span> vector of variables at time <span class="math inline">\(t\)</span>. Then the reduced-form VAR(<span class="math inline">\(p\)</span>) with <span class="math inline">\(p\)</span> lags and a constant deterministic term is simply a linear system of stochastic equations of the following form:</p>
+<p><span class="math display" id="eq:redform">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; \mathbf{y}_t&amp;=\mathbf{c} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbf{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t \\
+&amp;&amp; \mathbf{u}_t&amp;\sim \mathcal{N}(\mathbf{0},\Sigma_u) \\
+\end{aligned}
+\tag{1}
+\end{equation}\]</span></p>
+<p>We refer to <a href="#eq:redform">(1)</a> as the <strong>reduced form</strong> representation of the VAR(<span class="math inline">\(p\)</span>) because all right-hand side variables are predetermined <span class="citation">(Kilian and Lütkepohl 2017)</span>. In practice, <a href="#eq:redform">(1)</a> can be efficiently estimated through equation-by-equation ordinary least-squares (OLS):</p>
+<p><span class="math display" id="eq:single-var">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; y_{it}&amp;=c_i+\sum_{m=1}^{p}\sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it},&amp;&amp;\forall i=1,...,K\\
+\end{aligned}
+\tag{2}
+\end{equation}\]</span></p>
+<p>Consistent with the conventional VAR structure we assume that each individual time series <span class="math inline">\(y_{it}\)</span> can be modelled as a function of lagged realizations of all variables in the system:</p>
+<p><span class="math display" id="eq:single-dvar">\[\begin{equation} 
+\begin{aligned}
+&amp;&amp; y_{it}&amp;=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &amp;&amp;,&amp;&amp;\forall i=1,...,K \\
+\end{aligned}
+\tag{3}
+\end{equation}\]</span></p>
+<p>To model each individual <span class="math inline">\(f_i(\cdot)\)</span> in practice we use a long short-term memory (LSTM) network with dropout regularization.</p>
+</div>
+<div id="results" class="section level1">
+<h1>Results</h1>
+<p>To evaluate our proposed methodology empirically we use a sample of monthly US data on leading economic indicators, which spans the period from January 1959 through March 2021. We use the relatively novel FRED-MD data base which is updated monthly and publicly available. In particular, we look at variables typically analysed in the context of the monetary transmission mechanism including output, inflation, interest rates and unemployment.</p>
+<p>Our empirical findings show a consistent and significant improvement in modelling performance associated with Deep VARs compared to its conventional benchmark: our proposed model produces significantly lower cumulative loss over the entire period and for each of the analysed time series. The improvements in modelling performance are particularly pronounced during periods of economic stress and uncertainty. This appears to confirm or initial hypothesis that by modelling time series through a Deep VAR it is possible to capture complex, non-linear dependencies that seem to characterize periods of structural economic change.</p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:cum-loss-full"></span>
+<img src="../www/cum_loss_full.png" alt="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR." width="1400" />
+<p class="caption">
+Figure 1: Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR.
+</p>
+</div>
+</div>
+<div id="next-steps" class="section level1">
+<h1>Next steps</h1>
+<p>We also point out a number of shortcomings of our proposed approach, which we believe can be alleviated through future research. Firstly, policy-makers are typically concerned with uncertainty quantification, inference and overall model explainability. Future research on Deep VARs should therefore address the estimation of confidence intervals, impulse response functions as well as variance decompositions typically analysed in the context of VAR models. We point to a number of possible avenues, most notably Monte Carlo dropout. Secondly, in our initial paper we benchmarked the Deep VAR only against the conventional VAR. In future work we will introduce other non-linear approaches to allow for a fairer comparison.</p>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-altmeyer2021deep" class="csl-entry">
+Altmeyer, Patrick. n.d. <em>Deepvars: Deep Vector Autoregession</em>.
+</div>
+<div id="ref-kilian2017structural" class="csl-entry">
+Kilian, Lutz, and Helmut Lütkepohl. 2017. <em>Structural Vector Autoregressive Analysis</em>. Cambridge University Press.
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+var script = document.createElement("script");
+script.type = "text/javascript";
+var src = "true";
+if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+if (location.protocol !== "file:" && /^https?:/.test(src))
+src = src.replace(/^https?:/, '');
+script.src = src;
+document.getElementsByTagName("head")[0].appendChild(script);
+})();
+</script>
+
+
+</body>
+</html>
