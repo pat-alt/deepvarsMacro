@@ -89,7 +89,7 @@ To evaluate our proposed methodology empirically we use a sample of monthly US d
 Our empirical findings show a consistent and significant improvement in modelling performance associated with Deep VARs compared to its conventional benchmark: our proposed model produces significantly lower cumulative loss over the entire period and for each of the analysed time series. The improvements in modelling performance are particularly pronounced during periods of economic stress and uncertainty. This appears to confirm or initial hypothesis that by modelling time series through a Deep VAR it is possible to capture complex, non-linear dependencies that seem to characterize periods of structural economic change.
 
 ```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR."}
-knitr::include_graphics("../www/cum_loss_full.png")
+knitr::include_graphics("cum_loss_full.png")
 ```
 
 # Next steps

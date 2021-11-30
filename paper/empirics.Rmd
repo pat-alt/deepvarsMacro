@@ -8,10 +8,12 @@ knitr::opts_chunk$set(
   message=FALSE
 )
 library(deepvars)
+library(ggplot2)
 ```
 
 ```{r, eval=TRUE}
 dt <- readRDS("../data/data_VAR/preprocessed.rds")
+dt_l <- data.table::melt(dt, id.vars="date")
 var_cols <- colnames(dt)[2:ncol(dt)]
 ```
 
@@ -23,7 +25,7 @@ lags <- lag_order(dt, max_lag = max_lags)$p
 num_units <- 100
 num_layers <- formals(deepvareg)$num_layers
 dropout <- formals(deepvareg)$p_drop_out
-epochs <- 100
+epochs <- 500
 ```
 
 ```{r, eval=FALSE}
@@ -33,16 +35,37 @@ var_model <- vareg(dt, lags = lags)
 deepvar_model <- deepvareg(
   dt, 
   lags=lags, 
-  num_units = num_units, 
+  num_units=num_units, 
   epochs=epochs
 )
+# Threshold VAR
+tv <- tsDyn::TVAR(dt[,-1], include = "const", lag=lags, nthresh=2, trim=0.1)
+tv_l <- data.table::melt(data.table::data.table(date=dt$date[-(1:lags)], fitted(tv)), id.vars = "date")
 ```
 
 ```{r, eval=FALSE}
 # Cum RMSE plot
 cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="VAR"]
 cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="Deep VAR"]
-dt_plot <- rbind(cum_loss_dvar, cum_loss_var)
+cum_loss_tv <- tv_l[
+  ,
+  .(
+    date=date,
+    value=cumsum((value-data.table::shift(value,fill=0))^2),
+    type="Threshold VAR"
+  ),
+  by=variable
+]
+cum_loss_rw <- dt_l[
+  ,
+  .(
+    date=date,
+    value=cumsum((value-data.table::shift(value,fill=0))^2),
+    type="Random walk"
+  ),
+  by=variable
+]
+dt_plot <- rbind(cum_loss_dvar, cum_loss_var, cum_loss_rw, cum_loss_tv)
 p <- ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
   ggplot2::geom_line() +
   ggplot2::facet_wrap(~variable, scales = "free_y") +
@@ -51,8 +74,8 @@ p <- ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
       x="Date",
       y="Squared error"
     ) +
-  geom_hline(aes(yintercept=0), lwd=0.1)
-ggsave(
+  ggplot2::geom_hline(ggplot2::aes(yintercept=0), lwd=0.1)
+ggplot2::ggsave(
   filename = "../www/cum_loss_full.png", 
   plot = p,
   width = 6,
@@ -63,9 +86,9 @@ ggsave(
 ```{r, eval=FALSE}
 resids <- rbind(
   deepvar_model$res[,model:="Deep VAR"],
-  data.table(var_model$res)[,model:="VAR"]
+  data.table::data.table(var_model$res)[,model:="VAR"]
 )
-resids <- melt(resids, id.vars = "model")
+resids <- data.table::melt(resids, id.vars = "model")
 p <- ggplot(data=resids, aes(sample=value)) +
   stat_qq() + stat_qq_line() +
   facet_wrap(model~variable, scales="free_y", nrow=2) +
@@ -82,6 +105,7 @@ ggsave(
 ```
 
 ```{r, eval=FALSE}
+library(data.table)
 lag_max <- 25
 ci <- .95
 resids_acf <- resids[
@@ -223,7 +247,7 @@ knitr::kable(
 ```
 
 
-```{r, include=FALSE, eval=FALSE}
+```{r, include=FALSE, eval=TRUE}
 library(xtable)
 dtf<- xtable(tab_rmse[, -"Mean"], caption = c("RMS"))
 names(dtf) <- c('Sample','Variable', 'DeepVAR', "VAR", "Ratio")
@@ -296,7 +320,7 @@ knitr::kable(
 )
 ```
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
@@ -429,7 +453,7 @@ grid_search <- rbindlist(
 saveRDS(grid_search, "../results/grid_search.rds")
 ```
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 grid_search <- readRDS("../results/grid_search.rds")
 ```
 
