@@ -1,0 +1,65 @@
+# Data {#data}
+
+```{r}
+dt <- readRDS("../data/data_VAR/preprocessed.rds")
+```
+
+
+To evaluate our proposed methodology empirically we use a sample of monthly US data on leading economic indicators, which spans the period of January 1959 through March 2021. We use the relatively novel FRED-MD data base which is updated monthly and publicly available [@mccracken2016fred]. The sample spans from `r dt[,format(min(date), "%B, %Y")]` to `r dt[,format(max(date), "%B, %Y")]` providing us with a relatively rich data set of macroeconomic time series with $T=`r dt[,.N]`$ observations.
+
+In order to investigate the monetary transmission mechanism, the literature typically focuses on variables related to economic output, price levels, short and long term interest rates as well as labour market indicators. Some go beyond to also include stock price indices, money and credit aggregates, balance of payments figures, confidence indicators and some cases foreign domestic indicators. In this paper we limit our attention to the four main indicators mentioned above. In particular we use changes in the industrial production index (IP) to measure output growth, changes in the growth of the (all items) consumer price index (CPI) to measure inflation, the Federal Funds Rate (FFR) as our interest rate and the unemployment rate (UR) as our labour market indicator. Note that we use IP rather than the gross domestic product as a proxy for output, because the latter is only available at quarterly frequency. 
+
+Another strength of the FRED-MD is the fact that the data is already preprocessed. Specifically, the industrial production index comes in log differences, the CPI in second-order log differences and both the Fed Funds Rate and the unemployment rate in first-order differences. This has allowed us to let the data enter into our estimations without any further adjustments, which should facilitate the reproducibility of our results.
+
+```{r, echo=FALSE}
+library(data.table)
+library("fbi")
+library("ggplot2")
+
+test <- fredmd("../data/fredmd/2021-04.csv")
+variables <- c("date", "X6", "X25", "X113", "X84")
+variables_names <- c("date", "IP", "UR", "CPI", "FFR")
+test <- test[3:nrow(test),variables]
+colnames(test) <- variables_names
+
+dt_final <- data.table(test)
+dt_long <- melt(dt_final, id.vars = "date")
+
+p <- ggplot(data = dt_long, aes(x=date, y=value)) +
+  geom_line() +
+  facet_wrap(~variable, scales="free_y")
+
+ggsave(
+  filename = "../www/time_series.png", 
+  plot = p,
+  width = 8,
+  height = 4
+)
+```
+
+
+```{r, echo = FALSE, results='asis', results= FALSE}
+library(xtable)
+library(plyr)
+dtf <- sapply(dt_final[,2:5], each(min, max, mean, sd, var, median, IQR))
+xtable(dtf, caption = c("Summary statistics"))
+options(xtable.comment = FALSE)
+saveRDS(dtf, file="../data/sum_stats.rds")
+```
+
+
+```{r, echo= FALSE, results='asis', results= FALSE}
+# Pre Covid vs Post Covid Summary Stats
+
+dtf_pre <- sapply(dt_final[date < as.Date("2020-03-01"),2:5], each(min, max, mean, sd, var, median, IQR))
+
+xtable(dtf_pre, caption = c("Summary statistics pre Covid"))
+saveRDS(dtf_pre, file="../data/pre_covid.rds")
+```
+
+```{r, echo= FALSE,results='asis', results= FALSE}
+dtf_post <- sapply(dt_final[date >= as.Date("2020-03-01"),2:5], each(min, max, mean, sd, var, median, IQR))
+xtable(dtf_post, caption = c("Summary statistics post Covid"))
+saveRDS(dtf_post, file="../data/post_covid.rds")
+```
+

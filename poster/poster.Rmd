@@ -1,0 +1,99 @@
+---
+title: Deep Vector Autoregression for Macroeconomic Data
+author:
+  - name: Patrick Altmeyer
+    affil: 1
+    website: https://www.paltmeyer.com
+  - name: Marc Agusti
+    affil: 2
+  - name: Ignacio Vidal-Quadras Costa
+    affil: 2
+affiliation:
+  - num: 1
+    address: Delft University of Technology
+  - num: 2
+    address: European Central Bank
+column_numbers: 3
+logoright_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png
+logoleft_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png
+output: 
+  posterdown::posterdown_html:
+    self_contained: false
+bibliography: ../bib.bib
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning=FALSE,
+  message=FALSE,
+  out.width = 1400,
+  fig.align = "center"
+)
+library(ggplot2)
+library(data.table)
+library(deepvars)
+options(xtable.comment = FALSE)
+theme_set(theme_bw())
+```
+
+# Introduction
+
+Vector Autoregression (VAR) models are a popular choice for forecasting time series data. Due to their simplicity and success at modelling the monetary economic indicators the VAR has become a standard tool for central bankers to construct economic forecasts. Impulse response functions can be readily retrieved from the conventional VAR and used for inference purposes. They are typically employed to investigate various interactions between variables that form part of the monetary transmission mechanism. 
+
+We offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established benchmark. By staying methodologically as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network. 
+
+# Contributions
+
+1. Propose a simple methodological framework that is close to the conventional and trusted benchmark.
+2. Demonstrate improved modelling and forecasting performance of Deep VAR. 
+3. Open source R package [@altmeyer2021deep] to faciliate reproducibility and future research.
+
+# Methodology
+
+Let $\mathbf{y}_t$ denote the $(K \times 1)$ vector of variables at time $t$. Then the reduced-form VAR($p$) with $p$ lags and a constant deterministic term is simply a linear system of stochastic equations of the following form:
+
+\begin{equation} 
+\begin{aligned}
+&& \mathbf{y}_t&=\mathbf{c} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbf{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t \\
+&& \mathbf{u}_t&\sim \mathcal{N}(\mathbf{0},\Sigma_u) \\
+\end{aligned}
+(\#eq:redform)
+\end{equation}
+
+We refer to \@ref(eq:redform) as the **reduced form** representation of the VAR($p$) because all right-hand side variables are predetermined [@kilian2017structural]. In practice, \@ref(eq:redform) can be efficiently estimated through equation-by-equation ordinary least-squares (OLS):
+
+\begin{equation} 
+\begin{aligned}
+&& y_{it}&=c_i+\sum_{m=1}^{p}\sum_{j=1}^{K}a_{jm}y_{jt-m}+u_{it},&&\forall i=1,...,K\\
+\end{aligned}
+(\#eq:single-var)
+\end{equation}
+
+Consistent with the conventional VAR structure we assume that each individual time series $y_{it}$ can be modelled as a function of lagged realizations of all variables in the system:
+
+\begin{equation} 
+\begin{aligned}
+&& y_{it}&=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &&,&&\forall i=1,...,K \\
+\end{aligned}
+(\#eq:single-dvar)
+\end{equation}
+
+To model each individual $f_i(\cdot)$ in practice we use a long short-term memory (LSTM) network with dropout regularization.
+
+# Results
+
+To evaluate our proposed methodology empirically we use a sample of monthly US data on leading economic indicators, which spans the period from January 1959 through March 2021. We use the relatively novel FRED-MD data base which is updated monthly and publicly available. In particular, we look at variables typically analysed in the context of the monetary transmission mechanism including output, inflation, interest rates and unemployment.
+
+Our empirical findings show a consistent and significant improvement in modelling performance associated with Deep VARs compared to its conventional benchmark: our proposed model produces significantly lower cumulative loss over the entire period and for each of the analysed time series. The improvements in modelling performance are particularly pronounced during periods of economic stress and uncertainty. This appears to confirm or initial hypothesis that by modelling time series through a Deep VAR it is possible to capture complex, non-linear dependencies that seem to characterize periods of structural economic change.
+
+```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR."}
+knitr::include_graphics("cum_loss_full.png")
+```
+
+# Next steps
+
+We also point out a number of shortcomings of our proposed approach, which we believe can be alleviated through future research. Firstly, policy-makers are typically concerned with uncertainty quantification, inference and overall model explainability. Future research on Deep VARs should therefore address the estimation of confidence intervals, impulse response functions as well as variance decompositions typically analysed in the context of VAR models. We point to a number of possible avenues, most notably Monte Carlo dropout. Secondly, in our initial paper we benchmarked the Deep VAR only against the conventional VAR. In future work we will introduce other non-linear approaches to allow for a fairer comparison.
+
+# References
