@@ -1,5 +1,3 @@
-README
-================
 
 ## Deep Vector Autoregression for Macroeconomic Data
 
