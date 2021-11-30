@@ -1,9 +1,9 @@
 ---
 title: "Deep Vector Autoregression for Macroeconomic Data"
 author:
-- "Marc Agustí (marc.agusti@barcelonagse.eu)"
-- "Patrick Altmeyer (patrick.altmeyer@barcelonagse.eu)"
-- "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
+- "**Patrick Altmeyer**^[Delft University of Technology, p.altmeyer@tudelft.nl]"
+- "Marc Agusti^[European Central Bank, marc.agusti\__i\__torres@ecb.europa.eu]"
+- "Ignacio Vidal-Quadras Costa^[European Central Bank, ignacio.vidalquadrascosta@barcelonagse.eu]"
 date: "`r format(Sys.Date(), '%B, %Y')`"
 output: 
   bookdown::pdf_document2: 
@@ -15,7 +15,7 @@ output:
 fontsize: 12pt
 bibliography: ../bib.bib
 link-citations: true
-abstract: "Vector Autoregression (VAR) models are a popular choice for forecasting time series data. Due to their simplicity and success at modelling monetary economic indicators VARs have become a standard tool for central bankers to construct economic forecasts. Impulse response functions can be readily retrieved from the conventional VAR and used for inference purposes. They are typically employed to investigate various interactions between variables that form part of the monetary transmission mechanism. A crucial assumption underlying conventional VARs is that these interactions between variables through time can be modelled linearly. We propose a novel approach towards VARs that relaxes this assumption. In particular, we offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established framework. By fitting each equation of the VAR system with a deep neural network, the Deep VAR outperforms its conventional benchmark in terms of in-sample fit, out-of-sample fit and point forecasting accuracy. In particular, we find that the Deep VAR is able to better capture the structural economic changes during periods of uncertainty and recession.^[The authors would like to thank Christian Brownlees for being a helpful supervisor. We would also like to thank Eddie Gerba, research manager of the Bank of England's Markets Directorate, for helpful comments and fruitful discussions.]"
+abstract: "Vector Autoregression is a popular choice for forecasting time series data. Due to its simplicity and success at modelling monetary economic indicators VAR has become a standard tool for central bankers to construct economic forecasts. A crucial assumption underlying the conventional VAR is that interactions between variables through time can be modelled linearly. We propose Deep VAR: a novel approach towards VAR that leverages the power of deep learning in order to model non-linear relatonships. By modelling each equation of the VAR system as a deep neural network, our proposed extension outperforms its conventional benchmark in terms of in-sample fit, out-of-sample fit and point forecasting accuracy. In particular, we find that the Deep VAR is able to better capture the structural economic changes during periods of uncertainty and recession. By staying methodologically as close as possible to the original benchmark, we hope that our approach is more likely to find acceptance in the economics domain."
 ---
 
 ```{r setup, include=FALSE}

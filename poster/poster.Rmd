@@ -42,7 +42,7 @@ theme_set(theme_bw())
 
 Vector Autoregression (VAR) models are a popular choice for forecasting time series data. Due to their simplicity and success at modelling the monetary economic indicators the VAR has become a standard tool for central bankers to construct economic forecasts. Impulse response functions can be readily retrieved from the conventional VAR and used for inference purposes. They are typically employed to investigate various interactions between variables that form part of the monetary transmission mechanism. 
 
-We offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established benchmark. By staying as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network. 
+We offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established benchmark. By staying methodologically as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network. 
 
 # Contributions
 

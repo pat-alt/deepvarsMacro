@@ -1,9 +1,9 @@
 ---
 title: "Deep Vector Autoregression for Macroeconomic Data"
 subtitle: "Masters Thesis - BGSE"
-author: 
-- "Marc Agustí (marc.agusti@barcelonagse.eu)"
-- "Patrick Altmeyer (patrick.altmeyer@barcelonagse.eu)"
+author:
+- "Patrick Altmeyer (p.altmeyer@tudelft.nl)"
+- "Marc Agustí (marc.agusti_i_torres@ecb.europa.eu)"
 - "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
 date: "`r format(Sys.Date(), '%d %B, %Y')`"
 output: 
@@ -40,14 +40,14 @@ We effectively extend the conventional linear VAR model to the broader class of 
 ## Data 
 
 ```{r}
-dt <- readRDS("data_VAR/preprocessed.rds")
+dt <- readRDS("../data/data_VAR/preprocessed.rds")
 ```
 
 - We use the relatively novel FRED-MD data base which is updated monthly and publicly available [@mccracken2016fred]. 
 - The sample spans from `r dt[,format(min(date), "%B, %Y")]` to `r dt[,format(max(date), "%B, %Y")]` providing us with a relatively rich data set of macroeconomic time series with $T=`r dt[,.N]`$ observations.
 
 ```{r time-series, fig.cap="Time series", out.width=300}
-knitr::include_graphics("www/time_series.png")
+knitr::include_graphics("../www/time_series.png")
 ```
 
 # Deep VAR methodology
@@ -118,13 +118,13 @@ knitr::include_graphics("www/time_series.png")
 ## In-sample loss
 
 ```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR.", out.width=300}
-knitr::include_graphics("www/cum_loss_full.png")
+knitr::include_graphics("../www/cum_loss_full.png")
 ```
 
 ## Out-of-sample loss
 
 ```{r rmse, eval=TRUE}
-tab_rmse <- readRDS("results/train_test_tab_rmse.rds")
+tab_rmse <- readRDS("../results/train_test_tab_rmse.rds")
 knitr::kable(
   tab_rmse, 
   col.names = c("Sample", "Variable", "DVAR", "VAR", "Ratio (DVAR / VAR)"),
@@ -136,7 +136,7 @@ knitr::kable(
 ## Out-of-sample forecasting errors
 
 ```{r fcst, eval=TRUE}
-tab_fcst <- readRDS("results/tab_fcst.rds")
+tab_fcst <- readRDS("../results/tab_fcst.rds")
 knitr::kable(
   tab_fcst, digits=5,
   caption = "Comparison of n-step ahead pseudo out-of-sample forecasts."
@@ -149,7 +149,7 @@ knitr::kable(
 ## Varying hyperparameters
 
 ```{r grid-benchmark, eval=TRUE, fig.cap="Pseudo out-of-sample RMSE and RMSFE for both models across the different lag choices. For the sake of completeness we also include the performance measures we obtained when we initially ran both models using the optimal lag order as determined by the AIC.", out.width=330}
-knitr::include_graphics("www/grid_benchmark.png")
+knitr::include_graphics("../www/grid_benchmark.png")
 ```
 
 # Discussion
@@ -188,18 +188,18 @@ devtools::install_github(
 ## Cumulative loss for random walk
 
 ```{r, fig.cap="Cumulative mean squared error for naive (random walk) prediction.", out.width=300}
-knitr::include_graphics("www/cum_loss_full_random_walk.png")
+knitr::include_graphics("../www/cum_loss_full_random_walk.png")
 ```
 
 ## LSTM - Forget gate
 
-![Forget gate. Source: @olah2015understanding](www/lstm_forget_gate.png)
+![Forget gate. Source: @olah2015understanding](../www/lstm_forget_gate.png)
 
 ## LSTM - Input gate
 
-![Input gate. Source: @olah2015understanding](www/lstm_input_gate.png)
+![Input gate. Source: @olah2015understanding](../www/lstm_input_gate.png)
 
 ## LSTM - Output gate
 
-![Output gate. Source: @olah2015understanding](www/lstm_output_gate.png)
+![Output gate. Source: @olah2015understanding](../www/lstm_output_gate.png)
 
