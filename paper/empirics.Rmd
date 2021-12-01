@@ -320,7 +320,7 @@ knitr::kable(
 )
 ```
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
@@ -342,7 +342,7 @@ grid <- data.table::CJ(
 n_sim <- length(lags) * grid[,.N]
 ```
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 # Train test:
 train_test_split <- split_sample(dt)
 train_data <- train_test_split$train_data
@@ -453,7 +453,7 @@ grid_search <- rbindlist(
 saveRDS(grid_search, "../results/grid_search.rds")
 ```
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 grid_search <- readRDS("../results/grid_search.rds")
 ```
 
@@ -651,13 +651,13 @@ dt_plot <- grid_search[
 ][,.(variable, value, model, measure, lag)][,type:="Grid search"]
 
 # Merge in results from initial run:
-tab_rmse <- readRDS("results/train_test_tab_rmse.rds")
+tab_rmse <- readRDS("../results/train_test_tab_rmse.rds")
 tab_rmse <- tab_rmse[sample=="test"][, sample:=NULL]
 tab_rmse[,ratio:=NULL]
 setnames(tab_rmse, "deepvar", "dvar")
 tab_rmse <- melt(tab_rmse, id.vars = "variable", variable.name = "model")
 tab_rmse[,measure:="rmse"]
-tab_fcst <- readRDS("results/tab_fcst.rds")
+tab_fcst <- readRDS("../results/tab_fcst.rds")
 tab_fcst[,`VAR correlations`:=NULL][,`Deep-VAR correlations`:=NULL]
 setnames(tab_fcst, colnames(tab_fcst), c("variable", "var", "dvar"))
 tab_fcst <- melt(tab_fcst, id.vars = "variable", variable.name = "model")
