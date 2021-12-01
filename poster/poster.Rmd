@@ -105,7 +105,7 @@ knitr::kable(
   tab_rmse, 
   col.names = c("Variable", "DVAR", "VAR", "Ratio (DVAR / VAR)"),
   digits = 5,
-  caption = 'Root mean squared error (RMSE) for the two models across subsamples and variables.'
+  caption = 'Test root mean squared error (RMSE) for the two models across variables.'
 ) 
 ```
 
