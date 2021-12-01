@@ -290,7 +290,7 @@ font-size: 20pt;
 </div>
 <!-- Right Logo  -->
 <div class="logo_right">
-<img src=https://raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png style="width: 80%">
+<img src=https://nips.cc/media/Press/NeurIPS_logo_stacked.png style="width: 80%">
 </div>
 </div>
 
@@ -306,7 +306,7 @@ font-size: 20pt;
 <ol style="list-style-type: decimal">
 <li>Propose a simple methodological framework that is close to the conventional and trusted benchmark.</li>
 <li>Demonstrate improved modelling and forecasting performance of Deep VAR.</li>
-<li>Open source R package <span class="citation">(Altmeyer, Agusti, and Vidal-Quadras Costa 2021)</span> to faciliate reproducibility and future research.</li>
+<li>Open source R package <span class="citation">(Altmeyer 2021)</span> to faciliate reproducibility and future research.</li>
 </ol>
 </div>
 <div id="methodology" class="section level1">
@@ -395,15 +395,15 @@ Figure 1: Comparison of cumulative loss over the entire sample period for conven
 <h2>Benchmark models</h2>
 <p>In our initial paper we compared the Deep VAR only against the conventional VAR. Other non-linear approaches have been proposed in the past and we need to include these in our analysis.</p>
 <ol style="list-style-type: decimal">
-<li><strong>Threshold VAR</strong>: We have since added Threshold VAR (TVAR) to the analysis: . We find that a plain-vanilla Deep VAR trained for 500 epochs clearly outperforms TVAR (see Figure <a href="#fig:cum-loss-full">1</a>).</li>
+<li><strong>Threshold VAR</strong>: We have since added Threshold VAR (TVAR) to the analysis (Figure <a href="#fig:cum-loss-full">1</a>).</li>
 <li><strong>Others</strong>: We’d love to hear your suggestions for other benchmarks.</li>
 </ol>
 </div>
 <div id="inference" class="section level2">
 <h2>Inference</h2>
-<p>In general, we fear that inference is a whole lot more difficult for Deep VAR.</p>
+<p>We fear that inference is a whole lot more difficult for Deep VAR.</p>
 <ol style="list-style-type: decimal">
-<li><strong>Confidence Intervals</strong>: Uncertainty quantification can be done through Bayesian deep learning. Common approaches to estimate predictive uncertainty include variational Bayes, Deep Ensembles or Monte Carlo dropout <span class="citation">(Gal and Ghahramani 2016)</span>. Recent work by <span class="citation">(<strong>daxberger2021laplace?</strong>)</span> shows that Laplace Approximation is a promising way forward.</li>
+<li><strong>Confidence Intervals</strong>: Uncertainty quantification can be done through Bayesian deep learning. Common approaches to estimate predictive uncertainty include variational Bayes, Deep Ensembles or Monte Carlo dropout <span class="citation">(Gal and Ghahramani 2016)</span>. Recent work by <span class="citation">Daxberger et al. (2021)</span> shows that Laplace Approximation is a promising way forward.</li>
 <li><strong>Structural Identification</strong>: <span class="citation">Verstyuk (2020)</span> works with a Cholesky decomposition of the residual covariance matrix in the same way as for conventional VAR. Is it as easy as that?</li>
 <li><strong>IRFs, variance decomposition, …</strong>: Existing approaches solve (some of) this through simulation <span class="citation">(Verstyuk 2020)</span>.</li>
 </ol>
@@ -416,16 +416,15 @@ Figure 1: Comparison of cumulative loss over the entire sample period for conven
 <li><strong>Now- and forecasting</strong>: Much like reduced-form VAR models, Deep VAR can be used for forecasting and we provide empirical evidence that it performs well.</li>
 </ol>
 </div>
-<div id="theoretical-foundation" class="section level2">
-<h2>Theoretical foundation</h2>
-<p>The conventional VAR is a special case of Seemingly Unrelated Regressions (SUR) and can be efficiently estimated through equation-by-equation ordinary-least-squares (OLS). We apply the same approach to Deep VAR without proving that this is still efficient. Since we achieve good modelling performance and our approach is methodologically close to the VAR, we are not altogether to worried. Still, our approach to estimating Deep VAR lacks a solid theoretical foundation.</p>
-</div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-altmeyer2021deep" class="csl-entry">
-Altmeyer, Patrick, Marc Agusti, and Ignacio Vidal-Quadras Costa. 2021. <span>“Deep Vector Autoregression for Macroeconomic Data.”</span> <a href="https://thevoice.bse.eu/wp-content/uploads/2021/07/ds21-project-agusti-et-al.pdf">https://thevoice.bse.eu/wp-content/uploads/2021/07/ds21-project-agusti-et-al.pdf</a>.
+<div id="ref-altmeyer2021deepvars" class="csl-entry">
+Altmeyer, Patrick. 2021. <em>Deepvars: Deep Vector Autoregession</em>.
+</div>
+<div id="ref-daxberger2021laplace" class="csl-entry">
+Daxberger, Erik, Agustinus Kristiadi, Alexander Immer, Runa Eschenhagen, Matthias Bauer, and Philipp Hennig. 2021. <span>“Laplace Redux-Effortless Bayesian Deep Learning.”</span> <em>Advances in Neural Information Processing Systems</em> 34.
 </div>
 <div id="ref-gal2016dropout" class="csl-entry">
 Gal, Yarin, and Zoubin Ghahramani. 2016. <span>“Dropout as a Bayesian Approximation: Representing Model Uncertainty in Deep Learning.”</span> In <em>International Conference on Machine Learning</em>, 1050–59. PMLR.

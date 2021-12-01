@@ -14,7 +14,7 @@ affiliation:
   - num: 2
     address: European Central Bank
 column_numbers: 3
-logoright_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png
+logoright_name: https&#58;//nips.cc/media/Press/NeurIPS_logo_stacked.png
 logoleft_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png
 output: 
   posterdown::posterdown_html:
@@ -48,7 +48,7 @@ We offer a simple way to integrate deep learning into VARs without deviating too
 
 1. Propose a simple methodological framework that is close to the conventional and trusted benchmark.
 2. Demonstrate improved modelling and forecasting performance of Deep VAR. 
-3. Open source R package [@altmeyer2021deep] to faciliate reproducibility and future research.
+3. Open source R package [@altmeyer2021deepvars] to faciliate reproducibility and future research.
 
 # Methodology
 
@@ -111,12 +111,12 @@ knitr::kable(
 
 In our initial paper we compared the Deep VAR only against the conventional VAR. Other non-linear approaches have been proposed in the past and we need to include these in our analysis.
 
-1. **Threshold VAR**: We have since added Threshold VAR (TVAR) to the analysis: . We find that a plain-vanilla Deep VAR trained for 500 epochs clearly outperforms TVAR (see Figure \@ref(fig:cum-loss-full)).
+1. **Threshold VAR**: We have since added Threshold VAR (TVAR) to the analysis (Figure \@ref(fig:cum-loss-full)).
 2. **Others**: We'd love to hear your suggestions for other benchmarks.
 
 ## Inference
 
-In general, we fear that inference is a whole lot more difficult for Deep VAR.
+We fear that inference is a whole lot more difficult for Deep VAR.
 
 1. **Confidence Intervals**: Uncertainty quantification can be done through Bayesian deep learning. Common approaches to estimate predictive uncertainty include variational Bayes, Deep Ensembles or Monte Carlo dropout [@gal2016dropout]. Recent work by @daxberger2021laplace shows that Laplace Approximation is a promising way forward.
 2. **Structural Identification**: @verstyuk2020modeling works with a Cholesky decomposition of the residual covariance matrix in the same way as for conventional VAR. Is it as easy as that?
@@ -128,9 +128,5 @@ Even if inference presents a challenge, we believe there are useful applications
 
 1. **Detecting non-linearity**: Strong divergence of disagreement between VAR and Deep VAR is indicative of non-linearities that the conventional VAR fails to capture. In that scenario, inference based on a VAR is unreliable.
 2. **Now- and forecasting**: Much like reduced-form VAR models, Deep VAR can be used for forecasting and we provide empirical evidence that it performs well.
-
-## Theoretical foundation
-
-The conventional VAR is a special case of Seemingly Unrelated Regressions (SUR) and can be efficiently estimated through equation-by-equation ordinary-least-squares (OLS). We apply the same approach to Deep VAR without proving that this is still efficient. Since we achieve good modelling performance and our approach is methodologically close to the VAR, we are not altogether to worried. Still, our approach to estimating Deep VAR lacks a solid theoretical foundation.
 
 # References
