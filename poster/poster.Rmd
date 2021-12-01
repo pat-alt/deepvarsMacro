@@ -14,12 +14,16 @@ affiliation:
   - num: 2
     address: European Central Bank
 column_numbers: 3
-logoright_name: https&#58;//nips.cc/media/Press/NeurIPS_logo_stacked.png
+primary_colour: "#00477a"
+secondary_colour: "#0697fd"
+accent_colour: "#a909e3"
+logoright_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/qr-code.png
 logoleft_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png
 output: 
   posterdown::posterdown_html:
     self_contained: false
 bibliography: ../bib.bib
+# knit: pagedown::chrome_print
 ---
 
 ```{r setup, include=FALSE}
@@ -96,10 +100,10 @@ We also test model performance with respect to a test sample: future realization
 
 ```{r rmse, eval=TRUE}
 tab_rmse <- readRDS("../results/train_test_tab_rmse.rds")
-tab_rmse <- tab_rmse[sample=="test"][,sample:=0]
+tab_rmse <- tab_rmse[sample=="test"][,sample:=NULL]
 knitr::kable(
   tab_rmse, 
-  col.names = c("Sample", "Variable", "DVAR", "VAR", "Ratio (DVAR / VAR)"),
+  col.names = c("Variable", "DVAR", "VAR", "Ratio (DVAR / VAR)"),
   digits = 5,
   caption = 'Root mean squared error (RMSE) for the two models across subsamples and variables.'
 ) 
@@ -124,7 +128,7 @@ We fear that inference is a whole lot more difficult for Deep VAR.
 
 ## Applications
 
-Even if inference presents a challenge, we believe there are useful applications for Deep VAR.
+We believe there are useful applications for Deep VAR.
 
 1. **Detecting non-linearity**: Strong divergence of disagreement between VAR and Deep VAR is indicative of non-linearities that the conventional VAR fails to capture. In that scenario, inference based on a VAR is unreliable.
 2. **Now- and forecasting**: Much like reduced-form VAR models, Deep VAR can be used for forecasting and we provide empirical evidence that it performs well.

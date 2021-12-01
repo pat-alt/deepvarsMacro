@@ -51,14 +51,14 @@ padding: 0cm;
 width: 45in;
 height: calc(38in * 0.15);
 overflow: hidden;
-background-color: #0b4545;
-border: 0 solid #0b4545;
+background-color: #00477a;
+border: 0 solid #0697fd;
 }
 .logo_left {
 float: left;
 width: 10%;
 height: 100%;
-background-color: #0b4545;
+background-color: #00477a;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -67,7 +67,7 @@ justify-content: center;
 float: right;
 width: 10%;
 height: 100%;
-background-color: #0b4545;
+background-color: #00477a;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -88,24 +88,24 @@ font-family: Palatino;
 }
 /* unvisited link */
 a:link {
-color: #cc0000;
+color: #a909e3;
 }
 .mybreak {
   break-before: column;
 }
 /* visited link */
 a:visited {
-color: #cc0000;
+color: #a909e3;
 }
 
 /* mouse over link */
 a:hover {
-color: #cc0000;
+color: #a909e3;
 }
 
 /* selected link */
 a:active {
-color: #cc0000;
+color: #a909e3;
 }
 .poster_body {
 -webkit-column-count: 3; /* Chrome, Safari, Opera */
@@ -120,9 +120,9 @@ column-rule-width: 1mm;
 -webkit-column-rule-style: dashed;
 -moz-column-rule-style: dashed;
 column-rule-style: dashed;
--webkit-column-rule-color: #0b4545;
--moz-column-rule-color: #0b4545;
-column-rule-color: #0b4545;
+-webkit-column-rule-color: #00477a;
+-moz-column-rule-color: #00477a;
+column-rule-color: #00477a;
 column-gap: 1em;
 padding-left: 0.5em;
 padding-right: 0.5em;
@@ -144,7 +144,7 @@ padding-bottom: calc(38in * 0.01);
 background-color: #ffffff;
 }
 .poster_title h3 {
-color: #ffffff;
+color: #0697fd;
 font-size: 50pt;
 margin: 0;
 border: 0;
@@ -172,8 +172,8 @@ margin-bottom: 0;
 text-align: center;
 color: #FFFFFF;
 font-size: 65pt;
-border: 2mm solid #0b4545;
-background-color: #0b4545;
+border: 2mm solid #00477a;
+background-color: #00477a;
 border-radius: 4mm 0mm;
 margin-top: 2mm;
 margin-bottom: 2mm;
@@ -225,8 +225,8 @@ padding-bottom: 3mm;
 code {
 font-size: 1em;
 font-family: monospace;
-background-color: #00808024;
-color: #0b4545;
+background-color: #0697fd24;
+color: #00477a;
 padding: 1.2mm;
 border-radius: 2mm;
 }
@@ -290,7 +290,7 @@ font-size: 20pt;
 </div>
 <!-- Right Logo  -->
 <div class="logo_right">
-<img src=https://nips.cc/media/Press/NeurIPS_logo_stacked.png style="width: 80%">
+<img src=https://raw.githubusercontent.com/pat-alt/deepvars/master/www/qr-code.png style="width: 80%">
 </div>
 </div>
 
@@ -350,7 +350,6 @@ Figure 1: Comparison of cumulative loss over the entire sample period for conven
 <caption><span id="tab:rmse">Table 1: </span>Root mean squared error (RMSE) for the two models across subsamples and variables.</caption>
 <thead>
 <tr class="header">
-<th align="left">Sample</th>
 <th align="left">Variable</th>
 <th align="right">DVAR</th>
 <th align="right">VAR</th>
@@ -359,28 +358,24 @@ Figure 1: Comparison of cumulative loss over the entire sample period for conven
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">0</td>
 <td align="left">IP</td>
 <td align="right">0.00494</td>
 <td align="right">0.01484</td>
 <td align="right">0.33253</td>
 </tr>
 <tr class="even">
-<td align="left">0</td>
 <td align="left">UR</td>
 <td align="right">0.94542</td>
 <td align="right">1.65170</td>
 <td align="right">0.57240</td>
 </tr>
 <tr class="odd">
-<td align="left">0</td>
 <td align="left">CPI</td>
 <td align="right">0.00231</td>
 <td align="right">0.00342</td>
 <td align="right">0.67642</td>
 </tr>
 <tr class="even">
-<td align="left">0</td>
 <td align="left">FFR</td>
 <td align="right">0.17494</td>
 <td align="right">0.23974</td>
@@ -410,7 +405,7 @@ Figure 1: Comparison of cumulative loss over the entire sample period for conven
 </div>
 <div id="applications" class="section level2">
 <h2>Applications</h2>
-<p>Even if inference presents a challenge, we believe there are useful applications for Deep VAR.</p>
+<p>We believe there are useful applications for Deep VAR.</p>
 <ol style="list-style-type: decimal">
 <li><strong>Detecting non-linearity</strong>: Strong divergence of disagreement between VAR and Deep VAR is indicative of non-linearities that the conventional VAR fails to capture. In that scenario, inference based on a VAR is unreliable.</li>
 <li><strong>Now- and forecasting</strong>: Much like reduced-form VAR models, Deep VAR can be used for forecasting and we provide empirical evidence that it performs well.</li>
