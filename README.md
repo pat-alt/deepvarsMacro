@@ -1,6 +1,20 @@
 
 ## Deep Vector Autoregression for Macroeconomic Data
 
+This repository contains all the code for Altmeyer, Agusti, and
+Vidal-Quadras Costa (2021). This research project started off as a
+master’s thesis project, but has since been carried forward and accepted
+for a poster presentation at the [NeurIPS 2021 MLECON
+Workshop](https://nips.cc/Conferences/2021/ScheduleMultitrack?event=21847).
+It is worth flagging that we still consider this very much a
+work-in-progress - both the research and the companion package. We
+therefore very much welcome any feedback, suggestions and comments.
+
+For comments regarding the research and methodology, please [open an
+issue](https://github.com/pat-alt/deepvarsMacro/issues) in this
+repository. For any concerns regarding the companion package please open
+an issue [here](https://github.com/pat-alt/deepvars/issues).
+
 ### Paper Abstract
 
 *Vector Autoregression is a popular choice for forecasting time series
@@ -23,14 +37,15 @@ likely to find acceptance in the economics domain.*
 
 A few useful pointers:
 
-1.  [Paper](paper/paper.pdf)
-2.  [Slides](presentation/presentation.pdf)
-3.  [Poster](poster/poster.html)
-4.  [R Package](https://github.com/pat-alt/deepvars)
+-   At a glance: [NeurIPS 2021 Poster](poster/neurips.pdf).
+-   More detailed [poster](poster/poster.html).
+-   Even more detailed [slides](presentation/presentation.pdf).
+-   Full detail: [paper](paper/paper.pdf).
+-   Code: [R Package](https://github.com/pat-alt/deepvars).
 
 ## Citation
 
-Please cite the related working paper as follows:
+Please cite our working paper as follows:
 
     @article{altmeyer2021deep,
         author = {Altmeyer, Patrick and Agusti, Marc and Vidal-Quadras Costa, Ignacio},
@@ -40,7 +55,7 @@ Please cite the related working paper as follows:
         url = {https://thevoice.bse.eu/wp-content/uploads/2021/07/ds21-project-agusti-et-al.pdf},
         year = {2021}}
 
-Please cite this package as follows:
+Please cite the companion package as follows:
 
     @Manual{altmeyer2021deepvars,
       title = {deepvars: Deep Vector Autoregression},
