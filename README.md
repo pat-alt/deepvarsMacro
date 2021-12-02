@@ -53,11 +53,16 @@ Please cite our working paper as follows:
         date-modified = {2021-11-30 16:33:49 +0100},
         title = {Deep Vector Autoregression for Macroeconomic Data},
         url = {https://thevoice.bse.eu/wp-content/uploads/2021/07/ds21-project-agusti-et-al.pdf},
-        year = {2021}}
+        year = {2021}
+    }
 
 Please cite the companion package as follows:
 
-    @Manual{altmeyer2021deepvars,
-      title = {deepvars: Deep Vector Autoregression},
-      author = {Patrick Altmeyer},
-      note = {R package version 0.1.0}}
+    @software{Altmeyer_deepvars_Deep_Vector_2021,
+      author = {Altmeyer, Patrick},
+      month = {12},
+      title = {{deepvars: Deep Vector Autoregression}},
+      url = {https://github.com/pat-alt/deepvars},
+      version = {0.1.0},
+      year = {2021}
+    }
