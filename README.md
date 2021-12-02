@@ -45,7 +45,7 @@ A few useful pointers:
 
 ## Citation
 
-Please cite our working paper as follows:
+Please cite our paper as follows:
 
     @article{altmeyer2021deep,
         author = {Altmeyer, Patrick and Agusti, Marc and Vidal-Quadras Costa, Ignacio},
