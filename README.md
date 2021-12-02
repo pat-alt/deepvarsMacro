@@ -38,7 +38,7 @@ likely to find acceptance in the economics domain.*
 A few useful pointers:
 
 -   At a glance: [NeurIPS 2021 Poster](poster/neurips.pdf).
--   More detailed [poster](poster/poster.html).
+-   More detailed [poster](poster/poster.pdf).
 -   Even more detailed [slides](presentation/presentation.pdf).
 -   Full detail: [paper](paper/paper.pdf).
 -   Code: [R Package](https://github.com/pat-alt/deepvars).

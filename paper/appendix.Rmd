@@ -98,7 +98,7 @@ knitr::include_graphics("../www/grid_rmsfe_benchmark.png")
 \FloatBarrier
 \pagebreak
 
-# R Code and Package {#code}
+# Code and Package {#code}
 
 All code used for the empirical analysis presented in this article can be found on the corresponding [GitHub repository](https://github.com/pat-alt/deepvarsMacro). Researchers interested in using Deep VARs more generally for their own empirical work may find the R `deepvars` package useful which is being maintained by one of the authors. The package is still under development and as of now only available on [GitHub](https://github.com/pat-alt/deepvars). To install the package in R simply run:
 
