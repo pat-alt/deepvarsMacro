@@ -1,7 +1,7 @@
 ---
 title: "Deep Vector Autoregression for Macroeconomic Data"
 author:
-- "**Patrick Altmeyer**^[Delft University of Technology, p.altmeyer@tudelft.nl]"
+- "Patrick Altmeyer^[Delft University of Technology, p.altmeyer@tudelft.nl]"
 - "Marc Agusti^[European Central Bank, marc.agusti\__i\__torres@ecb.europa.eu]"
 - "Ignacio Vidal-Quadras Costa^[European Central Bank, ignacio.vidalquadrascosta@barcelonagse.eu]"
 date: "`r format(Sys.Date(), '%B, %Y')`"
