@@ -1,0 +1,122 @@
+---
+title: "Deep Vector Autoregression for Macroeconomic Data"
+author:
+- "Patrick Altmeyer^[Delft University of Technology, p.altmeyer@tudelft.nl]"
+- "Marc Agusti^[European Central Bank, marc.agusti\__i\__torres@ecb.europa.eu]"
+- "Ignacio Vidal-Quadras Costa^[European Central Bank, ignacio.vidalquadrascosta@barcelonagse.eu]"
+date: "`r format(Sys.Date(), '%d %B, %Y')`"
+output: 
+  beamer_presentation:
+    slide_level: 2
+bibliography: "../bib.bib"
+---
+
+```{r setup, include=FALSE}
+library(kableExtra)
+library(data.table)
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
+```
+
+## Motivation
+
+> Can we leverage the power of deep learning in VAR models?
+
+- We propose **Deep VAR**: a novel approach towards VAR that leverages the power of deep learning in order to model non-linear relationships. 
+- By modelling each equation of the VAR system as a deep neural network, our proposed extension outperforms modern benchmarks in terms of in-sample fit, out-of-sample fit and point forecasting accuracy. 
+- Performance is particularly striking during period economic uncertainty and recession. 
+- By staying methodologically as close as possible to the original benchmark, we hope that our approach is more likely to find acceptance in the economics domain. 
+
+## Key contributions
+
+- Simple methodology close in spirit to conventional benchmark.
+- Significant improvement in predictive performance.
+- Open source R package to facilitate reproducibility.
+
+**Work-in-progress**:
+
+- Master's thesis was selected for publication by Universitat Pompeu Fabra.
+- Feedback rounds with [Eddie Gerba](https://www.bankofengland.co.uk/research/researchers/eddie-gerba) (Bank of England, LSE) and [Chiara Osbat](https://www.ecb.europa.eu/pub/research/authors/profiles/chiara-osbat.en.html) (ECB).
+- Presented an updated version of the paper at [NeurIPS 2021 MLECON](https://sites.google.com/view/mlecon2021/home) workshop in December.
+
+## Previous literature
+
+- Non-linear dependencies are likely to form part of the data generating process of variables commonly used to model the monetary transmission mechanism [@brock1991nonlinear].
+- A range of machine learning models has previously been used in the context of time series forecasting [@hamzaccebi2008improving, @zhang2003time, @kihoro2004seasonal]. Deep learning has been shown to be particularly successful at capturing non-linearities [@zhang1998forecasting, @zhang2003time].
+- @joseph2021forecasting review both machine learning and deep learning methods for forecasting inflation and find that neural networks in particular are useful for forecasting especially at a longer horizon.
+
+## Methodology
+
+- Relax the assumption of linearity and instead model the process as system of potentially highly non-linear equations:
+
+\begin{equation} 
+\begin{aligned}
+&& y_{it}&=f_i\left(\mathbf{y}_{t-1:t-p};\theta\right)+v_{it} &&,&&\forall i=1,...,K \\
+\end{aligned}
+\end{equation}
+
+- Each single variable is model is modelled as a recurrent neural network:
+
+```{r nn-arch, eval=TRUE, fig.cap="Neural Network Architecture.", echo=FALSE, out.width=125}
+knitr::include_graphics("../www/nn2.png")
+```
+
+## Data
+
+- To evaluate our proposed methodology empirically we use the FRED-MD data base to collect a sample of monthly US data on:
+    - output (IP)
+    - unemployment (UR)
+    - inflation (CPI)
+    - interest rates (FFR)
+- Our sample spans the period from January 1959 through March 2021. 
+
+## Model fit
+
+```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for Deep VAR and benchmarks.", out.width=300}
+knitr::include_graphics("../www/cum_loss_full.png")
+```
+
+## Forecasting accuracy
+
+... 
+
+## Concluding remarks
+
+- Simple framework that relies on the premise of minimal intervention in the conventional and trusted framework.
+- Deep learning appears to do a good job at capturing non-linear dependencies.
+
+**But...**
+
+- Added complexity is (often) coupled with lack of interpretability:
+    - No analytical expressions for impulse response functions and variance decompositions
+    - @verstyuk2020modeling manages to recover IRFs numerically; should be readily applicable to our Deep VAR framework.
+- Uncertainty estimation can be done through Bayesian methods: deep ensemble, MC dropout, Variational Inference:
+    - All of the above entail an added layer (layers really!) of computational complexity.
+    - Laplace Redux for effortless Bayesian Deep Learning [@daxberger2021laplace] holds promise, but not yet implemented.
+
+# Your questions and comments
+
+## References {.allowframebreaks}
+
+<div id="refs"></div>
+
+# Hiddens
+
+## Long Short-Term Memory
+
+- The most common choice of neural networks architectures for modelling persistent time series is the LSTM:
+
+> "The LSTM [has] the ability to remove or add information to the cell state, carefully regulated by structures called gates. Gates are a way to optionally let information through."
+--- @olah2015understanding
+
+\begin{equation} 
+\begin{aligned}
+&& \mathbf{f}_t&=\sigma \left( \mathbf{b}_f + \mathbf{W}_f\mathbf{h}_{t-1} + \mathbf{U}_f\mathbf{h}_{-1} \right) \\
+&& \mathbf{i}_t&=\sigma \left( \mathbf{b}_i + \mathbf{W}_i\mathbf{h}_{t-1} + \mathbf{U}_i\bf{h}_{-1} \right) \\
+&& \mathbf{o}_t&=\sigma \left( \mathbf{b}_o + \mathbf{W}_o\mathbf{h}_{t-1} + \mathbf{U}_o\mathbf{h}_{-1} \right) \\
+&& \mathbf{C}_t&=\mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tanh \left( \mathbf{b}_C + \mathbf{W}_C\mathbf{h}_{t-1} + \mathbf{U}_C\mathbf{h}_{-1} \right) \\
+&&\mathbf{h}_{t}&=\mathbf{o}_t \odot \tanh (\mathbf{C}_t) \\
+&& \hat{y}_{it}&=c + \mathbf{v}^T\mathbf{h}_t\\
+\end{aligned}
+\end{equation}
+
+

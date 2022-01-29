@@ -14,6 +14,7 @@ library(ggplot2)
 ```{r, eval=TRUE}
 dt <- readRDS("../data/data_VAR/preprocessed.rds")
 dt_l <- data.table::melt(dt, id.vars="date")
+data.table::setkey(dt_l, date, variable)
 var_cols <- colnames(dt)[2:ncol(dt)]
 ```
 
@@ -22,10 +23,10 @@ var_cols <- colnames(dt)[2:ncol(dt)]
 max_lags <- 12
 lags <- lag_order(dt, max_lag = max_lags)$p
 # Deep VAR params:
-num_units <- 100
+num_units <- 120
 num_layers <- formals(deepvareg)$num_layers
 dropout <- formals(deepvareg)$p_drop_out
-epochs <- 500
+epochs <- 1200
 ```
 
 ```{r, eval=FALSE}
@@ -40,22 +41,23 @@ deepvar_model <- deepvareg(
 )
 # Threshold VAR
 tv <- tsDyn::TVAR(dt[,-1], include = "const", lag=lags, nthresh=2, trim=0.1)
-tv_l <- data.table::melt(data.table::data.table(date=dt$date[-(1:lags)], fitted(tv)), id.vars = "date")
+tv_l <- data.table::melt(data.table::data.table(date=dt$date[-(1:lags)], fitted(tv)), id.vars = "date", value.name = "y_hat")
+data.table::setkey(tv_l, date, variable)
+tv_l <- dt_l[tv_l]
+# Random forest
+rf <- data.table::fread("../results/predictions_RF.csv")
+rf[,date:=var_model$model_data$data[(var_model$model_data$lags+1):.N]$date]
+rf_l <- data.table::melt(rf, id.vars="date", value.name = "y_hat")
+data.table::setkey(rf_l, date, variable)
+rf_l <- dt_l[rf_l]
 ```
 
 ```{r, eval=FALSE}
 # Cum RMSE plot
 cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="VAR"]
 cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="Deep VAR"]
-cum_loss_tv <- tv_l[
-  ,
-  .(
-    date=date,
-    value=cumsum((value-data.table::shift(value,fill=0))^2),
-    type="Threshold VAR"
-  ),
-  by=variable
-]
+cum_loss_tv <- tv_l[,value:=cumsum((value-y_hat)^2),by=.(variable)][,.(date, variable, value)][,type:="TVAR"]
+cum_loss_rf <- rf_l[,value:=cumsum((value-y_hat)^2),by=.(variable)][,.(date, variable, value)][,type:="RF"]
 cum_loss_rw <- dt_l[
   ,
   .(
@@ -65,7 +67,7 @@ cum_loss_rw <- dt_l[
   ),
   by=variable
 ]
-dt_plot <- rbind(cum_loss_dvar, cum_loss_var, cum_loss_rw, cum_loss_tv)
+dt_plot <- rbind(cum_loss_dvar, cum_loss_var, cum_loss_rw, cum_loss_tv, cum_loss_rf)
 p <- ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
   ggplot2::geom_line() +
   ggplot2::facet_wrap(~variable, scales = "free_y") +
@@ -270,12 +272,12 @@ y_true <- y_test[1:n_ahead,]
 ```{r, eval=FALSE}
 #Forecasts
 #VAR
-fcst_var <- forecast(var_model, n.ahead = n_ahead)
-p <- plot(fcst_var, y_true=y_true, history = 20)
+fcst_var <- deepvars::forecast(var_model, n.ahead = n_ahead)
+p <- deepvars:::plot.forecast(fcst_var, y_true=y_true, history = 20)
 ggsave(filename = "../www/fcst_var.png", p, width=7, height=4)
 #DeepVAR
-fcst_dvar <- forecast(deepvar_model, n.ahead = n_ahead)
-p <- plot(fcst_dvar, y_true=y_true, history = 20)
+fcst_dvar <- deepvars::forecast(deepvar_model, n.ahead = n_ahead)
+p <- deepvars:::plot.forecast(fcst_dvar, y_true=y_true, history = 20)
 ggsave(filename = "../www/fcst_dvar.png", p, width=7, height=4)
 ```
 
@@ -324,6 +326,34 @@ knitr::kable(
 dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
+
+### Rolling window
+
+```{r roll, eval=FALSE}
+source("../R/utils.R")
+fcst <- rolling_window_fe(dt,w_size = 240, n_ahead = 12)
+saveRDS(fcst, "../results/rolling_fcst.rds")
+```
+
+```{r}
+fcst <- readRDS("../results/rolling_fcst.rds")
+```
+
+```{r}
+library(ggplot2)
+ggplot(data = fcst[model!="tv",.(error=mean(sqerror)),by=.(variable,model,id)], aes(x=id, y=error, fill=model)) +
+  geom_col(position = "dodge") +
+  facet_wrap(.~variable, scales = "free") 
+```
+
+```{r, fig.width=10, fig.height=8}
+library(ggplot2)
+plot_data <- fcst[id %in% c(1,3,6,12),.(window=window,error=cumsum(sqerror)),by=.(variable,model,id)]
+ggplot(data = plot_data[model!="tv"]) +
+  geom_line(aes(x=window, y=error, color=model)) +
+  facet_wrap(id ~ variable, scales = "free") 
+```
+
 
 ## Varying hyperparameters
 
