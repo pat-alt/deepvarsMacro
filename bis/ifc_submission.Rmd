@@ -1,0 +1,67 @@
+---
+title: "Deep Vector Autoregression for Macroeconomic Data"
+author:
+- "Patrick Altmeyer^[Delft University of Technology, p.altmeyer@tudelft.nl]"
+- "Marc Agusti^[European Central Bank, marc.agusti\__i\__torres@ecb.europa.eu]"
+- "Ignacio Vidal-Quadras Costa^[European Central Bank, ignacio.vidalquadrascosta@barcelonagse.eu]"
+date: "`r format(Sys.Date(), '%B, %Y')`"
+output: 
+  bookdown::word_document2:
+    reference_docx: "template.docx"
+bibliography: ../bib.bib
+link-citations: true
+abstract: "Vector Autoregression is a popular choice for forecasting time series data. Due to its simplicity and success at modelling monetary economic indicators VAR has become a standard tool for central bankers to construct economic forecasts. A crucial assumption underlying the conventional VAR is that interactions between variables through time can be modelled linearly. We propose Deep VAR: a novel approach towards VAR that leverages the power of deep learning in order to model non-linear relatonships. By modelling each equation of the VAR system as a deep neural network, our proposed extension outperforms its conventional benchmark in terms of in-sample fit, out-of-sample fit and point forecasting accuracy. In particular, we find that the Deep VAR is able to better capture the structural economic changes during periods of uncertainty and recession. By staying methodologically as close as possible to the original benchmark, we hope that our approach is more likely to find acceptance in the economics domain."
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning=FALSE,
+  message=FALSE,
+  out.width = 450,
+  fig.align = "center"
+)
+library(ggplot2)
+library(data.table)
+library(deepvars)
+options(xtable.comment = FALSE)
+theme_set(theme_bw())
+```
+
+```{r introduction, child="../paper/introduction.Rmd"}
+```
+
+```{r lit-review, child="../paper/lit_review.Rmd"}
+```
+
+```{r data, child="../paper/data_paper_ig.Rmd"}
+```
+
+```{r methodology, child="../paper/methodology.Rmd"}
+```
+
+```{r empirics, child="../paper/empirics.Rmd"}
+```
+
+```{r extensions, child="../paper/extensions.Rmd"}
+```
+
+```{r conclusions, child="../paper/conclusions.Rmd"}
+```
+
+
+\FloatBarrier
+\pagebreak
+
+# References {-}
+
+<div id="refs"></div>
+
+\pagebreak
+
+```{r annex, child="../paper/appendix.Rmd"}
+```
+
+
+

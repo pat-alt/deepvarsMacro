@@ -9,8 +9,7 @@ Let $\mathbf{y}_t$ denote the $(K \times 1)$ vector of variables at time $t$. Th
 \begin{equation} 
 \begin{aligned}
 && \mathbf{y}_t&=\mathbf{c} + \mathbf{A}_1 \mathbf{y}_{t-1} + \mathbf{A}_2 \mathbf{y}_{t-2} + ... + \mathbf{A}_p \mathbf{y}_{t-p} + \mathbf{u}_t, && \mathbf{u}_t&\sim \mathcal{N}(\mathbf{0},\Sigma_u) \\
-\end{aligned}
-(\#eq:redform)
+\end{aligned}   (\#eq:redform)
 \end{equation}
 
 The matrices $\mathbf{A}_m \in \mathbb{R}^{K \times K}$, where $m\in\{1,...,p\}$, contain the reduced form coefficients and $\mathbf{u}_t \in \mathbb{R}^{K \times1}$ is a vector of errors for which $\mathbb{E}\mathbf{u}_t$, $\mathbb{E}\mathbf{u}_t\mathbf{u}_t^T=\Sigma$ and $\mathbb{E}\mathbf{u}_t\mathbf{u}_s^T=\mathbf{0}$ for all $t\ne s$. We refer to \@ref(eq:redform) as the **reduced form** representation of the VAR($p$) because all right-hand side variables are predetermined [@kilian2017structural]. 

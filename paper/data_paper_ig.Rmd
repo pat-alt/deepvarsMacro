@@ -11,7 +11,7 @@ In order to investigate the monetary transmission mechanism, the literature typi
 
 Another strength of the FRED-MD is the fact that the data is already preprocessed. Specifically, the industrial production index comes in log differences, the CPI in second-order log differences and both the Fed Funds Rate and the unemployment rate in first-order differences. This has allowed us to let the data enter into our estimations without any further adjustments, which should facilitate the reproducibility of our results.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 library(data.table)
 library("fbi")
 library("ggplot2")
@@ -38,7 +38,7 @@ ggsave(
 ```
 
 
-```{r, echo = FALSE, results='asis', results= FALSE}
+```{r, echo = FALSE, results='asis', results= FALSE, eval=FALSE}
 library(xtable)
 library(plyr)
 dtf <- sapply(dt_final[,2:5], each(min, max, mean, sd, var, median, IQR))
@@ -48,7 +48,7 @@ saveRDS(dtf, file="../data/sum_stats.rds")
 ```
 
 
-```{r, echo= FALSE, results='asis', results= FALSE}
+```{r, echo= FALSE, results='asis', results= FALSE, eval=FALSE}
 # Pre Covid vs Post Covid Summary Stats
 
 dtf_pre <- sapply(dt_final[date < as.Date("2020-03-01"),2:5], each(min, max, mean, sd, var, median, IQR))
@@ -57,7 +57,7 @@ xtable(dtf_pre, caption = c("Summary statistics pre Covid"))
 saveRDS(dtf_pre, file="../data/pre_covid.rds")
 ```
 
-```{r, echo= FALSE,results='asis', results= FALSE}
+```{r, echo= FALSE,results='asis', results= FALSE, eval=FALSE}
 dtf_post <- sapply(dt_final[date >= as.Date("2020-03-01"),2:5], each(min, max, mean, sd, var, median, IQR))
 xtable(dtf_post, caption = c("Summary statistics post Covid"))
 saveRDS(dtf_post, file="../data/post_covid.rds")

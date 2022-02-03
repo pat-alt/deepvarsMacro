@@ -1,7 +1,7 @@
 ---
 title: "Deep Vector Autoregression for Macroeconomic Data"
 author:
-- "Patrick Altmeyer^[Delft University of Technology, p.altmeyer@tudelft.nl]"
+- "**Patrick Altmeyer**^[Delft University of Technology, p.altmeyer@tudelft.nl]"
 - "Marc Agusti^[European Central Bank, marc.agusti\__i\__torres@ecb.europa.eu]"
 - "Ignacio Vidal-Quadras Costa^[European Central Bank, ignacio.vidalquadrascosta@barcelonagse.eu]"
 date: "`r format(Sys.Date(), '%d %B, %Y')`"
@@ -22,15 +22,15 @@ knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
 > Can we leverage the power of deep learning in VAR models?
 
 - We propose **Deep VAR**: a novel approach towards VAR that leverages the power of deep learning in order to model non-linear relationships. 
-- By modelling each equation of the VAR system as a deep neural network, our proposed extension outperforms modern benchmarks in terms of in-sample fit, out-of-sample fit and point forecasting accuracy. 
-- Performance is particularly striking during period economic uncertainty and recession. 
+- Worked under the following premise: **maximize performance** of an existing and trusted framework under **minimal intervention**.
+- We maintain the additive structure of the VAR, but relax the assumption of linearity by modelling each equation of the VAR system as a recurrent neural network.
 - By staying methodologically as close as possible to the original benchmark, we hope that our approach is more likely to find acceptance in the economics domain. 
 
 ## Key contributions
 
 - Simple methodology close in spirit to conventional benchmark.
-- Significant improvement in predictive performance.
-- Open source R package to facilitate reproducibility.
+- Significant improvement in model fit and forecasting accuracy.
+- Open source R package [`deepvars`](https://github.com/pat-alt/deepvars) to facilitate reproducibility.
 
 **Work-in-progress**:
 
@@ -75,9 +75,14 @@ knitr::include_graphics("../www/nn2.png")
 knitr::include_graphics("../www/cum_loss_full.png")
 ```
 
-## Forecasting accuracy
+## Forecasting
 
-... 
+> Question: recursive forecasts like in conventional VAR or training on $n$ outputs?
+
+- Initially we opted for the former approach and provided anecdotal evidence that Deep VAR outperforms
+- Have since tested this more rigorously using rolling window: 
+    - Deep VAR still outperforms VAR especially at short horizon
+    - Currently investigating if training on $n$ outputs provides additional edge.
 
 ## Concluding remarks
 
@@ -118,5 +123,9 @@ knitr::include_graphics("../www/cum_loss_full.png")
 && \hat{y}_{it}&=c + \mathbf{v}^T\mathbf{h}_t\\
 \end{aligned}
 \end{equation}
+
+## Rolling window forecasts
+
+![](../www/rolling_window_cum_loss.png)
 
 
