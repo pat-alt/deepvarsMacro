@@ -29,7 +29,7 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
     dt_out_l <- melt(dt_out, id.vars = "id", value.name = "y")
     setkey(dt_out_l, id, variable)
     if (n_ahead > 1) {
-      y_true <- deepvars:::prepare_var_data(dt_out)$y
+      y_true <- prepare_var_data(dt_out)$y
     } else {
       y_true <- as.matrix(dt_out[,2:ncol(dt)])
     }
