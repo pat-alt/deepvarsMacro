@@ -10,14 +10,15 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
   var_cols <- colnames(dt)[2:ncol(dt)]
   
   # Cluster:
-  # no_cores <- detectCores() - 1
-  # cl <- makeCluster(no_cores-2, type="FORK")
-  # registerDoParallel(cl)
+  no_cores <- detectCores() - 1
+  cl <- makeCluster(round(no_cores/2), type="FORK")
+  registerDoParallel(cl)
   
   # Rolling Window Loop:
-  fcst <- foreach(i = 1:n_windows, .verbose=TRUE, .combine = rbind) %do% {
+  fcst <- foreach(i = 1:n_windows, .verbose=TRUE, .combine = rbind, .packages = c("torch", "deepvars")) %dopar% {
     
     message(sprintf("Window %i out of %i", i, n_windows))
+    print(i)
     
     # SETUP
     dt_in <- dt[i:(w_size + i - 1)]
