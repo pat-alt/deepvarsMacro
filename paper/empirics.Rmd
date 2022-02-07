@@ -140,7 +140,7 @@ ggsave(
 
 We now proceed to benchmark the proposed Deep VAR model against the conventional VAR and other existing approaches using our macroeconomic time series data. To begin with, we compare the models in terms of their in-sample fit. For this part of the analysis the models will be strictly run under the same framing conditions. Due to the RNN's capacity to essentially model any possible function $f_i(\cdot)$ the Deep VAR dominates competing approaches in this realm. We investigate during what time periods the out-performance of the Deep VAR is particularly striking to gain a better understanding of when and why it pays off to relax the linearity constraint.
 
-These findings with respect to in-sample performance provide some initial evidence in favor of the Deep VAR. But since a reduction in modelling bias is typically associated with an increase in variance, we are particularly interested in benchmarking the models with respect to their out-of-sample performance. To this end we split our sample into train and test subsamples. The latter is further divided into a validation set used to guide a simple early stopping role for the Deep VAR and then the actual testing sample. We then firstly benchmark the models in terms of their pseudo out-of-sample fit. Finally we also look at model performance with respect to $n$-step ahead pseudo out-of-sample forecasts.
+These findings with respect to in-sample performance provide some initial evidence in favor of the Deep VAR. But since a reduction in modelling bias is typically associated with an increase in variance, we are particularly interested in benchmarking the models with respect to their out-of-sample performance. To this end we split our sample into train and test subsamples. We then firstly benchmark the models in terms of their pseudo out-of-sample fit. Finally we also look at model performance with respect to $n$-step ahead pseudo out-of-sample forecasts.
 
 The final part of this section relaxes the constraint on the framing conditions. In particular, we investigate how hyperparameter tuning with respect to the neural network architecture and lag length $p$ can improve the performance of the Deep VAR.
 
@@ -148,7 +148,7 @@ The final part of this section relaxes the constraint on the framing conditions.
 
 For this first empirical exercise all models are trained on the full sample. We have decided to include the post-Covid sample period despite the associated structural break, since it serves as interesting point of comparison. The optimal lag order as determined by the Akaike Information Criterium is $p=`r lags`$, where we used a maximum possible lag of $p_{\max}=`r max_lags`$ corresponding to one year. A look at the eigenvalues of the companion matrix showed that the VAR($`r lags`$) is stable. The LSTM models underlying the Deep VAR are composed of $H=`r num_layers`$ that count $N=`r num_units`$ hidden units each. The dropout rate is set to $p=`r dropout`$. 
 
-To assess the fit of our models we use squared residuals. Figure \@ref(fig:cum-loss-full) shows the cumulative loss of the Deep VAR model and its conventional benchmarks for each of the time series over the whole sample period. Aside from the linear VAR, we have added another popular approach towards VAR models that addresses non-linearity (Threshold VAR). We have also added a Random Forest Regressor (RF) for comparison, which was trained on the entire FRED-MD database, so far more variables than the four output variables. Previous studies have shown that RF tends to well at high-dimensional time series modelling (**REFERENCE**).
+To assess the fit of our models we use squared residuals. Figure \@ref(fig:cum-loss-full) shows the cumulative loss of the Deep VAR model and its conventional benchmarks for each of the time series over the whole sample period. Aside from the linear VAR, we have added another popular approach towards VAR models that addresses non-linearity (Threshold VAR). We have also added a Random Forest Regressor (RF) for comparison, which was trained on the entire FRED-MD database, so far more variables than the four output variables. Previous studies have shown that RF tends to well at high-dimensional time series modelling [@masini2021machine].
 
 The first thing we can observe is that the RMSE of the Deep VAR is consistently flatter than the RMSE of its benchmarks. With respect to model fit, the Deep VAR dominates throughout the almost the entire sample period and for all of the considered variables. This empirical observation seems to confirm our expectation that the vector autoregressive process is characterized by important non-linear dependencies across time and variables that the conventional VAR and even the TVAR and RF fail to capture. 
 
@@ -164,7 +164,7 @@ Following the Volcker disinflation period, Figure \@ref(fig:cum-loss-full) does 
 
 As the Global Financial Crisis unfolds around 2007 the pattern we observed for the Volcker disinflation reemerges, albeit to a lesser extent: there is a marked jump in the difference between the cumulative loss of the VAR and the Deep VAR, in particular so for the CPI, the Fed Funds rate and industrial production. The gap for all these variables continues to widen during the aftermath of the crisis. The Deep VAR once again does a better job at modelling the changes that the dynamical system undergoes: post-crisis US monetary policy was characterized by very low interest rates, low levels of inflation as well as the introduction of a range of non-conventional monetary policy tools including quantitative easing and forward guidance. 
 
-Finally, it is also interesting to observe how both models perform in response to the  unprecedented exogenous shock that Covid-19 constitutes. Both models incur huge errors with respect to both IP and UR - the two series most significantly affected by Covid. Evidently though, the magnitude of the errors is somewhat larger for the VAR than for the Deep VAR. This, once again seems to confirm our hypothesis that the Deep VAR model captures important non-linear dependencies across time and variables that the conventional VAR fails to capture.
+Finally, it is also interesting to observe how the different models perform in response to the  unprecedented exogenous shock that Covid-19 constitutes. All models exhibit an abrupt and substantial increase in loss with respect to both IP and UR - the two series that were arguably most strongly affected by Covid. Evidently, the magnitude of that sudden increase is somewhat larger in absolute terms for VAR than for Deep VAR. Still, it is also worth pointing out that both the Threshold VAR and the Random Forest Regressor are less adversely affected by the Covid shock than Deep VAR.  
 
 As a sanity check we also visually inspected the distributional properties of the model residuals for the full-sample fit. The outcomes are broadly consistent across models: while for some variables residuals are clearly not Gaussian, we see no evidence of serial autocorrelation of residuals (see Figures \@ref(fig:qqplot-full) and \@ref(fig:acf-full) in the appendix). 
 
@@ -179,6 +179,7 @@ train_data <- train_test_split$train
 train_start <- dt$date[1]
 train_end <- dt$date[nrow(train_data)]
 val_start <- dt$date[nrow(train_data)+1]
+val_end <- dt$date[nrow(train_data)+nrow(train_test_split$val)]
 test_end <- tail(dt$date,1)
 #Select the number of lags
 lags <- lag_order(train_data, max_lag = max_lags)$p
@@ -345,8 +346,10 @@ fcst <- dates[fcst]
 saveRDS(fcst, "../results/rolling_fcst.rds")
 ```
 
-```{r}
+```{r, eval=TRUE}
 fcst <- readRDS("../results/rolling_fcst_recursive.rds")
+n_ahead <- fcst[,max(id)]
+w_size <- dt[,.N]-fcst[,max(window)+max(id)]
 ```
 
 
@@ -367,7 +370,7 @@ p <- ggplot(data = plot_data[model!="TVAR"]) +
     x = "",
     y = "Mean Squared Error (cumulative)"
   )
-ggsave("../www/rolling_window_recursive_cum_loss.png")
+ggsave("../www/rolling_window_recursive_cum_loss.png", width=9, height=8)
 ```
 
 ```{r, fig.width=10, fig.height=5}
@@ -391,10 +394,22 @@ ggplot(data = plot_data[model=="tv"]) +
   facet_wrap(id ~ variable, scales = "free") 
 ```
 
+Finally, we repeat the forecasting exercise above using a rolling window approach: we train our models on a window of `r w_size` months, compute and store `r n_ahead`-month ahead forecasts out of the training sample, roll the window one period forward and repeat the previous steps. This allows us to benchmark the different models in terms of their forecasting performance over the entire sample period. Once again forecasts are for now computed recursively: in other words, neural networks underlying the Deep VAR are not explicitly trained to forecast `r n_ahead`-steps ahead.
 
+In Figure \@ref(fig:cum-rolling-recursive-full) we have plotted the cumulative loss incurred by each model: the different output variables are faceted across columns; each row corresponds to a different forecast horizon. For example, the panel in row 2 of column 3 shows the cumulative mean squared error incurred by each model for forecasts up to the 3-month horizon. 
 
-```{r cum-rolling-full, eval=TRUE, fig.cap="Comparison of cumulative rolling-window forecasting error over the entire sample period for Deep VAR and benchmarks."}
-knitr::include_graphics("../www/rolling_window_cum_loss.png")
+While the results are less striking than what we observed above for the in-sample fit, the Deep VAR nonetheless dominates its conventional benchmark overall. For both inflation (CPI) and interest rates (FFR), the Deep VAR forecasts incur substantially lower loss over the entire sample period and in particular at short horizons. We also see somewhat better forecasts overall for industrial production, while for the unemployment rate the Deep VAR is at par with its conventional benchmark. It is not altogether surprising that losses converge at longer horizons since we would expect that forecasts from both autoregressive models converge to their unconditional expectations.
+
+```{r cum-rolling-recursive-full, eval=TRUE, fig.cap="Comparison of cumulative rolling-window forecasting error over the entire sample period for Deep VAR and benchmarks. Forecasts are computed recursively."}
+knitr::include_graphics("../www/rolling_window_recursive_cum_loss.png")
+```
+
+As pointed out several times above, forecasting from Deep VAR does not strictly rely on recursion: instead of training the Deep VAR to produce a single output ($y_{i,t}$), we can instead let the final layer of the underlying neural networks map to $n$ outputs ($[y_{i,t},y_{i,t+n-1}]$). This effectively corresponds to training the Deep VAR directly for the purpose of $n$-step ahead forecasting. We now employ this approach. In addition (and only for the Deep VAR) we use a small subset of the training data as a validation set to guide a simple early stopping rule. That means the Deep VAR is actually trained on less observations than all other models. Nonetheless, since the underlying optimization in this case is done in the explicit context of forecasting we may expect the relative forecasting performance of the Deep VAR to increase further. 
+
+Indeed the results in Figure \@ref(fig:cum-rolling-full) seem to confirm that expectation: the Deep VAR's relative performance is slightly better than before for all variables with the exception of CPI, which is somewhat worse than before. When trained explicitly for the purpose of forecasting, the Deep VAR outperforms conventional approaches for all variables. Once again out-performance is more pronounced at short forecast horizons.
+
+```{r cum-rolling-full, eval=TRUE, fig.cap="Comparison of cumulative rolling-window forecasting error over the entire sample period for Deep VAR and benchmarks. Neural networks underlying Deep VAR were trained on 12 outputs."}
+knitr::include_graphics("../www/rolling_window_12_cum_loss.png")
 ```
 
 ## Varying hyperparameters

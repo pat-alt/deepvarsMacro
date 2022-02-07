@@ -11,7 +11,7 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
   
   # Cluster:
   no_cores <- detectCores() - 1
-  cl <- makeCluster(round(no_cores/2), type="FORK")
+  cl <- makeCluster(round(no_cores), type="FORK")
   registerDoParallel(cl)
   
   # Rolling Window Loop:
@@ -23,16 +23,13 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
     # SETUP
     dt_in <- dt[i:(w_size + i - 1)]
     train_val <- train_val_test_split(dt_in)
-    train_ds <- train_val$train
-    valid_ds <- rbind(train_val$val, train_val$test)
-    dt_out <- dt[(w_size + i):(w_size + i + n_ahead - 1)][,id:=1:.N]
+    train_ds_dvar <- train_val$train # training data for Deep VAR
+    valid_ds_dvar <- train_val$val # validation data for Deep VAR
+    train_ds <- rbind(train_ds_dvar, valid_ds_dvar) # training data for all other models
+    test_ds <- train_val$test
+    dt_out <- data.table(test_ds)[1:n_ahead][,id:=1:.N]
     dt_out_l <- melt(dt_out, id.vars = "id", value.name = "y")
     setkey(dt_out_l, id, variable)
-    if (n_ahead > 1) {
-      y_true <- prepare_var_data(dt_out)$y
-    } else {
-      y_true <- as.matrix(dt_out[,2:ncol(dt)])
-    }
     
     # RUNNING MODELS
     # Choosing lags:
@@ -44,8 +41,8 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
     
     # Deep VAR fitting:
     deepvar_model <- deepvareg(
-      train_ds, 
-      valid_ds,
+      train_ds_dvar, 
+      valid_ds_dvar,
       lags = lags, 
       n_ahead = n_ahead,
       num_epochs = num_epochs
