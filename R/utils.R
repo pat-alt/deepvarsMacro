@@ -10,12 +10,12 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
   var_cols <- colnames(dt)[2:ncol(dt)]
   
   # Cluster:
-  no_cores <- detectCores() - 1
+  no_cores <- detectCores() - 2
   cl <- makeCluster(round(no_cores), type="FORK")
   registerDoParallel(cl)
   
   # Rolling Window Loop:
-  fcst <- foreach(i = 1:n_windows, .verbose=TRUE, .combine = rbind, .packages = c("torch", "deepvars")) %dopar% {
+  fcst <- foreach(i = 1:n_windows, .verbose=TRUE, .combine = rbind, .packages = c("torch", "deepvars"), .errorhandling = 'remove') %dopar% {
     
     message(sprintf("Window %i out of %i", i, n_windows))
     print(i)
@@ -44,7 +44,7 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
       train_ds_dvar, 
       valid_ds_dvar,
       lags = lags, 
-      n_ahead = n_ahead,
+      n_ahead = 1,
       num_epochs = num_epochs
     )
     # Threshold VAR
@@ -74,8 +74,6 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
     fcst[,window:=i]
     
     return(fcst)
-    
-    gc()
     
   }
   

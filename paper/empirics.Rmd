@@ -26,7 +26,7 @@ lags <- lag_order(dt[,-1], max_lag = max_lags)$p
 # Deep VAR params:
 num_units <- getOption("deepvar.model")$hidden_size
 num_layers <- getOption("deepvar.model")$num_layers
-dropout <- getOption("deepvar.model")$p_drop_out
+dropout <- getOption("deepvar.model")$dropout
 epochs <- 1200
 ```
 
@@ -373,6 +373,34 @@ p <- ggplot(data = plot_data[model!="TVAR"]) +
 ggsave("../www/rolling_window_recursive_cum_loss.png", width=9, height=8)
 ```
 
+```{r, eval=TRUE}
+fcst <- readRDS("../results/rolling_fcst_3_240.rds")
+n_ahead <- fcst[,max(id)]
+w_size <- dt[,.N]-fcst[,max(window)+max(id)]
+fcst[,model:=factor(model)]
+levels(fcst$model) <- c("Deep VAR", "Random Walk", "Threshold VAR", "VAR")
+```
+
+```{r, fig.width=7, fig.height=6}
+library(ggplot2)
+plot_data_1 <- fcst[id == 1,.(date=date,error=cumsum(sqerror)),by=.(variable,model)][,id:=1]
+plot_data_3 <- fcst[id <= 3,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=3]
+plot_data_6 <- fcst[id <= 6,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=6]
+plot_data_12 <- fcst[id <= 12,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=12]
+plot_data <- rbind(plot_data_1,plot_data_3,plot_data_6, plot_data_12)
+plot_data[,id:=factor(id)]
+levels(plot_data$id) <-  c("=1","<=3","<=6","<=12")
+p <- ggplot(data = plot_data[model!="Threshold VAR"]) +
+  geom_line(aes(x=date, y=error, color=model)) +
+  facet_wrap(id ~ variable, scales = "free", ncol = 4) +
+  scale_colour_discrete(name="Model") +
+  labs(
+    x = "",
+    y = "Mean Squared Error (cumulative)"
+  )
+ggsave("../www/rolling_fcst_240_12.png", width=9, height=8)
+```
+
 ```{r, fig.width=10, fig.height=5}
 library(ggplot2)
 plot_data <- fcst[id %in% c(1,3),.(date=date,error=cumsum(sqerror)),by=.(id,variable,model)]
@@ -404,13 +432,13 @@ While the results are less striking than what we observed above for the in-sampl
 knitr::include_graphics("../www/rolling_window_recursive_cum_loss.png")
 ```
 
-As pointed out several times above, forecasting from Deep VAR does not strictly rely on recursion: instead of training the Deep VAR to produce a single output ($y_{i,t}$), we can instead let the final layer of the underlying neural networks map to $n$ outputs ($[y_{i,t},y_{i,t+n-1}]$). This effectively corresponds to training the Deep VAR directly for the purpose of $n$-step ahead forecasting. We now employ this approach. In addition (and only for the Deep VAR) we use a small subset of the training data as a validation set to guide a simple early stopping rule. That means the Deep VAR is actually trained on less observations than all other models. Nonetheless, since the underlying optimization in this case is done in the explicit context of forecasting we may expect the relative forecasting performance of the Deep VAR to increase further. 
+<!-- As pointed out several times above, forecasting from Deep VAR does not strictly rely on recursion: instead of training the Deep VAR to produce a single output ($y_{i,t}$), we can instead let the final layer of the underlying neural networks map to $n$ outputs ($[y_{i,t},y_{i,t+n-1}]$). This effectively corresponds to training the Deep VAR directly for the purpose of $n$-step ahead forecasting. We now employ this approach. In addition (and only for the Deep VAR) we use a small subset of the training data as a validation set to guide a simple early stopping rule. That means the Deep VAR is actually trained on less observations than all other models. Nonetheless, since the underlying optimization in this case is done in the explicit context of forecasting we may expect the relative forecasting performance of the Deep VAR to increase further.  -->
 
-Indeed the results in Figure \@ref(fig:cum-rolling-full) seem to confirm that expectation: the Deep VAR's relative performance is slightly better than before for all variables with the exception of CPI, which is somewhat worse than before. When trained explicitly for the purpose of forecasting, the Deep VAR outperforms conventional approaches for all variables. Once again out-performance is more pronounced at short forecast horizons.
+<!-- Indeed the results in Figure \@ref(fig:cum-rolling-full) seem to confirm that expectation: the Deep VAR's relative performance is slightly better than before for all variables with the exception of CPI, which is somewhat worse than before. When trained explicitly for the purpose of forecasting, the Deep VAR outperforms conventional approaches for all variables. Once again out-performance is more pronounced at short forecast horizons. -->
 
-```{r cum-rolling-full, eval=TRUE, fig.cap="Comparison of cumulative rolling-window forecasting error over the entire sample period for Deep VAR and benchmarks. Neural networks underlying Deep VAR were trained on 12 outputs."}
-knitr::include_graphics("../www/rolling_window_12_cum_loss.png")
-```
+<!-- ```{r cum-rolling-full, eval=TRUE, fig.cap="Comparison of cumulative rolling-window forecasting error over the entire sample period for Deep VAR and benchmarks. Neural networks underlying Deep VAR were trained on 12 outputs."} -->
+<!-- knitr::include_graphics("../www/rolling_window_12_cum_loss.png") -->
+<!-- ``` -->
 
 ## Varying hyperparameters
 
