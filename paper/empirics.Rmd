@@ -335,6 +335,7 @@ print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = itali
 ```
 
 ```{r roll, eval=FALSE}
+t = "recursive"
 source("../R/utils.R")
 w_size <- 240
 n_ahead <- 12
@@ -343,7 +344,7 @@ dates <- data.table(window=1:fcst[,max(window)], date=dt[(w_size+1):(.N-n_ahead)
 setkey(fcst, window)
 setkey(dates, window)
 fcst <- dates[fcst]
-saveRDS(fcst, "../results/rolling_fcst.rds")
+saveRDS(fcst, sprintf("../results/rolling_fcst_%s_%i_i.rds",t,w_size,n_ahead))
 ```
 
 ```{r, eval=TRUE}
