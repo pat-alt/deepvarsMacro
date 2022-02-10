@@ -3,7 +3,7 @@ library(data.table)
 library(doParallel)
 library(parallel)
 
-rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
+rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500, t="") {
   
   # Number of windows and window size
   n_windows = nrow(dt) - w_size - n_ahead
@@ -40,11 +40,12 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12, num_epochs=500) {
     var_model <- vareg(train_ds, lags = lags)
     
     # Deep VAR fitting:
+    n_ahead_train <- ifelse(t=="recursive",1,n_ahead)
     deepvar_model <- deepvareg(
-      train_ds_dvar, 
-      valid_ds_dvar,
+      train_ds = train_ds_dvar, 
+      valid_ds = valid_ds_dvar,
       lags = lags, 
-      n_ahead = 1,
+      n_ahead = n_ahead_train,
       num_epochs = num_epochs
     )
     # Threshold VAR

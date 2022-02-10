@@ -339,7 +339,7 @@ t = "recursive"
 source("../R/utils.R")
 w_size <- 240
 n_ahead <- 12
-fcst <- rolling_window_fe(dt[,-1],w_size = w_size, n_ahead = n_ahead)
+fcst <- rolling_window_fe(dt[,-1],w_size = w_size, n_ahead = n_ahead, t=t)
 dates <- data.table(window=1:fcst[,max(window)], date=dt[(w_size+1):(.N-n_ahead),date])
 setkey(fcst, window)
 setkey(dates, window)
