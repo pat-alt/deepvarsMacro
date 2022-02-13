@@ -339,12 +339,14 @@ t = "recursive"
 source("../R/utils.R")
 w_size <- 240
 n_ahead <- 12
-fcst <- rolling_window_fe(dt[,-1],w_size = w_size, n_ahead = n_ahead, t=t)
+fcst <- rolling_window_fe(dt,w_size = w_size, n_ahead = n_ahead)
 dates <- data.table(window=1:fcst[,max(window)], date=dt[(w_size+1):(.N-n_ahead),date])
 setkey(fcst, window)
 setkey(dates, window)
 fcst <- dates[fcst]
-saveRDS(fcst, sprintf("../results/rolling_fcst_%s_%i_i.rds",t,w_size,n_ahead))
+fcst[,model:=factor(model)]
+levels(fcst$model) <- c("Deep VAR", "Random Walk", "Threshold VAR", "VAR")
+saveRDS(fcst, sprintf("../results/rolling_fcst_%s_%i_%i.rds",t,w_size,n_ahead))
 ```
 
 ```{r, eval=TRUE}
