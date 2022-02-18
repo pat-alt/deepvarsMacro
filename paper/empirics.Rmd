@@ -174,15 +174,15 @@ As a sanity check we also visually inspected the distributional properties of th
 
 ```{r, eval=TRUE}
 #Train test split
-train_test_split <- train_val_test_split(dt[,-1])
-train_data <- train_test_split$train
-train_start <- dt$date[1]
-train_end <- dt$date[nrow(train_data)]
-val_start <- dt$date[nrow(train_data)+1]
-val_end <- dt$date[nrow(train_data)+nrow(train_test_split$val)]
-test_end <- tail(dt$date,1)
+train_test_split <- split_sample(dt)
+train_data <- train_test_split$train_data
+test_data <- train_test_split$test_data
 #Select the number of lags
 lags <- lag_order(train_data, max_lag = max_lags)$p
+train_start <- min(train_data$date)
+train_end <- max(train_data$date)
+test_start <- min(test_data$date)
+test_end <- max(test_data$date)
 ```
 
 ```{r, eval=FALSE}
@@ -201,7 +201,7 @@ deepvar_model <- deepvareg(
 y_true <- var_model$y_train
 ```
 
-In order to assess if the Deep VAR's outperformance is a consequence of overfitting, we now repeat the previous exercise, but this time we train the models on a subsample of our data. The training sample spans from `r format(train_start, "%B, %Y")` to `r format(train_end, "%B, %Y")`, whereas the test data (including validation period) goes from `r format(val_start, "%B, %Y")` to `r format(test_end, "%B, %Y")`. This corresponds to training the model on 80 percent of the data and retaining the remaining 20 percent for testing purposes. The optimal lag order for the training subsample is $p=`r lags`$ where we use the same criterion and maximum lag order as before. Once again we find this VAR specification to be stable.
+In order to assess if the Deep VAR's outperformance is a consequence of overfitting, we now repeat the previous exercise, but this time we train the models on a subsample of our data. The training sample spans from `r format(train_start, "%B, %Y")` to `r format(train_end, "%B, %Y")`, whereas the test data goes from `r format(test_start, "%B, %Y")` to `r format(test_end, "%B, %Y")`. This corresponds to training the model on 80 percent of the data and retaining the remaining 20 percent for testing purposes. The optimal lag order for the training subsample is $p=`r lags`$ where we use the same criterion and maximum lag order as before. Once again we find this VAR specification to be stable.
 
 ```{r, eval=FALSE}
 #VAR
@@ -319,7 +319,7 @@ Up until now we have been assessing the model fit, which has provided some initi
 
 We begin with a single forecasting exercise, where forecasts are produced recursively both for the VAR and the Deep VAR. Specifically, we use the models we trained on the training data to recursively predict one time period ahead, concatenate the predictions to the training data and repeat the process. Note that for the Deep VAR an alternative approach is to work with a different output dimension for the underlying neural networks.^[In future work we plan to assess this approach further.]
 
-We produce one-year ahead forecasts beginning from the first date in the test sample (`r format(val_start, "%B, %Y")`). Table \@ref(tab:fcst) shows the resulting root mean squared forecast errors (RMSFE) along with correlation between forecasts and realizations. As we can see in the table, the RMSFE of the Deep VAR is consistently lower than the one for the VAR. Regarding correlations the VAR produces forecasts that are negatively correlated with actual outcomes for all time series: in other words, when the time series evolves in one direction, the VAR forecast tends to evolve in the opposite direction. For industrial production, the Deep VAR forecast also has a highly negative correlation with the actual values. For the rest of time series the Deep VAR forecasts correlate positively with actual outcome, albeit weakly. Another general observation we made with respect to these forecasts is that the forecasts from the conventional VAR are fairly volatile, while the Deep VAR forecasts swiftly reverts to steady levels (see Figures \@ref(fig:fcst-var) and \@ref(fig:fcst-dvar) in the appendix).
+We produce one-year ahead forecasts beginning from the first date in the test sample (`r format(test_start, "%B, %Y")`). Table \@ref(tab:fcst) shows the resulting root mean squared forecast errors (RMSFE) along with correlation between forecasts and realizations. As we can see in the table, the RMSFE of the Deep VAR is consistently lower than the one for the VAR. Regarding correlations the VAR produces forecasts that are negatively correlated with actual outcomes for all time series: in other words, when the time series evolves in one direction, the VAR forecast tends to evolve in the opposite direction. For industrial production, the Deep VAR forecast also has a highly negative correlation with the actual values. For the rest of time series the Deep VAR forecasts correlate positively with actual outcome, albeit weakly. Another general observation we made with respect to these forecasts is that the forecasts from the conventional VAR are fairly volatile, while the Deep VAR forecasts swiftly reverts to steady levels (see Figures \@ref(fig:fcst-var) and \@ref(fig:fcst-dvar) in the appendix).
 
 ```{r fcst, eval=TRUE}
 tab_fcst <- readRDS("../results/tab_fcst.rds")
@@ -334,11 +334,14 @@ dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
 
-```{r roll, eval=FALSE}
+```{r, eval=TRUE}
 t = "recursive"
-source("../R/utils.R")
 w_size <- 240
 n_ahead <- 12
+```
+
+```{r roll, eval=FALSE}
+source("../R/utils.R")
 fcst <- rolling_window_fe(dt,w_size = w_size, n_ahead = n_ahead)
 dates <- data.table(window=1:fcst[,max(window)], date=dt[(w_size+1):(.N-n_ahead),date])
 setkey(fcst, window)
@@ -349,12 +352,11 @@ levels(fcst$model) <- c("Deep VAR", "Random Walk", "Threshold VAR", "VAR")
 saveRDS(fcst, sprintf("../results/rolling_fcst_%s_%i_%i.rds",t,w_size,n_ahead))
 ```
 
-```{r, eval=TRUE}
-fcst <- readRDS("../results/rolling_fcst_recursive.rds")
+```{r}
+fcst <- readRDS(sprintf("../results/rolling_fcst_%s_%i_%i.rds",t,w_size,n_ahead))
 n_ahead <- fcst[,max(id)]
 w_size <- dt[,.N]-fcst[,max(window)+max(id)]
 ```
-
 
 ```{r, fig.width=7, fig.height=6}
 library(ggplot2)
@@ -374,55 +376,6 @@ p <- ggplot(data = plot_data[model!="TVAR"]) +
     y = "Mean Squared Error (cumulative)"
   )
 ggsave("../www/rolling_window_recursive_cum_loss.png", width=9, height=8)
-```
-
-```{r, eval=TRUE}
-fcst <- readRDS("../results/rolling_fcst_3_240.rds")
-n_ahead <- fcst[,max(id)]
-w_size <- dt[,.N]-fcst[,max(window)+max(id)]
-fcst[,model:=factor(model)]
-levels(fcst$model) <- c("Deep VAR", "Random Walk", "Threshold VAR", "VAR")
-```
-
-```{r, fig.width=7, fig.height=6}
-library(ggplot2)
-plot_data_1 <- fcst[id == 1,.(date=date,error=cumsum(sqerror)),by=.(variable,model)][,id:=1]
-plot_data_3 <- fcst[id <= 3,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=3]
-plot_data_6 <- fcst[id <= 6,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=6]
-plot_data_12 <- fcst[id <= 12,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=12]
-plot_data <- rbind(plot_data_1,plot_data_3,plot_data_6, plot_data_12)
-plot_data[,id:=factor(id)]
-levels(plot_data$id) <-  c("=1","<=3","<=6","<=12")
-p <- ggplot(data = plot_data[model!="Threshold VAR"]) +
-  geom_line(aes(x=date, y=error, color=model)) +
-  facet_wrap(id ~ variable, scales = "free", ncol = 4) +
-  scale_colour_discrete(name="Model") +
-  labs(
-    x = "",
-    y = "Mean Squared Error (cumulative)"
-  )
-ggsave("../www/rolling_fcst_240_12.png", width=9, height=8)
-```
-
-```{r, fig.width=10, fig.height=5}
-library(ggplot2)
-plot_data <- fcst[id %in% c(1,3),.(date=date,error=cumsum(sqerror)),by=.(id,variable,model)]
-ggplot(data = plot_data[model!="TVAR"]) +
-  geom_line(aes(x=date, y=error, color=model)) +
-  facet_wrap(id ~ variable, scales = "free", ncol = 4) +
-  scale_colour_discrete(name="Model") +
-  labs(
-    x = "",
-    y = "Squared residual (cumulative)"
-  )
-```
-
-
-```{r, fig.width=10, fig.height=8}
-plot_data <- fcst[id %in% c(1,3,6,12),.(window=window,error=cumsum(sqerror)),by=.(variable,model,id)]
-ggplot(data = plot_data[model=="tv"]) +
-  geom_line(aes(x=window, y=error, color=model)) +
-  facet_wrap(id ~ variable, scales = "free") 
 ```
 
 Finally, we repeat the forecasting exercise above using a rolling window approach: we train our models on a window of `r w_size` months, compute and store `r n_ahead`-month ahead forecasts out of the training sample, roll the window one period forward and repeat the previous steps. This allows us to benchmark the different models in terms of their forecasting performance over the entire sample period. Once again forecasts are for now computed recursively: in other words, neural networks underlying the Deep VAR are not explicitly trained to forecast `r n_ahead`-steps ahead.
@@ -458,12 +411,6 @@ grid <- data.table::CJ(
   dropout = dropout
 )
 n_sim <- length(lags) * grid[,.N]
-```
-
-```{r, eval=TRUE}
-# Train test:
-train_test_split <- train_val_test_split(dt[,-1])
-train_data <- train_test_split$train
 ```
 
 ```{r, eval=FALSE}

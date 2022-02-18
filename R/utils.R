@@ -12,7 +12,7 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12) {
   num_units <- 64
   num_layers <- formals(deepvareg)$num_layers
   dropout <- formals(deepvareg)$p_drop_out
-  epochs <- 1000
+  epochs <- 800
   
   # Cluster:
   no_cores <- detectCores() - 2
@@ -43,7 +43,8 @@ rolling_window_fe <- function(dt, w_size=150, n_ahead=12) {
       dt_in, 
       lags = lags, 
       num_units = num_units, 
-      epochs = epochs
+      epochs = epochs,
+      size_ensemble = 1
     )
     # Threshold VAR
     tv_model <- tsDyn::TVAR(dt_in[,-1], include = "const", lag=lags, nthresh=2, trim=0.1)
