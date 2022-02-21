@@ -2,14 +2,14 @@
 title: "Deep Vector Autoregression for Macroeconomic Data"
 subtitle: "Masters Thesis - BGSE"
 author:
-- "Patrick Altmeyer (p.altmeyer@tudelft.nl)"
-- "Marc Agustí (marc.agusti_i_torres@ecb.europa.eu)"
-- "Ignacio Vidal-Quadras Costa (ignacio.vidalquadrascosta@barcelonagse.eu)"
+- "Patrick Altmeyer^[Delft University of Technology, p.altmeyer@tudelft.nl]"
+- "Marc Agusti^[European Central Bank, marc.agusti\__i\__torres@ecb.europa.eu]"
+- "Ignacio Vidal-Quadras Costa^[European Central Bank, ignacio.vidalquadrascosta@barcelonagse.eu]"
 date: "`r format(Sys.Date(), '%d %B, %Y')`"
 output: 
   beamer_presentation:
     slide_level: 2
-bibliography: "bib.bib"
+bibliography: "../bib.bib"
 ---
 
 ```{r setup, include=FALSE}
@@ -18,9 +18,13 @@ library(data.table)
 knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
 ```
 
+## Disclaimer
+
+This presentation was originally used to defend our thesis in June, 2021. As of `r format(Sys.Date(), '%d %B, %Y')` we have only added minor updates. The views expressed in this paper and any remaining errors are own and not those of Delft University of Technology or the European Central Bank.
+
 ## At a glance
 
-We effectively extend the conventional linear VAR model to the broader class of Deep VARs. By fitting each equation of the VAR system with a deep neural network the Deep VAR is able to capture non-linear dependencies across time and variables. We find that this leads to significant performance improvements in terms of in-sample fit, out-of-sample fit and point forecasting accuracy.
+We effectively extend the conventional linear VAR model to the broader class of Deep VAR. By fitting each equation of the VAR system with a deep neural network the Deep VAR is able to capture non-linear dependencies across time and variables. We find that this leads to significant performance improvements in terms of in-sample fit, out-of-sample fit and point forecasting accuracy.
 
 ## Motivation
 
@@ -80,13 +84,11 @@ knitr::include_graphics("../www/time_series.png")
 \end{aligned}
 \end{equation}
 
-- Can restate this more compactly as:
+- Each single variable is model is modelled as a recurrent neural network:
 
-\begin{equation} 
-\begin{aligned}
-&& \mathbf{y}_t&= \mathbf{f}(\mathbf{y}_{t-1:t-p};\theta) + \mathbf{v}_t \\
-\end{aligned}
-\end{equation}
+```{r nn-arch, eval=TRUE, fig.cap="Neural Network Architecture.", echo=FALSE, out.width=125}
+knitr::include_graphics("../www/nn2.png")
+```
 
 ## Long Short-Term Memory
 
@@ -102,7 +104,7 @@ knitr::include_graphics("../www/time_series.png")
 && \mathbf{o}_t&=\sigma \left( \mathbf{b}_o + \mathbf{W}_o\mathbf{h}_{t-1} + \mathbf{U}_o\mathbf{h}_{-1} \right) \\
 && \mathbf{C}_t&=\mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tanh \left( \mathbf{b}_C + \mathbf{W}_C\mathbf{h}_{t-1} + \mathbf{U}_C\mathbf{h}_{-1} \right) \\
 &&\mathbf{h}_{t}&=\mathbf{o}_t \odot \tanh (\mathbf{C}_t) \\
-&& \mathbf{\hat{y}}_t&=\mathbf{c} + \mathbf{V}\mathbf{h}_t\\
+&& \hat{y}_{it}&=c + \mathbf{v}^T\mathbf{h}_t\\
 \end{aligned}
 \end{equation}
 
@@ -117,7 +119,7 @@ knitr::include_graphics("../www/time_series.png")
 
 ## In-sample loss
 
-```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR.", out.width=300}
+```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for Deep VAR and benchmarks.", out.width=300}
 knitr::include_graphics("../www/cum_loss_full.png")
 ```
 
@@ -160,22 +162,17 @@ knitr::include_graphics("../www/grid_benchmark.png")
     - **Monte Carlo dropout**: distribution over point estimates through the introduction of stochasticity
 - Support for the estimation of impulse response functions and variance decompositions is another missing cornerstone in the current version of our proposed framework.
     - @verstyuk2020modeling manages to recover IRFs numerically; should be readily applicable to our Deep VAR framework.
-- To allow for a 'fairer' comparison we need to let Bayesian VAR, non-linear VAR and large econometric models enter into the horse race.
+- To allow for a 'fairer' comparison we need to let non-linear VAR (**recently added**) and large econometric models enter into the horse race.
 
 ## Concluding remarks
 
-- To the best of our knowledge we are the first to propose a framework for Deep VARs that barely deviates from the conventional framework.
-- We show that relaxing the linearity constraint leads to a massive boost in modelling performance.
-- To allow other researchers straight-forward access the methodology has been easily avialable through an R package:
-
-```{r, eval=FALSE, echo=TRUE}
-devtools::install_github(
-  "pat-alt/deepvars", 
-  build_vignettes=TRUE
-)
-```
-
-- We continue to be in close contact with Eddie Gerba, research manager at the Bank of England, and plan to submit to an upcoming conference on ML for Monetary Policy.
+- To the best of our knowledge we are the first to propose a framework for Deep VAR that relies on the premise of minimal intervention in the conventional and trusted framework.
+- We show that relaxing the linearity constraint leads to a massive boost in model performance.
+- To allow for reproducibility we provide a companion [R package](https://github.com/pat-alt/deepvars).
+- We have continued discussion with a handful of very kind and helpful advisers from academia and central banks including: 
+    - **Eddie Gerba** - Research Manager at the Bank of England
+    - **Chiara Osba** - Adviser in the Directorate General Economics of the European Central Bank
+    - **Cynthia Liem** - Associate Professor of Artificial Intelligence at Delft University of Technology
 
 # Your questions and comments
 
@@ -184,12 +181,6 @@ devtools::install_github(
 <div id="refs"></div>
 
 # Hiddens
-
-## Cumulative loss for random walk
-
-```{r, fig.cap="Cumulative mean squared error for naive (random walk) prediction.", out.width=300}
-knitr::include_graphics("../www/cum_loss_full_random_walk.png")
-```
 
 ## LSTM - Forget gate
 

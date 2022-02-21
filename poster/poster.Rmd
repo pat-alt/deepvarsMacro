@@ -1,5 +1,6 @@
 ---
 title: Deep Vector Autoregression for Macroeconomic Data
+date: "`r format(Sys.Date(), '%B, %Y')`"
 author:
   - name: Patrick Altmeyer
     affil: 1
@@ -14,12 +15,16 @@ affiliation:
   - num: 2
     address: European Central Bank
 column_numbers: 3
-logoright_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png
+primary_colour: "#00477a"
+secondary_colour: "#0697fd"
+accent_colour: "#a909e3"
+logoright_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/qr-code.png
 logoleft_name: https&#58;//raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png
 output: 
   posterdown::posterdown_html:
     self_contained: false
 bibliography: ../bib.bib
+knit: pagedown::chrome_print
 ---
 
 ```{r setup, include=FALSE}
@@ -42,13 +47,13 @@ theme_set(theme_bw())
 
 Vector Autoregression (VAR) models are a popular choice for forecasting time series data. Due to their simplicity and success at modelling the monetary economic indicators the VAR has become a standard tool for central bankers to construct economic forecasts. Impulse response functions can be readily retrieved from the conventional VAR and used for inference purposes. They are typically employed to investigate various interactions between variables that form part of the monetary transmission mechanism. 
 
-We offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established benchmark. By staying methodologically as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network. 
+We offer a simple way to integrate deep learning into VAR without deviating too much from the trusted and established benchmark. By staying methodologically as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network. 
 
 # Contributions
 
 1. Propose a simple methodological framework that is close to the conventional and trusted benchmark.
-2. Demonstrate improved modelling and forecasting performance of Deep VAR. 
-3. Open source R package [@altmeyer2021deep] to faciliate reproducibility and future research.
+2. Demonstrate improved forecasting performance of Deep VAR compared to conventional and Threshold VAR. 
+3. Open source R package `deepvars` to facilitate reproducibility and future research.
 
 # Methodology
 
@@ -86,14 +91,47 @@ To model each individual $f_i(\cdot)$ in practice we use a long short-term memor
 
 To evaluate our proposed methodology empirically we use a sample of monthly US data on leading economic indicators, which spans the period from January 1959 through March 2021. We use the relatively novel FRED-MD data base which is updated monthly and publicly available. In particular, we look at variables typically analysed in the context of the monetary transmission mechanism including output, inflation, interest rates and unemployment.
 
-Our empirical findings show a consistent and significant improvement in modelling performance associated with Deep VARs compared to its conventional benchmark: our proposed model produces significantly lower cumulative loss over the entire period and for each of the analysed time series. The improvements in modelling performance are particularly pronounced during periods of economic stress and uncertainty. This appears to confirm or initial hypothesis that by modelling time series through a Deep VAR it is possible to capture complex, non-linear dependencies that seem to characterize periods of structural economic change.
+Our empirical findings show a consistent and significant improvement in modelling performance associated with Deep VAR models compared to existing approaches: our proposed model produces significantly lower cumulative loss over the entire period and for each of the analysed time series (Figure \@ref(fig:cum-loss-full)). The improvements in modelling performance are particularly pronounced during periods of economic stress and uncertainty. This appears to confirm or initial hypothesis that by modelling time series through a Deep VAR it is possible to capture complex, non-linear dependencies that seem to characterize periods of structural economic change.
 
 ```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR."}
 knitr::include_graphics("cum_loss_full.png")
 ```
 
-# Next steps
+We also test model performance with respect to a test sample: future realizations of the outcome variables arrive and we compute 1-step ahead predictions without retraining (Table \@ref(tab:rmse)). Finally, we also found the Deep VAR to outperform with respect to $n$-step ahead forecasts.
 
-We also point out a number of shortcomings of our proposed approach, which we believe can be alleviated through future research. Firstly, policy-makers are typically concerned with uncertainty quantification, inference and overall model explainability. Future research on Deep VARs should therefore address the estimation of confidence intervals, impulse response functions as well as variance decompositions typically analysed in the context of VAR models. We point to a number of possible avenues, most notably Monte Carlo dropout. Secondly, in our initial paper we benchmarked the Deep VAR only against the conventional VAR. In future work we will introduce other non-linear approaches to allow for a fairer comparison.
+```{r rmse, eval=TRUE}
+tab_rmse <- readRDS("../results/train_test_tab_rmse.rds")
+tab_rmse <- tab_rmse[sample=="test"][,sample:=NULL]
+knitr::kable(
+  tab_rmse, 
+  col.names = c("Variable", "DVAR", "VAR", "Ratio (DVAR / VAR)"),
+  digits = 5,
+  caption = 'Test root mean squared error (RMSE) for the two models across variables.'
+) 
+```
+
+# Open questions
+
+## Benchmark models
+
+In our initial paper we compared the Deep VAR only against the conventional VAR. Other non-linear approaches have been proposed in the past and we need to include these in our analysis.
+
+1. **Threshold VAR**: We have since added Threshold VAR (TVAR) to the analysis (Figure \@ref(fig:cum-loss-full)).
+2. **Others**: We'd love to hear your suggestions for other benchmarks.
+
+## Inference
+
+We fear that inference is a whole lot more difficult for Deep VAR.
+
+1. **Confidence Intervals**: Uncertainty quantification can be done through Bayesian deep learning. Common approaches to estimate predictive uncertainty include variational Bayes, Deep Ensembles or Monte Carlo dropout [@gal2016dropout]. Recent work by @daxberger2021laplace shows that Laplace Approximation is a promising way forward.
+2. **Structural Identification**: @verstyuk2020modeling works with a Cholesky decomposition of the residual covariance matrix in the same way as for conventional VAR.
+3. **IRFs, variance decomposition, ...**: Existing approaches solve (some of) this through simulation [@verstyuk2020modeling]. 
+
+## Applications
+
+We believe there are useful applications for Deep VAR.
+
+1. **Detecting non-linearity**: Strong divergence of disagreement between VAR and Deep VAR is indicative of non-linearities that the conventional VAR fails to capture. In that scenario, inference based on a VAR is unreliable.
+2. **Now- and forecasting**: Much like reduced-form VAR models, Deep VAR can be used for forecasting and we provide empirical evidence that it performs well.
 
 # References

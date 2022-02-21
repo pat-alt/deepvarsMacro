@@ -1,6 +1,7 @@
 # Empirical results {#empirics}
 
 ```{r, include=FALSE}
+rm(list=ls())
 knitr::opts_chunk$set(
   eval=FALSE,
   echo = FALSE,
@@ -14,18 +15,19 @@ library(ggplot2)
 ```{r, eval=TRUE}
 dt <- readRDS("../data/data_VAR/preprocessed.rds")
 dt_l <- data.table::melt(dt, id.vars="date")
+data.table::setkey(dt_l, date, variable)
 var_cols <- colnames(dt)[2:ncol(dt)]
 ```
 
 ```{r, eval=TRUE}
 # Choosing lags:
 max_lags <- 12
-lags <- lag_order(dt, max_lag = max_lags)$p
+lags <- lag_order(dt[,-1], max_lag = max_lags)$p
 # Deep VAR params:
-num_units <- 100
-num_layers <- formals(deepvareg)$num_layers
-dropout <- formals(deepvareg)$p_drop_out
-epochs <- 500
+num_units <- getOption("deepvar.model")$hidden_size
+num_layers <- getOption("deepvar.model")$num_layers
+dropout <- getOption("deepvar.model")$dropout
+epochs <- 1200
 ```
 
 ```{r, eval=FALSE}
@@ -40,22 +42,23 @@ deepvar_model <- deepvareg(
 )
 # Threshold VAR
 tv <- tsDyn::TVAR(dt[,-1], include = "const", lag=lags, nthresh=2, trim=0.1)
-tv_l <- data.table::melt(data.table::data.table(date=dt$date[-(1:lags)], fitted(tv)), id.vars = "date")
+tv_l <- data.table::melt(data.table::data.table(date=dt$date[-(1:lags)], fitted(tv)), id.vars = "date", value.name = "y_hat")
+data.table::setkey(tv_l, date, variable)
+tv_l <- dt_l[tv_l]
+# Random forest
+rf <- data.table::fread("../results/predictions_RF.csv")
+rf[,date:=var_model$model_data$data[(var_model$model_data$lags+1):.N]$date]
+rf_l <- data.table::melt(rf, id.vars="date", value.name = "y_hat")
+data.table::setkey(rf_l, date, variable)
+rf_l <- dt_l[rf_l]
 ```
 
 ```{r, eval=FALSE}
 # Cum RMSE plot
 cum_loss_var <- cum_loss(var_model)$cum_loss[,type:="VAR"]
 cum_loss_dvar <- cum_loss(deepvar_model)$cum_loss[,type:="Deep VAR"]
-cum_loss_tv <- tv_l[
-  ,
-  .(
-    date=date,
-    value=cumsum((value-data.table::shift(value,fill=0))^2),
-    type="Threshold VAR"
-  ),
-  by=variable
-]
+cum_loss_tv <- tv_l[,value:=cumsum((value-y_hat)^2),by=.(variable)][,.(date, variable, value)][,type:="TVAR"]
+cum_loss_rf <- rf_l[,value:=cumsum((value-y_hat)^2),by=.(variable)][,.(date, variable, value)][,type:="RF"]
 cum_loss_rw <- dt_l[
   ,
   .(
@@ -65,7 +68,7 @@ cum_loss_rw <- dt_l[
   ),
   by=variable
 ]
-dt_plot <- rbind(cum_loss_dvar, cum_loss_var, cum_loss_rw, cum_loss_tv)
+dt_plot <- rbind(cum_loss_dvar, cum_loss_var, cum_loss_rw, cum_loss_tv, cum_loss_rf)
 p <- ggplot2::ggplot(data=dt_plot, ggplot2::aes(x=date, y=value, colour=type)) +
   ggplot2::geom_line() +
   ggplot2::facet_wrap(~variable, scales = "free_y") +
@@ -135,7 +138,7 @@ ggsave(
 )
 ```
 
-We now proceed to benchmark the proposed Deep VAR model against the conventional VAR using out macroeconomic time series data. To begin with, we compare both models in terms of their in-sample fit. For this part of the analysis the models will be strictly run under the same framing conditions. Due to the RNN's capacity to essentially model any possible function $f_i(\cdot)$ the Deep VAR dominates the VAR in this realm. We investigate during what time periods the outperformance of the Deep VAR is particularly striking to gain a better understanding of when and why it pays off to relax the linearity constraint.
+We now proceed to benchmark the proposed Deep VAR model against the conventional VAR and other existing approaches using our macroeconomic time series data. To begin with, we compare the models in terms of their in-sample fit. For this part of the analysis the models will be strictly run under the same framing conditions. Due to the RNN's capacity to essentially model any possible function $f_i(\cdot)$ the Deep VAR dominates competing approaches in this realm. We investigate during what time periods the out-performance of the Deep VAR is particularly striking to gain a better understanding of when and why it pays off to relax the linearity constraint.
 
 These findings with respect to in-sample performance provide some initial evidence in favor of the Deep VAR. But since a reduction in modelling bias is typically associated with an increase in variance, we are particularly interested in benchmarking the models with respect to their out-of-sample performance. To this end we split our sample into train and test subsamples. We then firstly benchmark the models in terms of their pseudo out-of-sample fit. Finally we also look at model performance with respect to $n$-step ahead pseudo out-of-sample forecasts.
 
@@ -143,15 +146,17 @@ The final part of this section relaxes the constraint on the framing conditions.
 
 ## In-sample fit
 
-For this first empirical exercise both models are trained on the full sample. We have decided to include the post-Covid sample period despite the associated structural break, since it serves as interesting point of comparison. The optimal lag order as determined by the Akaike Information Criterium is $p=`r lags`$, where we used a maximum possible lag of $p_{\max}=`r max_lags`$ corresponding to one year. A look at the eigenvalues of the companion matrix showed that the VAR($`r lags`$) is stable. The LSTMs underlying the Deep VAR model are composed of $H=`r num_layers`$ that count $N=`r num_units`$ hidden units each. The dropout rate is set to $p=`r dropout`$. 
+For this first empirical exercise all models are trained on the full sample. We have decided to include the post-Covid sample period despite the associated structural break, since it serves as interesting point of comparison. The optimal lag order as determined by the Akaike Information Criterium is $p=`r lags`$, where we used a maximum possible lag of $p_{\max}=`r max_lags`$ corresponding to one year. A look at the eigenvalues of the companion matrix showed that the VAR($`r lags`$) is stable. The LSTM models underlying the Deep VAR are composed of $H=`r num_layers`$ that count $N=`r num_units`$ hidden units each. The dropout rate is set to $p=`r dropout`$. 
 
-To assess the fit of our models we use the root mean squared error (RMSE) as our preferred loss function. Figure \@ref(fig:cum-loss-full) shows the cumulative RMSE of both the VAR model and Deep VAR model for each of the time series over the whole sample period. The first thing we can observe is that the RMSE of the Deep VAR is consistently flatter than the RMSE of the VAR. With respect to in-sample performance, the Deep VAR the VAR throughout the entire time period of the experimental analysis and for all of the considered variables. This empirical observation seems to confirm our expectation that the vector autoregressive process is characterized by important non-linear dependencies across time and variables that the conventional VAR fails to capture. 
+To assess the fit of our models we use squared residuals. Figure \@ref(fig:cum-loss-full) shows the cumulative loss of the Deep VAR model and its conventional benchmarks for each of the time series over the whole sample period. Aside from the linear VAR, we have added another popular approach towards VAR models that addresses non-linearity (Threshold VAR). We have also added a Random Forest Regressor (RF) for comparison, which was trained on the entire FRED-MD database, so far more variables than the four output variables. Previous studies have shown that RF tends to well at high-dimensional time series modelling [@masini2021machine].
 
-```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR."}
+The first thing we can observe is that the RMSE of the Deep VAR is consistently flatter than the RMSE of its benchmarks. With respect to model fit, the Deep VAR dominates throughout the almost the entire sample period and for all of the considered variables. This empirical observation seems to confirm our expectation that the vector autoregressive process is characterized by important non-linear dependencies across time and variables that the conventional VAR and even the TVAR and RF fail to capture. 
+
+```{r cum-loss-full, eval=TRUE, fig.cap="Comparison of cumulative loss over the entire sample period for Deep VAR and benchmarks."}
 knitr::include_graphics("../www/cum_loss_full.png")
 ```
 
-Figure \@ref(fig:cum-loss-full) is especially useful to asses in which specific periods the Deep VAR model achieves better modelling outcomes than the VAR model. From the very beginning and across variables, we observe that the increase in cumulative loss for the VAR model is greater than for the Deep VAR model. The US economy during 1960s was influence by John F. Kennedy's introduction of **New Economics**, which was informed by Keynesian ideas and characterized by increasing levels of inflation, a reduction in unemployment and output growth. The change in government certainly corresponded to a regime switch with respect to the economy [@perry2010economic] and in that sense it is interesting to observe that the Deep VAR appears to be doing a better job at capturing the underlying changes. The 1970s can be broadly thought of as a continuation of New Economics and loosely defined as a period of stagflation. The Deep VAR continues to outperform the VAR during that period.
+Figure \@ref(fig:cum-loss-full) is especially useful to asses in which specific periods the Deep VAR model fits the data better than alternative approaches. From the very beginning and across variables, we observe that the increase in cumulative loss for other models is greater than for the Deep VAR model. The US economy during 1960s was influenced by John F. Kennedy's introduction of **New Economics**, which was informed by Keynesian ideas and characterized by increasing levels of inflation, a reduction in unemployment and output growth. The change in government certainly corresponded to a regime switch with respect to the economy [@perry2010economic] and in that sense it is interesting to observe that the Deep VAR appears to be doing a better job at capturing the underlying changes. The 1970s can be broadly thought of as a continuation of New Economics and loosely defined as a period of stagflation. The Deep VAR continues to outperform during that period.
 
 The first truly interesting development we can observe in Figure \@ref(fig:cum-loss-full) coincides with the onset of the Volcker disinflation period. Following years of sustained CPI growth, Paul Volcker set the Federal Reserve on course for a series of interest rate hikes as soon as he became chairperson of the central bank in August 1979. The shift in monetary policy triggered fundamental changes to the US economy and in particular the key economic indicators we are analyzing here throughout the 1980s [@goodfriend2005incredible]. Despite this structural break, the increase in the cumulative RMSE of the Deep VAR remains almost constant during this decade for most variables. The performance of the VAR on the other hand is unsurprisingly poor over the same period, in particularly so for the CPI and the Fed Funds Rate, which arguably were the two variables most directly affected by the change in policy. The Deep VAR also clearly dominates the VAR with respect to the output related variables (IP) and to a lesser extent unemployment. These findings indicate that changes to the monetary transmission mechanism in response to sudden policy shifts are not well captured by a linear-additive vector autoregressive model. Instead they appear to unfold in a high-dimensional latent state space, which the Deep VAR by its very construction is designed to learn.
 
@@ -159,7 +164,7 @@ Following the Volcker disinflation period, Figure \@ref(fig:cum-loss-full) does 
 
 As the Global Financial Crisis unfolds around 2007 the pattern we observed for the Volcker disinflation reemerges, albeit to a lesser extent: there is a marked jump in the difference between the cumulative loss of the VAR and the Deep VAR, in particular so for the CPI, the Fed Funds rate and industrial production. The gap for all these variables continues to widen during the aftermath of the crisis. The Deep VAR once again does a better job at modelling the changes that the dynamical system undergoes: post-crisis US monetary policy was characterized by very low interest rates, low levels of inflation as well as the introduction of a range of non-conventional monetary policy tools including quantitative easing and forward guidance. 
 
-Finally, it is also interesting to observe how both models perform in response to the  unprecedented exogenous shock that Covid-19 constitutes. Both models incur huge errors with respect to both IP and UR - the two series most significantly affected by Covid. Evidently though, the magnitude of the errors is somewhat larger for the VAR than for the Deep VAR. This, once again seems to confirm our hypothesis that the Deep VAR model captures important non-linear dependencies across time and variables that the conventional VAR fails to capture.
+Finally, it is also interesting to observe how the different models perform in response to the  unprecedented exogenous shock that Covid-19 constitutes. All models exhibit an abrupt and substantial increase in loss with respect to both IP and UR - the two series that were arguably most strongly affected by Covid. Evidently, the magnitude of that sudden increase is somewhat larger in absolute terms for VAR than for Deep VAR. Still, it is also worth pointing out that both the Threshold VAR and the Random Forest Regressor are less adversely affected by the Covid shock than Deep VAR.  
 
 As a sanity check we also visually inspected the distributional properties of the model residuals for the full-sample fit. The outcomes are broadly consistent across models: while for some variables residuals are clearly not Gaussian, we see no evidence of serial autocorrelation of residuals (see Figures \@ref(fig:qqplot-full) and \@ref(fig:acf-full) in the appendix). 
 
@@ -171,8 +176,13 @@ As a sanity check we also visually inspected the distributional properties of th
 #Train test split
 train_test_split <- split_sample(dt)
 train_data <- train_test_split$train_data
+test_data <- train_test_split$test_data
 #Select the number of lags
 lags <- lag_order(train_data, max_lag = max_lags)$p
+train_start <- min(train_data$date)
+train_end <- max(train_data$date)
+test_start <- min(test_data$date)
+test_end <- max(test_data$date)
 ```
 
 ```{r, eval=FALSE}
@@ -191,7 +201,7 @@ deepvar_model <- deepvareg(
 y_true <- var_model$y_train
 ```
 
-In order to assess if the Deep VAR's outperformance is a consequence of overfitting, we now repeat the previous exercise, but this time we train the models on a subsample of our date. The training sample spans from `r format(min(train_data$date), "%B, %Y")` to `r format(max(train_data$date), "%B, %Y")`, whereas the test data goes from `r format(min(train_test_split$test_data$date), "%B, %Y")` to `r format(max(train_test_split$test_data$date), "%B, %Y")`. This corresponds to training the model on 80 percent of the data and retaining the remaining 20 percent for testing purposes. The optimal lag order for the training subsample is $p=`r lags`$ where we use the same criterion and maximum lag order as before. Once again we find this VAR specification to be stable.
+In order to assess if the Deep VAR's outperformance is a consequence of overfitting, we now repeat the previous exercise, but this time we train the models on a subsample of our data. The training sample spans from `r format(train_start, "%B, %Y")` to `r format(train_end, "%B, %Y")`, whereas the test data goes from `r format(test_start, "%B, %Y")` to `r format(test_end, "%B, %Y")`. This corresponds to training the model on 80 percent of the data and retaining the remaining 20 percent for testing purposes. The optimal lag order for the training subsample is $p=`r lags`$ where we use the same criterion and maximum lag order as before. Once again we find this VAR specification to be stable.
 
 ```{r, eval=FALSE}
 #VAR
@@ -234,7 +244,7 @@ tab_rmse[, ratio:= deepvar/var]
 saveRDS(tab_rmse, file="../results/train_test_tab_rmse.rds")
 ```
 
-Tables \@ref(tab:rmse) shows the Root Mean Squared Error (RMSE) for the in-sample and the out-of-sample predictions of both the VAR model and the Deep VAR model. We can see that the RMSE for the Deep VAR outperforms the one for the conventional VAR for both the training data and the test data and for all time series. The fifth column of the table shows us the ratio between the RMSEs of the Deep VAR and the VAR: the lower the ratio, the better the Deep VAR compared to the VAR. With respect to the training sample, the RMSE of the Deep VAR model is consistently less than 75% of that of the conventional VAR reflecting to some extent the results of the previous sections. Turning to the test data, there is no evidence that the Deep VAR is more prone to overfitting than the VAR. For both industrial production and unemployment, the Deep VAR yields an RMSE that is around half the size of that produced by the VAR. For inflation and interest rate predictions the outperformance on the test data is less striking, but still fairly significant.
+Tables \@ref(tab:rmse) shows the Root Mean Squared Error (RMSE) for the in-sample and the out-of-sample predictions of both the VAR model and the Deep VAR model. We can see that the RMSE for the Deep VAR is lower than for the conventional VAR for both the training data and the test data and for all time series. The fifth column of the table shows us the ratio between the RMSEs of the Deep VAR and the VAR: the lower the ratio, the better the Deep VAR compared to the VAR. With respect to the training sample, the RMSE of the Deep VAR model is consistently less than 75% of that of the conventional VAR reflecting to some extent the results of the previous sections. Turning to the test data, there is no evidence that the Deep VAR is more prone to overfitting than the VAR. For both industrial production and unemployment, the Deep VAR yields an RMSE that is around half the size of that produced by the VAR. For inflation and interest rate predictions the out-performance on the test data is less striking, but still fairly large.
 
 ```{r rmse, eval=TRUE}
 tab_rmse <- readRDS("../results/train_test_tab_rmse.rds")
@@ -270,12 +280,12 @@ y_true <- y_test[1:n_ahead,]
 ```{r, eval=FALSE}
 #Forecasts
 #VAR
-fcst_var <- forecast(var_model, n.ahead = n_ahead)
-p <- plot(fcst_var, y_true=y_true, history = 20)
+fcst_var <- deepvars::forecast(var_model, n.ahead = n_ahead)
+p <- deepvars:::plot.forecast(fcst_var, y_true=y_true, history = 20)
 ggsave(filename = "../www/fcst_var.png", p, width=7, height=4)
 #DeepVAR
-fcst_dvar <- forecast(deepvar_model, n.ahead = n_ahead)
-p <- plot(fcst_dvar, y_true=y_true, history = 20)
+fcst_dvar <- deepvars::forecast(deepvar_model, n.ahead = n_ahead)
+p <- deepvars:::plot.forecast(fcst_dvar, y_true=y_true, history = 20)
 ggsave(filename = "../www/fcst_dvar.png", p, width=7, height=4)
 ```
 
@@ -305,12 +315,11 @@ tab_fcst <- data.table(
 saveRDS(tab_fcst, file="../results/tab_fcst.rds")
 ```
 
-Up until now we have been assessing the 1-step ahead predictions of both models. In our context these predictions can be thought of as 1-month ahead nowcasts from a practical perspective. Since real-time nowcasts have grown in popularity during recent years, the results so far should be of great interest to central bankers and other practitioners.
-Nonetheless, there is typically also great interest in time series forecasts at longer horizons. We therefore briefly introduce $n$-step ahead pseudo out-of-sample forecasts in this section and revisit them again further below.
+Up until now we have been assessing the model fit, which has provided some initial evidence in favour of Deep VAR. Typically though in the time series context we are more interested in out-of-sample forecasts. which we shall turn to next.
 
-Forecasts are produced recursively both for the VAR and the Deep VAR. Specifically, we use the models we trained on the training data to recursively predict one time period ahead, concatenate the predictions to the training data and repeat the process.^[Note that for the Deep VAR an alternative approach would be to work with a different output dimension for the underlying neural networks.] This way we produce one-year ahead forecasts beginning from the first date in the test sample (`r format(max(train_data$date), "%B, %Y")`).
+We begin with a single forecasting exercise, where forecasts are produced recursively both for the VAR and the Deep VAR. Specifically, we use the models we trained on the training data to recursively predict one time period ahead, concatenate the predictions to the training data and repeat the process. Note that for the Deep VAR an alternative approach is to work with a different output dimension for the underlying neural networks.^[In future work we plan to assess this approach further.]
 
-Table \@ref(tab:fcst) shows the resulting root mean squared forecast errors (RMSFE) along with correlation between forecasts and realizations. As we can see in the table, the RMSFE of the Deep VAR is consistently lower than the one for the VAR. Regarding correlations the VAR produces forecasts that are negatively correlated with actual outcomes for all time series: in other words, when the time series evolves in one direction, the VAR forecast tends to evolve in the opposite direction. For industrial production, the Deep VAR forecast also has a highly negative correlation with the actual values. For the rest of time series the Deep VAR forecasts correlate positively with actual outcome, albeit weakly. Another general observation we made with respect to these forecasts is that the forecasts from the conventional VAR are fairly volatile, while the Deep VAR forecasts swiftly revert to steady levels (see Figures \@ref(fig:fcst-var) and \@ref(fig:fcst-dvar) in the appendix).
+We produce one-year ahead forecasts beginning from the first date in the test sample (`r format(test_start, "%B, %Y")`). Table \@ref(tab:fcst) shows the resulting root mean squared forecast errors (RMSFE) along with correlation between forecasts and realizations. As we can see in the table, the RMSFE of the Deep VAR is consistently lower than the one for the VAR. Regarding correlations the VAR produces forecasts that are negatively correlated with actual outcomes for all time series: in other words, when the time series evolves in one direction, the VAR forecast tends to evolve in the opposite direction. For industrial production, the Deep VAR forecast also has a highly negative correlation with the actual values. For the rest of time series the Deep VAR forecasts correlate positively with actual outcome, albeit weakly. Another general observation we made with respect to these forecasts is that the forecasts from the conventional VAR are fairly volatile, while the Deep VAR forecasts swiftly reverts to steady levels (see Figures \@ref(fig:fcst-var) and \@ref(fig:fcst-dvar) in the appendix).
 
 ```{r fcst, eval=TRUE}
 tab_fcst <- readRDS("../results/tab_fcst.rds")
@@ -320,10 +329,72 @@ knitr::kable(
 )
 ```
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 dtf<- xtable(tab_fcst, caption = c("Forecasts results"))
 print(dtf, sanitize.colnames.function = bold, sanitize.rownames.function = italic, booktabs = TRUE, include.rownames=FALSE,size = "\\setlength{\\tabcolsep}{2pt}")
 ```
+
+```{r, eval=TRUE}
+t = "recursive"
+w_size <- 240
+n_ahead <- 12
+```
+
+```{r roll, eval=FALSE}
+source("../R/utils.R")
+fcst <- rolling_window_fe(dt,w_size = w_size, n_ahead = n_ahead)
+dates <- data.table(window=1:fcst[,max(window)], date=dt[(w_size+1):(.N-n_ahead),date])
+setkey(fcst, window)
+setkey(dates, window)
+fcst <- dates[fcst]
+fcst[,model:=factor(model)]
+levels(fcst$model) <- c("Deep VAR", "Random Walk", "Threshold VAR", "VAR")
+saveRDS(fcst, sprintf("../results/rolling_fcst_%s_%i_%i.rds",t,w_size,n_ahead))
+```
+
+```{r}
+fcst <- readRDS(sprintf("../results/rolling_fcst_%s_%i_%i.rds",t,w_size,n_ahead))
+n_ahead <- fcst[,max(id)]
+w_size <- dt[,.N]-fcst[,max(window)+max(id)]
+```
+
+```{r, fig.width=7, fig.height=6}
+library(ggplot2)
+plot_data_1 <- fcst[id == 1,.(date=date,error=cumsum(sqerror)),by=.(variable,model)][,id:=1]
+plot_data_3 <- fcst[id <= 3,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=3]
+plot_data_6 <- fcst[id <= 6,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=6]
+plot_data_12 <- fcst[id <= 12,.(error=mean(sqerror)),by=.(variable,model,date)][,error:=cumsum(error),by=.(variable,model)][,id:=12]
+plot_data <- rbind(plot_data_1,plot_data_3,plot_data_6, plot_data_12)
+plot_data[,id:=factor(id)]
+levels(plot_data$id) <-  c("=1","<=3","<=6","<=12")
+p <- ggplot(data = plot_data[model!="TVAR"]) +
+  geom_line(aes(x=date, y=error, color=model)) +
+  facet_wrap(id ~ variable, scales = "free", ncol = 4) +
+  scale_colour_discrete(name="Model") +
+  labs(
+    x = "",
+    y = "Mean Squared Error (cumulative)"
+  )
+ggsave("../www/rolling_window_recursive_cum_loss.png", width=9, height=8)
+```
+
+Finally, we repeat the forecasting exercise above using a rolling window approach: we train our models on a window of `r w_size` months, compute and store `r n_ahead`-month ahead forecasts out of the training sample, roll the window one period forward and repeat the previous steps. This allows us to benchmark the different models in terms of their forecasting performance over the entire sample period. Once again forecasts are for now computed recursively: in other words, neural networks underlying the Deep VAR are not explicitly trained to forecast `r n_ahead`-steps ahead.
+
+In Figure \@ref(fig:cum-rolling-recursive-full) we have plotted the cumulative loss incurred by each model: the different output variables are faceted across columns; each row corresponds to a different forecast horizon. For example, the panel in row 2 of column 3 shows the cumulative mean squared error incurred by each model for forecasts up to the 3-month horizon. 
+
+While the results are less striking than what we observed above for the in-sample fit, the Deep VAR nonetheless dominates its conventional benchmark overall. For both inflation (CPI) and interest rates (FFR), the Deep VAR forecasts incur substantially lower loss over the entire sample period and in particular at short horizons. We also see somewhat better forecasts overall for industrial production, while for the unemployment rate the Deep VAR is at par with its conventional benchmark. It is not altogether surprising that losses converge at longer horizons since we would expect that forecasts from both autoregressive models converge to their unconditional expectations.
+
+```{r cum-rolling-recursive-full, eval=TRUE, fig.cap="Comparison of cumulative rolling-window forecasting error over the entire sample period for Deep VAR and benchmarks. Forecasts are computed recursively."}
+knitr::include_graphics("../www/rolling_window_recursive_cum_loss.png")
+```
+
+<!-- As pointed out several times above, forecasting from Deep VAR does not strictly rely on recursion: instead of training the Deep VAR to produce a single output ($y_{i,t}$), we can instead let the final layer of the underlying neural networks map to $n$ outputs ($[y_{i,t},y_{i,t+n-1}]$). This effectively corresponds to training the Deep VAR directly for the purpose of $n$-step ahead forecasting. We now employ this approach. In addition (and only for the Deep VAR) we use a small subset of the training data as a validation set to guide a simple early stopping rule. That means the Deep VAR is actually trained on less observations than all other models. Nonetheless, since the underlying optimization in this case is done in the explicit context of forecasting we may expect the relative forecasting performance of the Deep VAR to increase further.  -->
+
+<!-- Indeed the results in Figure \@ref(fig:cum-rolling-full) seem to confirm that expectation: the Deep VAR's relative performance is slightly better than before for all variables with the exception of CPI, which is somewhat worse than before. When trained explicitly for the purpose of forecasting, the Deep VAR outperforms conventional approaches for all variables. Once again out-performance is more pronounced at short forecast horizons. -->
+
+<!-- ```{r cum-rolling-full, eval=TRUE, fig.cap="Comparison of cumulative rolling-window forecasting error over the entire sample period for Deep VAR and benchmarks. Neural networks underlying Deep VAR were trained on 12 outputs."} -->
+<!-- knitr::include_graphics("../www/rolling_window_12_cum_loss.png") -->
+<!-- ``` -->
 
 ## Varying hyperparameters
 
@@ -340,12 +411,6 @@ grid <- data.table::CJ(
   dropout = dropout
 )
 n_sim <- length(lags) * grid[,.N]
-```
-
-```{r, eval=FALSE}
-# Train test:
-train_test_split <- split_sample(dt)
-train_data <- train_test_split$train_data
 ```
 
 ```{r, eval=FALSE}
@@ -453,7 +518,7 @@ grid_search <- rbindlist(
 saveRDS(grid_search, "../results/grid_search.rds")
 ```
 
-```{r, eval=FALSE}
+```{r, eval=TRUE}
 grid_search <- readRDS("../results/grid_search.rds")
 ```
 
@@ -651,13 +716,13 @@ dt_plot <- grid_search[
 ][,.(variable, value, model, measure, lag)][,type:="Grid search"]
 
 # Merge in results from initial run:
-tab_rmse <- readRDS("results/train_test_tab_rmse.rds")
+tab_rmse <- readRDS("../results/train_test_tab_rmse.rds")
 tab_rmse <- tab_rmse[sample=="test"][, sample:=NULL]
 tab_rmse[,ratio:=NULL]
 setnames(tab_rmse, "deepvar", "dvar")
 tab_rmse <- melt(tab_rmse, id.vars = "variable", variable.name = "model")
 tab_rmse[,measure:="rmse"]
-tab_fcst <- readRDS("results/tab_fcst.rds")
+tab_fcst <- readRDS("../results/tab_fcst.rds")
 tab_fcst[,`VAR correlations`:=NULL][,`Deep-VAR correlations`:=NULL]
 setnames(tab_fcst, colnames(tab_fcst), c("variable", "var", "dvar"))
 tab_fcst <- melt(tab_fcst, id.vars = "variable", variable.name = "model")
@@ -700,7 +765,7 @@ Interestingly, both in- and out-of-sample loss tend to decrease significantly as
 
 Finally, Figure \@ref(fig:grid-rmsfe-test) provides an overview of how pseudo out-of-sample forecasting errors behave as we vary the hyperparameters. As before we produce one-year ahead forecasts starting from the end of the 80% training sample. In this context, the pattern is less clear and varies across variables. As the lag order increases, for example, the forecast performance for the unemployment rate deteriorates. For inflation, forecasts are poor for the medium lag choice of $p=50$ and much better for the low and high lag orders. The exact opposite relationship appears to hold for the Fed Funds Rate. With respect to the choices for the Deep VAR hyperparameters it is difficult to establish any clear pattern at all. The magnitude of differences in RMSFE is generally very small, so overall we conclude that to some extent the variation we do observe may be random. 
 
-In light of this evidence, we propose that for the purpose of hyperparameter tuning Deep VARs researchers should focus on the RMSE associated with the 1-step ahead fitted values. For the underlying data, a reasonable set of hyperparameter choices could be: 1 hidden layer, 50 hidden units and a dropout rate of 0.5.
+In light of this evidence, we propose that for the purpose of hyperparameter tuning Deep VAR researchers should focus on the RMSE associated with the 1-step ahead fitted values. For the underlying data, a reasonable set of hyperparameter choices could be: 1 hidden layer, 50 hidden units and a dropout rate of 0.5.
 
 ### Benchmark
 
@@ -715,8 +780,8 @@ knitr::include_graphics("../www/grid_benchmark.png")
 To conclude this empirical section we summarize our main findings:
 
 1. We provide evidence that the conventional, linear VAR fails to capture important non-linear dependencies across time and variables that are typically used to model the monetary transmission mechanism. 
-2. Tapping into the broader class of Deep VARs leads to consistently better modelling outcomes. 
-3. Deep VARs appear to be relatively insensitive to very high lag orders at which conventional VARs are prone to overfitting.
+2. Tapping into the broader class of Deep VAR leads to consistently better model performance. 
+3. Deep VAR appears to be relatively insensitive to very high lag orders at which conventional VAR models are prone to overfitting.
 
 ```{r, eval=TRUE, include=FALSE}
 knitr::opts_chunk$set(

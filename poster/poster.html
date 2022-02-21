@@ -51,14 +51,14 @@ padding: 0cm;
 width: 45in;
 height: calc(38in * 0.15);
 overflow: hidden;
-background-color: #0b4545;
-border: 0 solid #0b4545;
+background-color: #00477a;
+border: 0 solid #0697fd;
 }
 .logo_left {
 float: left;
 width: 10%;
 height: 100%;
-background-color: #0b4545;
+background-color: #00477a;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -67,7 +67,7 @@ justify-content: center;
 float: right;
 width: 10%;
 height: 100%;
-background-color: #0b4545;
+background-color: #00477a;
 display: flex;
 align-items: center;
 justify-content: center;
@@ -88,24 +88,24 @@ font-family: Palatino;
 }
 /* unvisited link */
 a:link {
-color: #cc0000;
+color: #a909e3;
 }
 .mybreak {
   break-before: column;
 }
 /* visited link */
 a:visited {
-color: #cc0000;
+color: #a909e3;
 }
 
 /* mouse over link */
 a:hover {
-color: #cc0000;
+color: #a909e3;
 }
 
 /* selected link */
 a:active {
-color: #cc0000;
+color: #a909e3;
 }
 .poster_body {
 -webkit-column-count: 3; /* Chrome, Safari, Opera */
@@ -120,9 +120,9 @@ column-rule-width: 1mm;
 -webkit-column-rule-style: dashed;
 -moz-column-rule-style: dashed;
 column-rule-style: dashed;
--webkit-column-rule-color: #0b4545;
--moz-column-rule-color: #0b4545;
-column-rule-color: #0b4545;
+-webkit-column-rule-color: #00477a;
+-moz-column-rule-color: #00477a;
+column-rule-color: #00477a;
 column-gap: 1em;
 padding-left: 0.5em;
 padding-right: 0.5em;
@@ -144,7 +144,7 @@ padding-bottom: calc(38in * 0.01);
 background-color: #ffffff;
 }
 .poster_title h3 {
-color: #ffffff;
+color: #0697fd;
 font-size: 50pt;
 margin: 0;
 border: 0;
@@ -172,8 +172,8 @@ margin-bottom: 0;
 text-align: center;
 color: #FFFFFF;
 font-size: 65pt;
-border: 2mm solid #0b4545;
-background-color: #0b4545;
+border: 2mm solid #00477a;
+background-color: #00477a;
 border-radius: 4mm 0mm;
 margin-top: 2mm;
 margin-bottom: 2mm;
@@ -225,8 +225,8 @@ padding-bottom: 3mm;
 code {
 font-size: 1em;
 font-family: monospace;
-background-color: #00808024;
-color: #0b4545;
+background-color: #0697fd24;
+color: #00477a;
 padding: 1.2mm;
 border-radius: 2mm;
 }
@@ -290,7 +290,7 @@ font-size: 20pt;
 </div>
 <!-- Right Logo  -->
 <div class="logo_right">
-<img src=https://raw.githubusercontent.com/pat-alt/deepvars/master/www/hex.png style="width: 80%">
+<img src=https://raw.githubusercontent.com/pat-alt/deepvars/master/www/qr-code.png style="width: 80%">
 </div>
 </div>
 
@@ -299,14 +299,14 @@ font-size: 20pt;
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>Vector Autoregression (VAR) models are a popular choice for forecasting time series data. Due to their simplicity and success at modelling the monetary economic indicators the VAR has become a standard tool for central bankers to construct economic forecasts. Impulse response functions can be readily retrieved from the conventional VAR and used for inference purposes. They are typically employed to investigate various interactions between variables that form part of the monetary transmission mechanism.</p>
-<p>We offer a simple way to integrate deep learning into VARs without deviating too much from the trusted and established benchmark. By staying methodologically as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network.</p>
+<p>We offer a simple way to integrate deep learning into VAR without deviating too much from the trusted and established benchmark. By staying methodologically as close as possible to the original benchmark, we believe our approach is more likely to find acceptance in the economics domain. Our proposed framework for Deep Vector Autoregression (Deep VAR) essentially boils down fitting each equation of the VAR system through a deep neural network.</p>
 </div>
 <div id="contributions" class="section level1">
 <h1>Contributions</h1>
 <ol style="list-style-type: decimal">
 <li>Propose a simple methodological framework that is close to the conventional and trusted benchmark.</li>
-<li>Demonstrate improved modelling and forecasting performance of Deep VAR.</li>
-<li>Open source R package <span class="citation">(Altmeyer, Agusti, and Vidal-Quadras Costa 2021)</span> to faciliate reproducibility and future research.</li>
+<li>Demonstrate improved forecasting performance of Deep VAR compared to conventional and Threshold VAR.</li>
+<li>Open source R package <code>deepvars</code> to facilitate reproducibility and future research.</li>
 </ol>
 </div>
 <div id="methodology" class="section level1">
@@ -338,26 +338,94 @@ font-size: 20pt;
 <div id="results" class="section level1">
 <h1>Results</h1>
 <p>To evaluate our proposed methodology empirically we use a sample of monthly US data on leading economic indicators, which spans the period from January 1959 through March 2021. We use the relatively novel FRED-MD data base which is updated monthly and publicly available. In particular, we look at variables typically analysed in the context of the monetary transmission mechanism including output, inflation, interest rates and unemployment.</p>
-<p>Our empirical findings show a consistent and significant improvement in modelling performance associated with Deep VARs compared to its conventional benchmark: our proposed model produces significantly lower cumulative loss over the entire period and for each of the analysed time series. The improvements in modelling performance are particularly pronounced during periods of economic stress and uncertainty. This appears to confirm or initial hypothesis that by modelling time series through a Deep VAR it is possible to capture complex, non-linear dependencies that seem to characterize periods of structural economic change.</p>
+<p>Our empirical findings show a consistent and significant improvement in modelling performance associated with Deep VAR models compared to existing approaches: our proposed model produces significantly lower cumulative loss over the entire period and for each of the analysed time series (Figure <a href="#fig:cum-loss-full">1</a>). The improvements in modelling performance are particularly pronounced during periods of economic stress and uncertainty. This appears to confirm or initial hypothesis that by modelling time series through a Deep VAR it is possible to capture complex, non-linear dependencies that seem to characterize periods of structural economic change.</p>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:cum-loss-full"></span>
 <img src="cum_loss_full.png" alt="Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR." width="1400" />
 <p class="caption">
 Figure 1: Comparison of cumulative loss over the entire sample period for conventional VAR and proposed Deep VAR.
 </p>
 </div>
+<p>We also test model performance with respect to a test sample: future realizations of the outcome variables arrive and we compute 1-step ahead predictions without retraining (Table <a href="#tab:rmse">1</a>). Finally, we also found the Deep VAR to outperform with respect to <span class="math inline">\(n\)</span>-step ahead forecasts.</p>
+<table>
+<caption><span id="tab:rmse">Table 1: </span>Test root mean squared error (RMSE) for the two models across variables.</caption>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="right">DVAR</th>
+<th align="right">VAR</th>
+<th align="right">Ratio (DVAR / VAR)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">IP</td>
+<td align="right">0.00494</td>
+<td align="right">0.01484</td>
+<td align="right">0.33253</td>
+</tr>
+<tr class="even">
+<td align="left">UR</td>
+<td align="right">0.94542</td>
+<td align="right">1.65170</td>
+<td align="right">0.57240</td>
+</tr>
+<tr class="odd">
+<td align="left">CPI</td>
+<td align="right">0.00231</td>
+<td align="right">0.00342</td>
+<td align="right">0.67642</td>
+</tr>
+<tr class="even">
+<td align="left">FFR</td>
+<td align="right">0.17494</td>
+<td align="right">0.23974</td>
+<td align="right">0.72972</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="next-steps" class="section level1">
-<h1>Next steps</h1>
-<p>We also point out a number of shortcomings of our proposed approach, which we believe can be alleviated through future research. Firstly, policy-makers are typically concerned with uncertainty quantification, inference and overall model explainability. Future research on Deep VARs should therefore address the estimation of confidence intervals, impulse response functions as well as variance decompositions typically analysed in the context of VAR models. We point to a number of possible avenues, most notably Monte Carlo dropout. Secondly, in our initial paper we benchmarked the Deep VAR only against the conventional VAR. In future work we will introduce other non-linear approaches to allow for a fairer comparison.</p>
+<div id="open-questions" class="section level1">
+<h1>Open questions</h1>
+<div id="benchmark-models" class="section level2">
+<h2>Benchmark models</h2>
+<p>In our initial paper we compared the Deep VAR only against the conventional VAR. Other non-linear approaches have been proposed in the past and we need to include these in our analysis.</p>
+<ol style="list-style-type: decimal">
+<li><strong>Threshold VAR</strong>: We have since added Threshold VAR (TVAR) to the analysis (Figure <a href="#fig:cum-loss-full">1</a>).</li>
+<li><strong>Others</strong>: We’d love to hear your suggestions for other benchmarks.</li>
+</ol>
+</div>
+<div id="inference" class="section level2">
+<h2>Inference</h2>
+<p>We fear that inference is a whole lot more difficult for Deep VAR.</p>
+<ol style="list-style-type: decimal">
+<li><strong>Confidence Intervals</strong>: Uncertainty quantification can be done through Bayesian deep learning. Common approaches to estimate predictive uncertainty include variational Bayes, Deep Ensembles or Monte Carlo dropout <span class="citation">(Gal and Ghahramani 2016)</span>. Recent work by <span class="citation">Daxberger et al. (2021)</span> shows that Laplace Approximation is a promising way forward.</li>
+<li><strong>Structural Identification</strong>: <span class="citation">Verstyuk (2020)</span> works with a Cholesky decomposition of the residual covariance matrix in the same way as for conventional VAR.</li>
+<li><strong>IRFs, variance decomposition, …</strong>: Existing approaches solve (some of) this through simulation <span class="citation">(Verstyuk 2020)</span>.</li>
+</ol>
+</div>
+<div id="applications" class="section level2">
+<h2>Applications</h2>
+<p>We believe there are useful applications for Deep VAR.</p>
+<ol style="list-style-type: decimal">
+<li><strong>Detecting non-linearity</strong>: Strong divergence of disagreement between VAR and Deep VAR is indicative of non-linearities that the conventional VAR fails to capture. In that scenario, inference based on a VAR is unreliable.</li>
+<li><strong>Now- and forecasting</strong>: Much like reduced-form VAR models, Deep VAR can be used for forecasting and we provide empirical evidence that it performs well.</li>
+</ol>
+</div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1>References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-altmeyer2021deep" class="csl-entry">
-Altmeyer, Patrick, Marc Agusti, and Ignacio Vidal-Quadras Costa. 2021. <span>“Deep Vector Autoregression for Macroeconomic Data.”</span> <a href="https://thevoice.bse.eu/wp-content/uploads/2021/07/ds21-project-agusti-et-al.pdf">https://thevoice.bse.eu/wp-content/uploads/2021/07/ds21-project-agusti-et-al.pdf</a>.
+<div id="ref-daxberger2021laplace" class="csl-entry">
+Daxberger, Erik, Agustinus Kristiadi, Alexander Immer, Runa Eschenhagen, Matthias Bauer, and Philipp Hennig. 2021. <span>“Laplace Redux-Effortless Bayesian Deep Learning.”</span> <em>Advances in Neural Information Processing Systems</em> 34.
+</div>
+<div id="ref-gal2016dropout" class="csl-entry">
+Gal, Yarin, and Zoubin Ghahramani. 2016. <span>“Dropout as a Bayesian Approximation: Representing Model Uncertainty in Deep Learning.”</span> In <em>International Conference on Machine Learning</em>, 1050–59. PMLR.
 </div>
 <div id="ref-kilian2017structural" class="csl-entry">
 Kilian, Lutz, and Helmut Lütkepohl. 2017. <em>Structural Vector Autoregressive Analysis</em>. Cambridge University Press.
+</div>
+<div id="ref-verstyuk2020modeling" class="csl-entry">
+Verstyuk, Sergiy. 2020. <span>“Modeling Multivariate Time Series in Economics: From Auto-Regressions to Recurrent Neural Networks.”</span> <em>Available at SSRN 3589337</em>.
 </div>
 </div>
 </div>

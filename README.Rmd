@@ -1,5 +1,7 @@
 ---
 output: github_document
+bibliography: bib.bib
+suppress-bibliography: true
 ---
 
 ```{r setup, include=FALSE}
@@ -7,6 +9,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Deep Vector Autoregression for Macroeconomic Data
+
+This repository contains all the code for @altmeyer2021deep. This research project started off as a master's thesis project, but has since been carried forward and accepted for a poster presentation at the [NeurIPS 2021 MLECON Workshop](https://nips.cc/Conferences/2021/ScheduleMultitrack?event=21847). It is worth flagging that we still consider this very much a work-in-progress - both the research and the companion package. We therefore very much welcome any feedback, suggestions and comments. 
+
+For comments regarding the research and methodology, please [open an issue](https://github.com/pat-alt/deepvarsMacro/issues) in this repository. For any concerns regarding the companion package please open an issue [here](https://github.com/pat-alt/deepvars/issues).
 
 ### Paper Abstract
 
@@ -16,14 +22,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 A few useful pointers:
 
-1. [Paper](paper/paper.pdf)
-2. [Slides](presentation/presentation.pdf)
-3. [Poster](poster/poster.html)
-4. [R Package](https://github.com/pat-alt/deepvars)
+- At a glance: NeurIPS 2021 [poster](poster/neurips.pdf) and [video presentation](https://www.youtube.com/watch?v=YRfwsZWf8mI&t=45s).
+- More detailed [poster](poster/poster.pdf).
+- Even more detailed [slides](presentation/presentation.pdf).
+- Full detail: [paper](paper/paper.pdf).
+- Code: [R Package](https://github.com/pat-alt/deepvars).
 
 ## Citation
 
-Please cite the related working paper as follows:
+Please cite our paper as follows:
 
 ```
 @article{altmeyer2021deep,
@@ -32,15 +39,20 @@ Please cite the related working paper as follows:
 	date-modified = {2021-11-30 16:33:49 +0100},
 	title = {Deep Vector Autoregression for Macroeconomic Data},
 	url = {https://thevoice.bse.eu/wp-content/uploads/2021/07/ds21-project-agusti-et-al.pdf},
-	year = {2021}}
+	year = {2021}
+}
 ```
 
-Please cite this package as follows:
+Please cite the companion package as follows:
 
 ```
-@Manual{altmeyer2021deepvars,
-  title = {deepvars: Deep Vector Autoregression},
-  author = {Patrick Altmeyer},
-  note = {R package version 0.1.0}}
+@software{Altmeyer_deepvars_Deep_Vector_2021,
+  author = {Altmeyer, Patrick},
+  month = {12},
+  title = {{deepvars: Deep Vector Autoregression}},
+  url = {https://github.com/pat-alt/deepvars},
+  version = {0.1.0},
+  year = {2021}
+}
 ```
 
